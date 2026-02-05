@@ -1,0 +1,101 @@
+import '../models/book_model.dart';
+
+final List<Book> books = [
+  Book(
+    title: "The Soul Path",
+    author: "A. Verma",
+    coverImage: "assets/books/book1.png",
+    summary: "A journey into self-awareness and inner peace.",
+    rating: 4.5,
+  ),
+  Book(
+    title: "Mind Power",
+    author: "R. Sharma",
+    coverImage: "assets/books/book2.png",
+    summary: "Unlock the hidden power of your thoughts.",
+    rating: 4.2,
+  ),
+  Book(
+    title: "The Silent Truth",
+    author: "K. Mehta",
+    coverImage: "assets/books/book3.png",
+    summary: "Truth often speaks in silence.",
+    rating: 4.0,
+  ),
+  Book(
+    title: "Life Beyond Fear",
+    author: "S. Kapoor",
+    coverImage: "assets/books/book4.png",
+    summary: "Break fear barriers and live fully.",
+    rating: 4.6,
+    isPaid: true,
+  ),
+  Book(
+    title: "Daily Wisdom",
+    author: "Unknown",
+    coverImage: "assets/books/book5.png",
+    summary: "Short lessons for everyday life.",
+  ),
+  Book(
+    title: "Awakened Mind",
+    author: "P. Iyer",
+    coverImage: "assets/books/book6.png",
+    summary: "Awakening consciousness in modern times.",
+    isPaid: true,
+  ),
+  Book(
+    title: "The Inner Light",
+    author: "N. Joshi",
+    coverImage: "assets/books/book7.png",
+    summary: "Discover the light within.",
+  ),
+  Book(
+    title: "Power of Focus",
+    author: "A. Singh",
+    coverImage: "assets/books/book8.png",
+    summary: "Master focus in a distracted world.",
+  ),
+  Book(
+    title: "Emotional Balance",
+    author: "R. Patel",
+    coverImage: "assets/books/book9.png",
+    summary: "Handling emotions with clarity.",
+  ),
+  Book(
+    title: "Think Deep",
+    author: "M. Roy",
+    coverImage: "assets/books/book10.png",
+    summary: "Deep thinking for meaningful life.",
+  ),
+  Book(
+    title: "Calm Within",
+    author: "S. Nair",
+    coverImage: "assets/books/book11.png",
+    summary: "Peace is always inside you.",
+  ),
+  Book(
+    title: "The Reading Habit",
+    author: "J. Allen",
+    coverImage: "assets/books/book12.png",
+    summary: "Why reading changes your life.",
+  ),
+  Book(
+    title: "Self Discipline",
+    author: "D. Kumar",
+    coverImage: "assets/books/book13.png",
+    summary: "Discipline builds freedom.",
+    isPaid: true,
+  ),
+  Book(
+    title: "Purpose Driven Life",
+    author: "Unknown",
+    coverImage: "assets/books/book14.png",
+    summary: "Finding purpose in daily actions.",
+  ),
+  Book(
+    title: "Spiritual Science",
+    author: "V. Mishra",
+    coverImage: "assets/books/book15.png",
+    summary: "Where science meets spirituality.",
+  ),
+];
