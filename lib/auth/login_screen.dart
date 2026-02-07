@@ -1,42 +1,46 @@
 import 'package:flutter/material.dart';
-import '../shell/app_shell.dart';
+import '../home/home_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final idController = TextEditingController();
+    final passwordController = TextEditingController();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text("Login")),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const TextField(
-              decoration: InputDecoration(labelText: 'User ID / Mobile'),
+            TextField(
+              controller: idController,
+              decoration: const InputDecoration(labelText: "User ID / Mobile"),
             ),
             const SizedBox(height: 16),
-            const TextField(
+            TextField(
+              controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: "Password"),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: ElevatedButton(
-                onPressed: () {
-                  // ✅ LOGIN SUCCESS → APP SHELL
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AppShell()),
-                    (_) => false,
-                  );
-                },
-                child: const Text('Login'),
-              ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                );
+              },
+              child: const Text("Login"),
             ),
+
+            TextButton(
+              onPressed: () {},
+              child: const Text("Forgot Password?"),
+            )
           ],
         ),
       ),

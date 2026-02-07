@@ -39,12 +39,20 @@ class HomeScreen extends StatelessWidget {
             const Spacer(),
             const Text(
               'Hi, Jay',
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+              ),
             ),
             const SizedBox(width: 10),
-            const CircleAvatar(
-              radius: 18,
-              backgroundImage: AssetImage('assets/profile/male.png'),
+            GestureDetector(
+              onTap: () {
+                // 🔜 STEP 3: Drawer / Profile
+              },
+              child: const CircleAvatar(
+                radius: 18,
+                backgroundImage: AssetImage('assets/profile/male.png'),
+              ),
             ),
           ],
         ),
@@ -52,6 +60,7 @@ class HomeScreen extends StatelessWidget {
 
       // 🧠 BODY
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,29 +70,30 @@ class HomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Search books, categories...',
+                  hintText: 'Search books, authors, categories',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
                   fillColor: Colors.white10,
-                  prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                  prefixIcon:
+                      const Icon(Icons.search, color: Colors.white54),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none,
                   ),
                 ),
-                style: const TextStyle(color: Colors.white),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // 🖼️ BANNER SLIDER
+            // 📢 BANNER SLIDER (ADS / PROMO)
             BannerSlider(banners: banners),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
 
-            // 📚 BOOK GRID TITLE
+            // 📚 FEATURED / POPULAR BOOKS TITLE
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -98,15 +108,16 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // 📚 BOOK GRID
+            // 📚 FEATURED BOOK GRID (HERO SECTION)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: books.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4, // web friendly
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4, // tablet / web friendly
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   childAspectRatio: 0.65,
