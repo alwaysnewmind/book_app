@@ -11,7 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # UI & Icons
   cupertino_icons: ^1.0.6
+
+  # State Management (Theme toggle, future scalability)
+  provider: ^6.0.5
+
+  # Image handling
   cached_network_image: ^3.3.1
 
 dev_dependencies:
@@ -27,4 +33,3 @@ flutter:
     - assets/books/images/
     - assets/banners/
     - assets/profile/
-

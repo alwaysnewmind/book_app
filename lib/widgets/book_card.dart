@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screen/book_detail_screen.dart';
+import '../book/book_detail_screen.dart';
 
 class BookCard extends StatelessWidget {
   final String imageUrl;
@@ -24,9 +24,9 @@ class BookCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => BookDetailScreen(
-              image: imageUrl,
+              imagePath: imageUrl,
               title: title,
-              author: author,
+              
             ),
           ),
         );
