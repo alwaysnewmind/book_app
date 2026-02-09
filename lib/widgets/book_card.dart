@@ -1,69 +1,59 @@
 import 'package:flutter/material.dart';
-import '../book/book_detail_screen.dart';
 
 class BookCard extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final String author;
+  final String imagePath;
+  final VoidCallback? onTap;
+  final bool isLocked;
 
   const BookCard({
     super.key,
-    required this.imageUrl,
-    required this.title,
-    required this.author,
+    required this.imagePath,
+    this.onTap,
+    this.isLocked = false,
   });
 
-  bool get _isAsset => imageUrl.startsWith('assets/');
+  bool get _isAsset => imagePath.startsWith('assets/');
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => BookDetailScreen(
-              imagePath: imageUrl,
-              title: title,
-              
-            ),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AspectRatio(
             aspectRatio: 2 / 3,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: _isAsset
-                  ? Image.asset(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: _isAsset
+                      ? Image.asset(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        )
+                      : Image.network(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                ),
+
+                // 🔒 Lock overlay (future use, abhi optional)
+                if (isLocked)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black45,
+                      borderRadius: BorderRadius.circular(16),
                     ),
+                    child: const Center(
+                      child: Icon(Icons.lock, color: Colors.white, size: 28),
+                    ),
+                  ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            author,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white54),
           ),
         ],
       ),

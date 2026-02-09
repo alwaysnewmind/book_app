@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../book/book_detail_screen.dart';
-import 'widgets/book_card.dart';
 import 'widgets/app_drawer.dart';
 import 'widgets/banner_slider.dart';
-import 'widgets/service_tile.dart';
+import '../widgets/book_card.dart'; // ✅ ONLY THIS
 
 
 class HomeScreen extends StatelessWidget {
