@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class BottomNav extends StatelessWidget {
-  const BottomNav({super.key});
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const BottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: const Color(0xFF0E1A1A),
-      selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.white54,
+      currentIndex: currentIndex,
+      onTap: onTap,
       type: BottomNavigationBarType.fixed,
+      backgroundColor: AppColors.surface,
+      selectedItemColor: AppColors.primary,
+      unselectedItemColor: AppColors.textSecondary,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -20,8 +30,8 @@ class BottomNav extends StatelessWidget {
           label: 'Writer',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.category),
-          label: 'Categories',
+          icon: Icon(Icons.library_books),
+          label: 'Library',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../home/home_screen.dart';
+import '../writer/writer_screen.dart';
+import '../library/library_screen.dart';
+import '../profile/profile_screen.dart';
+import '../theme/app_colors.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -9,31 +14,50 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int index = 0;
+  int _currentIndex = 0;
 
-  final pages = const [
+  final List<Widget> _pages = const [
     HomeScreen(),
-    Center(child: Text('Writer', style: TextStyle(color: Colors.white))),
-    Center(child: Text('Categories', style: TextStyle(color: Colors.white))),
-    Center(child: Text('Profile', style: TextStyle(color: Colors.white))),
+    WriterScreen(),
+    LibraryScreen(),
+    ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[index],
+      body: _pages[_currentIndex],
+
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: index,
-        onTap: (i) => setState(() => index = i),
-        backgroundColor: const Color(0xFF0E1A1A),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white54,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+
         type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        showUnselectedLabels: true,
+
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Writer'),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Categories'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit),
+            label: 'Writer',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.library_books),
+            label: 'Library',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );

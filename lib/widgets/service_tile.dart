@@ -1,82 +1,51 @@
 import 'package:flutter/material.dart';
-import '../models/service_item.dart';
+import '../theme/app_colors.dart';
 
-class ServiceTile extends StatefulWidget {
-  final ServiceItem service;
+class ServiceTile extends StatelessWidget {
+  final String title;
+  final String image;
   final VoidCallback? onTap;
 
   const ServiceTile({
     super.key,
-    required this.service,
+    required this.title,
+    required this.image,
     this.onTap,
   });
 
   @override
-  State<ServiceTile> createState() => _ServiceTileState();
-}
-
-class _ServiceTileState extends State<ServiceTile> {
-  bool _hover = false;
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: widget.onTap ??
-            () {
-              Navigator.pushNamed(context, widget.service.route);
-            },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          transform: _hover
-              ? (Matrix4.identity()..scale(1.05))
-              : Matrix4.identity(),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: theme.cardColor,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: _hover
-                  ? theme.colorScheme.primary
-                  : Colors.white12,
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            height: 56,
+            width: 56,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: AppColors.border,
+                width: 1.4,
+              ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(_hover ? 0.4 : 0.25),
-                blurRadius: _hover ? 16 : 10,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            padding: const EdgeInsets.all(10),
+            child: Image.asset(
+              image,
+              fit: BoxFit.contain,
+            ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // ICON (PNG / SVG compatible later)
-              Image.asset(
-                widget.service.icon,
-                height: 28,
-                width: 28,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 10),
-
-              // TITLE
-              Text(
-                widget.service.title,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.75),
-                  fontSize: 12,
-                ),
-              ),
-            ],
+          const SizedBox(height: 8),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

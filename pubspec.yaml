@@ -14,7 +14,7 @@ dependencies:
   # UI & Icons
   cupertino_icons: ^1.0.6
 
-  # State Management (Theme toggle, future scalability)
+  # State Management
   provider: ^6.0.5
 
   # Image handling
@@ -33,3 +33,4 @@ flutter:
     - assets/books/images/
     - assets/banners/
     - assets/profile/
+    - assets/services/
