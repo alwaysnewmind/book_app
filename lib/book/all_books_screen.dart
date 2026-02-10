@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../home/widgets/book_card.dart';
+import '../../widgets/book_card.dart';
 
 class AllBooksScreen extends StatelessWidget {
   final List<String> books;

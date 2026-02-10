@@ -18,16 +18,19 @@ class BookCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
+        constraints: const BoxConstraints(
+          maxWidth: 160, // 🔥 web pe over-stretch avoid
+        ),
         decoration: BoxDecoration(
           color: AppColors.card,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: AppColors.border,
-            width: 1.2,
+            width: 1.1,
           ),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // 🔥 height control
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// 📕 Book Cover
@@ -42,16 +45,16 @@ class BookCard extends StatelessWidget {
                     child: Image.asset(
                       book.coverImage,
                       fit: BoxFit.cover,
+                      width: double.infinity,
+                      gaplessPlayback: true, // 🔥 smoother on web
                       errorBuilder: (context, error, stackTrace) {
-                        // ✅ fallback when image missing
                         return Container(
                           color: AppColors.surface,
-                          child: const Center(
-                            child: Icon(
-                              Icons.menu_book,
-                              size: 42,
-                              color: Colors.white54,
-                            ),
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.menu_book,
+                            size: 40,
+                            color: Colors.white54,
                           ),
                         );
                       },
@@ -79,6 +82,7 @@ class BookCard extends StatelessWidget {
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ),

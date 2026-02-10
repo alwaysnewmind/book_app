@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../models/book_model.dart';
-import '../../home/widgets/book_card.dart';
+import '../../widgets/book_card.dart';
+
 
 class LibraryBooksGrid extends StatelessWidget {
   const LibraryBooksGrid({super.key});
+  
+  get featuredBooks => null;
 
   @override
   Widget build(BuildContext context) {

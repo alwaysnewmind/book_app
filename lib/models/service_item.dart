@@ -1,11 +1,12 @@
+import 'package:flutter/material.dart';
+
 class ServiceItem {
   final String title;
-  final String icon;
-  final String route;
+  final IconData icon;
 
-  ServiceItem({
+  const ServiceItem({
     required this.title,
     required this.icon,
-    required this.route,
   });
 }
+ 
