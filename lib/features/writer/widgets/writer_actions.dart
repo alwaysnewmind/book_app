@@ -1,28 +1,35 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:book_app/core/theme/app_colors.dart';
 
-class ProfileMenu extends StatelessWidget {
-  const ProfileMenu({super.key});
+class WriterActions extends StatelessWidget {
+  const WriterActions({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
-        _MenuItem(icon: Icons.library_books, title: 'My Library'),
-        _MenuItem(icon: Icons.edit, title: 'Writer Dashboard'),
-        _MenuItem(icon: Icons.settings, title: 'Settings'),
-        _MenuItem(icon: Icons.help_outline, title: 'Help & Support'),
-        _MenuItem(icon: Icons.logout, title: 'Logout'),
+      children: [
+        _ActionButton(
+          icon: Icons.edit_note,
+          title: 'Publish New Book',
+        ),
+        _ActionButton(
+          icon: Icons.dashboard_outlined,
+          title: 'Writer Dashboard',
+        ),
+        _ActionButton(
+          icon: Icons.account_balance_wallet_outlined,
+          title: 'Earnings & Payouts',
+        ),
       ],
     );
   }
 }
 
-class _MenuItem extends StatelessWidget {
+class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  const _MenuItem({
+  const _ActionButton({
     required this.icon,
     required this.title,
   });

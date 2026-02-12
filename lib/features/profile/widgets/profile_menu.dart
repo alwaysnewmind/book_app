@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:book_app/core/theme/app_colors.dart';
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({super.key});

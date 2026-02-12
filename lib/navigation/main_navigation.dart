@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/features/home/home_screen.dart';
+import 'package:book_app/features/library/library_screen.dart';
+import 'package:book_app/features/writer/writer_screen.dart';
+import 'package:book_app/features/profile/profile_screen.dart';
 
-import '../home/home_screen.dart';
-import '../writer/writer_screen.dart';
-import '../library/library_screen.dart';
-import '../profile/profile_screen.dart';
-import '../theme/app_colors.dart';
+import '../core/theme/app_colors.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});

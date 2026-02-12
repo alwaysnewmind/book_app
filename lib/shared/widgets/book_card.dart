@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/models/book_model.dart';
 import 'package:book_app/features/book/book_detail_screen.dart';
 
+
 class BookCard extends StatelessWidget {
+  
   final String imagePath;
   final String title;
   final String author;
   final bool isLocked;
+
+
 
   const BookCard({
     super.key,
     required this.imagePath,
     required this.title,
     required this.author,
-    this.isLocked = false, required Null Function() onTap,
+
+    this.isLocked = false, required Book book, required Null Function() onTap,
   });
 
   @override

@@ -5,6 +5,7 @@ class Book {
   final String summary;
   final double rating;
   final bool isPaid;
+  final bool isPremium;
 
   Book({
     required this.title,
@@ -13,5 +14,6 @@ class Book {
     required this.summary,
     this.rating = 0.0,
     this.isPaid = false,
+    this.isPremium = false,
   });
 }

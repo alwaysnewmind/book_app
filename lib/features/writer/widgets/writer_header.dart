@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:book_app/core/theme/app_colors.dart';
 
-class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key});
+class WriterHeader extends StatelessWidget {
+  const WriterHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +16,8 @@ class ProfileHeader extends StatelessWidget {
       child: Row(
         children: [
           const CircleAvatar(
-            radius: 36,
-            backgroundImage: AssetImage('assets/profile/user.png'),
+            radius: 34,
+            backgroundImage: AssetImage('assets/profile/writer.png'),
           ),
           const SizedBox(width: 16),
           Column(
@@ -33,14 +33,14 @@ class ProfileHeader extends StatelessWidget {
               ),
               SizedBox(height: 4),
               Text(
-                'Reader & Writer',
+                'Fiction • Motivation',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,
                 ),
               ),
             ],
-          ),
+          )
         ],
       ),
     );

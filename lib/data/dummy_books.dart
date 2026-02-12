@@ -1,6 +1,6 @@
 import '../models/book_model.dart';
 
-final List<Book> books = [
+final List<Book> dummyBooks = [
   Book(
     title: "The Soul Path",
     author: "A. Verma",
