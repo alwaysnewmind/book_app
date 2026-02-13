@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class PremiumPage extends StatelessWidget {
-  const PremiumPage({super.key});
+class FavoritePage extends StatelessWidget {
+  const FavoritePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Premium")),
+      appBar: AppBar(title: const Text("Favorites")),
       body: const Center(
         child: Text(
-          "Premium Membership Plans Coming Soon 🚀",
+          "Your Favorite Books ❤️",
           style: TextStyle(fontSize: 18),
         ),
       ),

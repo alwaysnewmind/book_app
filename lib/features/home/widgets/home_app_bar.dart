@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const HomeAppBar({super.key});
+  final List<Widget>? actions;
+
+  const HomeAppBar({
+    super.key,
+    this.actions,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,14 +18,18 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           Text("Reader App"),
         ],
       ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: CircleAvatar(
-            child: Icon(Icons.person),
-          ),
-        )
-      ],
+
+      // 🔥 if actions passed → use them
+      // else → show default profile icon
+      actions: actions ??
+          [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: CircleAvatar(
+                child: Icon(Icons.person),
+              ),
+            ),
+          ],
     );
   }
 

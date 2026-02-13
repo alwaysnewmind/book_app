@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
+import 'package:book_app/core/theme/app_colors.dart';
 
 class LibraryTabs extends StatelessWidget {
   const LibraryTabs({super.key});

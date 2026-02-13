@@ -2,113 +2,147 @@ import 'package:flutter/material.dart';
 import 'package:book_app/models/book_model.dart';
 import 'package:book_app/features/book/book_detail_screen.dart';
 
-
-class BookCard extends StatelessWidget {
-  
-  final String imagePath;
-  final String title;
-  final String author;
-  final bool isLocked;
-
-
+class BookCard extends StatefulWidget {
+  final Book book;
+  final VoidCallback? onTap;
 
   const BookCard({
     super.key,
-    required this.imagePath,
-    required this.title,
-    required this.author,
-
-    this.isLocked = false, required Book book, required Null Function() onTap,
+    required this.book,
+    this.onTap,
   });
 
   @override
+  State<BookCard> createState() => _BookCardState();
+}
+
+class _BookCardState extends State<BookCard> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    final book = widget.book;
+
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => BookDetailScreen(
-              imagePath: imagePath,
-              title: title,
-              isLocked: isLocked,
-            ),
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap ??
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BookDetailScreen(
+                  imagePath: book.coverImage,
+                  title: book.title,
+                  isLocked: book.isPremium,
+                ),
+              ),
+            );
+          },
+      child: AnimatedScale(
+        scale: _isPressed ? 0.96 : 1,
+        duration: const Duration(milliseconds: 150),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.35),
+                blurRadius: 14,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        );
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.35),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 📘 Book Image
-            Expanded(
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Stack(
+              children: [
+
+                /// 📘 Cover Image
+                Positioned.fill(
+                  child: Hero(
+                    tag: book.coverImage,
                     child: Image.asset(
-                      imagePath,
+                      book.coverImage,
                       fit: BoxFit.cover,
-                      width: double.infinity,
+                    ),
+                  ),
+                ),
+
+                /// 🌑 Bottom Gradient Overlay
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 70,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.black87,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ),
+
+                /// 🔒 Premium Badge
+                if (book.isPremium)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.lock,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
 
-                  // 🔒 Lock Overlay
-                  if (isLocked)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.lock,
+                /// 📖 Title & Author (Bottom)
+                Positioned(
+                  bottom: 8,
+                  left: 8,
+                  right: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        book.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                           color: Colors.white,
-                          size: 30,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
                       ),
-                    ),
-                ],
-              ),
+                      const SizedBox(height: 2),
+                      Text(
+                        book.author,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-
-            const SizedBox(height: 8),
-
-            // 📖 Title
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-
-            // ✍ Author
-            Text(
-              author,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 12,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

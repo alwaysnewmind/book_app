@@ -16,4 +16,6 @@ class Book {
     this.isPaid = false,
     this.isPremium = false,
   });
+
+  String? get description => null;
 }

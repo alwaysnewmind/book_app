@@ -17,7 +17,7 @@ class FeatureItem extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.gold),
+            border: Border.all(color: AppColors.primary),
           ),
           child: Icon(icon, color: AppColors.gold),
         ),

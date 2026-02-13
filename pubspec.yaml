@@ -24,6 +24,12 @@ dependencies:
   firebase_core: ^2.32.0
   firebase_auth: ^4.20.0
   cloud_firestore: ^4.17.0
+  
+  # Font
+  google_fonts: ^5.0.0
+
+  #shimmer
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

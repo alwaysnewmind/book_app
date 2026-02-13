@@ -48,9 +48,11 @@ class AIRecommendationScreen extends StatelessWidget {
                   final book = recommended[index];
 
                   return BookCard(
-                    imagePath: book.imagePath,
-                    title: book.title,
-                    author: book.author,
+                    book: book,
+                    onTap: () {
+                      
+                    },
+            
                   );
                 },
               ),

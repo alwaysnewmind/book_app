@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class PremiumPage extends StatelessWidget {
-  const PremiumPage({super.key});
+class EarnPage extends StatelessWidget {
+  const EarnPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Premium")),
+      appBar: AppBar(title: const Text("Earn Money")),
       body: const Center(
         child: Text(
-          "Premium Membership Plans Coming Soon 🚀",
+          "Track Your Writing Earnings 💰",
           style: TextStyle(fontSize: 18),
         ),
       ),

@@ -1,35 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:book_app/data/dummy_books.dart';
-import 'package:book_app/shared/widgets/book_card.dart';
+import '../../../data/dummy_books.dart';
 
 class FeaturedBooks extends StatelessWidget {
   const FeaturedBooks({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final featuredBooks = dummyBooks.take(8).toList();
+    final books = dummyBooks;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: featuredBooks.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 0.6,
-        ),
+    return SizedBox(
+      height: 230,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.only(left: 16),
+        physics: const BouncingScrollPhysics(),
+        itemCount: books.length,
         itemBuilder: (context, index) {
-          final book = featuredBooks[index];
+          final book = books[index];
 
-          return BookCard(
-            imagePath: book.coverImage,
-            title: book.title,
-            author: book.author,
-            isLocked: book.isPremium,
-            onTap: () {},
+          return Container(
+            width: 140,
+            margin: const EdgeInsets.only(right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                /// 📕 Book Cover
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    book.coverImage,
+                    height: 170,
+                    width: 140,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                /// 📖 Book Title
+                Text(
+                  book.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                /// ✍ Author
+                Text(
+                  book.author,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

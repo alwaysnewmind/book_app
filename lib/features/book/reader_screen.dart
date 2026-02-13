@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:book_app/subscription/reader_subscription_screen.dart';
+import 'package:book_app/features/subscription/reader_subscription_screen.dart';
 
 class ReaderScreen extends StatelessWidget {
   final bool isLocked;
@@ -10,7 +10,7 @@ class ReaderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLocked) {
       // 🚫 Locked → redirect to subscription
-      return const SubscriptionScreen();
+      return const ReaderSubscriptionScreen();
     }
 
     return Scaffold(

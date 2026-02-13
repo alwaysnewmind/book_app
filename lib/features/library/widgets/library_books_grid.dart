@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../data/dummy_books.dart';
-import '../../widgets/book_card.dart';
+import 'package:book_app/data/dummy_books.dart';
+import 'package:book_app/shared/widgets/book_card.dart';
 
 class LibraryBooksGrid extends StatelessWidget {
   const LibraryBooksGrid({super.key});
@@ -22,10 +22,7 @@ class LibraryBooksGrid extends StatelessWidget {
         final book = books[index];
 
         return BookCard(
-          imagePath: book.coverImage,
-          title: book.title,
-          author: book.author,
-          isLocked: false,
+          book: book,
           onTap: () {},
         );
       },
