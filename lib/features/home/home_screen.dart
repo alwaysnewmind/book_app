@@ -153,7 +153,87 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// 🔥 Premium Glassmorphism Grid
+///////////////////////////////////////////////////////////////////////////////
+/// ♻️ REUSABLE SERVICE TILE (NEW)
+///////////////////////////////////////////////////////////////////////////////
+class HomeServiceTile extends StatelessWidget {
+  final HomeService service;
+  final VoidCallback onTap;
+
+  const HomeServiceTile({
+    super.key,
+    required this.service,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.25),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.4),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 🔵 CIRCULAR ICON
+                  Container(
+                    height: 52,
+                    width: 52,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.deepPurple.withOpacity(0.12),
+                    ),
+                    child: Icon(
+                      service.icon,
+                      size: 26,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    service.title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// 🔥 UPDATED GRID USING REUSABLE TILE
+///////////////////////////////////////////////////////////////////////////////
 class _ServicesGrid extends StatelessWidget {
   final List<HomeService> services;
   const _ServicesGrid({required this.services});
@@ -174,56 +254,11 @@ class _ServicesGrid extends StatelessWidget {
         ),
         itemBuilder: (context, index) {
           final service = services[index];
-
-          return GestureDetector(
-            onTap: () => Navigator.pushNamed(context, service.route),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                  )
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.25),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.4),
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          service.icon,
-                          size: 28,
-                          color: Colors.deepPurple,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          service.title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          return HomeServiceTile(
+            service: service,
+            onTap: () {
+              Navigator.pushNamed(context, service.route);
+            },
           );
         },
       ),
@@ -231,7 +266,9 @@ class _ServicesGrid extends StatelessWidget {
   }
 }
 
-/// 🔥 Hero Animated Recommended Books
+///////////////////////////////////////////////////////////////////////////////
+/// 🔥 Hero Animated Recommended Books (UNCHANGED)
+///////////////////////////////////////////////////////////////////////////////
 class RecommendedBooksSection extends StatelessWidget {
   final List<String> bookImages;
   const RecommendedBooksSection({super.key, required this.bookImages});
@@ -255,8 +292,7 @@ class RecommendedBooksSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
-                    transitionDuration:
-                        const Duration(milliseconds: 400),
+                    transitionDuration: const Duration(milliseconds: 400),
                     pageBuilder: (_, __, ___) => Scaffold(
                       backgroundColor: Colors.black,
                       body: Center(
