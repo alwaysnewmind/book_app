@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:book_app/features/home/home_screen.dart';
-import 'package:book_app/features/writer/writer_dashboard.dart';
+import 'package:book_app/features/writer/Screens/writer_dashboard.dart';
 import 'package:book_app/features/profile/profile_screen.dart';
-import 'package:book_app/features/profile/my_library_screen.dart';
+import 'package:book_app/features/library/screens/my_library_screen.dart';
 import '../navigation/bottom_nav.dart';
 
 class AppShell extends StatefulWidget {

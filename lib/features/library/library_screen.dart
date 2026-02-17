@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'widgets/library_books_grid.dart';
 
+// ROUTES
+import 'package:book_app/core/routes/app_routes.dart';
+
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
 
@@ -74,12 +77,19 @@ class LibraryScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10),
+
+                          /// ▶ CONTINUE READING
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
                               foregroundColor: Colors.black,
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.bookDetail,
+                              );
+                            },
                             child: const Text("Continue Reading"),
                           )
                         ],
@@ -105,7 +115,17 @@ class LibraryScreen extends StatelessWidget {
                 itemCount: 5,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
-                  return _continueCard("assets/books/Book${index + 1}.png");
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.bookDetail,
+                      );
+                    },
+                    child: _continueCard(
+                      "assets/books/Book${index + 1}.png",
+                    ),
+                  );
                 },
               ),
             ),
@@ -205,10 +225,18 @@ class _CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 10),
-      child: Chip(
-        label: Text(label),
-        backgroundColor: Colors.white10,
-        labelStyle: const TextStyle(color: Colors.white),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$label filter coming soon')),
+          );
+        },
+        child: Chip(
+          label: Text(label),
+          backgroundColor: Colors.white10,
+          labelStyle: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }

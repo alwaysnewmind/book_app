@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:book_app/features/home/home_screen.dart';
 import 'package:book_app/features/library/library_screen.dart';
-import 'package:book_app/features/writer/writer_screen.dart';
+import 'package:book_app/features/writer/screens/writer_screen.dart';
 import 'package:book_app/features/profile/profile_screen.dart';
 import '../core/theme/app_colors.dart';
 

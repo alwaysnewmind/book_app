@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'payment_service.dart';
+import 'package:book_app/services/payment_service.dart';
 
 class PurchaseScreen extends StatelessWidget {
   const PurchaseScreen({super.key});

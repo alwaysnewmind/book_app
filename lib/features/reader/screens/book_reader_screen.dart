@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+// Library
 import 'package:book_app/features/library/models/library_book.dart';
+
+// Reader provider
 import 'package:book_app/providers/reader_provider.dart';
+
+// Reader Screen
+
+// Subscription Screen
+import 'package:book_app/features/subscription/reader_subscription_screen.dart';
 
 class BookReaderScreen extends StatefulWidget {
   final LibraryBook book;
+  final bool isLocked;
 
   const BookReaderScreen({
     super.key,
     required this.book,
+    this.isLocked = false,
   });
 
   @override
@@ -16,7 +27,6 @@ class BookReaderScreen extends StatefulWidget {
 }
 
 class _BookReaderScreenState extends State<BookReaderScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -25,7 +35,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
         Provider.of<ReaderProvider>(context, listen: false);
 
     readerProvider.loadBook(
-      bookId: widget.book.title,
+      bookId: widget.book.id,
       totalChapters: widget.book.chapters.length,
       lastReadChapter: widget.book.lastReadChapter,
     );
@@ -35,11 +45,9 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   Widget build(BuildContext context) {
     return Consumer<ReaderProvider>(
       builder: (context, readerProvider, child) {
-
         /// ===============================
         /// THEME
         /// ===============================
-
         Color bgColor;
         Color textColor;
 
@@ -73,7 +81,6 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     style: TextStyle(color: textColor),
                   ),
                   actions: [
-
                     /// Bookmark
                     IconButton(
                       icon: Icon(
@@ -85,6 +92,15 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                       ),
                       onPressed: () {
                         readerProvider.toggleBookmark();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(readerProvider.isBookmarked(
+                                    readerProvider.currentChapter)
+                                ? 'Bookmarked'
+                                : 'Removed Bookmark'),
+                            duration: const Duration(milliseconds: 800),
+                          ),
+                        );
                       },
                     ),
 
@@ -140,7 +156,6 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
             onTap: readerProvider.toggleControls,
             child: Column(
               children: [
-
                 /// Progress Bar
                 if (readerProvider.showControls)
                   LinearProgressIndicator(
@@ -150,6 +165,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     minHeight: 3,
                   ),
 
+                /// Chapter PageView
                 Expanded(
                   child: PageView.builder(
                     controller: readerProvider.pageController,
@@ -193,14 +209,11 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     vertical: 12,
                   ),
                   child: Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-
                       /// Previous
                       IconButton(
-                        icon: Icon(Icons.arrow_back_ios,
-                            color: textColor),
+                        icon: Icon(Icons.arrow_back_ios, color: textColor),
                         onPressed: readerProvider.previousChapter,
                       ),
 
@@ -220,12 +233,30 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
 
                       /// Next
                       IconButton(
-                        icon: Icon(Icons.arrow_forward_ios,
-                            color: textColor),
+                        icon: Icon(Icons.arrow_forward_ios, color: textColor),
                         onPressed: readerProvider.nextChapter,
                       ),
                     ],
                   ),
+                )
+              : null,
+
+          /// ===============================
+          /// LOCKED BOOK CHECK
+          /// ===============================
+          floatingActionButton: widget.isLocked
+              ? FloatingActionButton.extended(
+                  backgroundColor: Colors.deepPurple,
+                  label: const Text("Subscribe to Read"),
+                  icon: const Icon(Icons.lock_open),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ReaderSubscriptionScreen(),
+                      ),
+                    );
+                  },
                 )
               : null,
         );

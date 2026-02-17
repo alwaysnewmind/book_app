@@ -1,13 +1,27 @@
 import 'dart:ui';
+import 'package:book_app/core/monetization/access_rules.dart';
 import 'package:flutter/material.dart';
 
-// widgets
+// widgets & screens
 import 'package:book_app/features/writer/widgets/writer_header.dart';
 import 'package:book_app/data/dummy_books.dart';
-import 'package:book_app/features/writer/screens/create_book_entry_page.dart';
+import 'package:book_app/features/writer/create_book_entry_page.dart';
+import 'package:book_app/features/writer/screens/manage_books_page.dart';
+import 'package:book_app/features/writer/screens/writer_earnings_screen.dart';
+import 'package:book_app/features/writer/screens/writer_subscription_screen.dart';
+import 'package:book_app/features/book/book_detail_screen.dart';
+import 'package:book_app/core/monetization/premium_guard.dart';
+import 'package:book_app/models/user_model.dart';
 
 class WriterDashboard extends StatelessWidget {
-  const WriterDashboard({super.key});
+  final AppUser? currentUser;
+  final bool isGuest;
+
+  const WriterDashboard({
+    super.key,
+    required this.currentUser,
+    required this.isGuest,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -99,19 +113,55 @@ class WriterDashboard extends StatelessWidget {
                         },
                       ),
 
-                      const _ActionButton(
+                      _ActionButton(
                         icon: Icons.menu_book,
                         label: "Manage",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ManageBooksPage(),
+                            ),
+                          );
+                        },
                       ),
 
-                      const _ActionButton(
-                        icon: Icons.attach_money,
-                        label: "Earnings",
+                      /// PREMIUM-GUARDED EARNINGS
+                      PremiumGuard(
+                        user: currentUser,
+                        isGuest: isGuest,
+                        contentType: ContentType.Earnings,//
+                        lockedView: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const WriterSubscribersScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text("Unlock Earnings"),
+                        ),
+                        child: _ActionButton(
+                          icon: Icons.attach_money,
+                          label: "Earnings",
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const WriterEarningsScreen(),
+                              ),
+                            );
+                          },
+                        ),
                       ),
 
-                      const _ActionButton(
+                      _ActionButton(
                         icon: Icons.people,
                         label: "Subscribers",
+                        onTap: () {
+                          // TODO: Add Subscribers screen navigation
+                        },
                       ),
                     ],
                   ),
@@ -136,92 +186,106 @@ class WriterDashboard extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final book = dummyBooks[index];
 
-                      return Container(
-                        width: 150,
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                          image: DecorationImage(
-                            image: AssetImage(book.coverImage),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        child: Stack(
-                          children: [
-
-                            /// ⭐ Rating Badge
-                            Positioned(
-                              top: 10,
-                              right: 10,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.star,
-                                        size: 14,
-                                        color: Colors.amber),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      book.rating.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BookDetailScreen(
+                                imagePath: book.coverImage,
+                                title: book.title,
+                                isLocked: book.isPremium,
                               ),
                             ),
+                          );
+                        },
+                        child: Container(
+                          width: 150,
+                          margin: const EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 12,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                            image: DecorationImage(
+                              image: AssetImage(book.coverImage),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: Stack(
+                            children: [
 
-                            /// 🔻 Title Gradient Overlay
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(18),
-                                    bottomRight: Radius.circular(18),
+                              /// ⭐ Rating Badge
+                              Positioned(
+                                top: 10,
+                                right: 10,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
                                   ),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.transparent,
-                                      Colors.black.withOpacity(0.8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.7),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.star,
+                                          size: 14,
+                                          color: Colors.amber),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        book.rating.toString(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
-                                child: Text(
-                                  book.title,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                              ),
+
+                              /// 🔻 Title Gradient Overlay
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(18),
+                                      bottomRight: Radius.circular(18),
+                                    ),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withOpacity(0.8),
+                                      ],
+                                    ),
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                  child: Text(
+                                    book.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -275,10 +339,7 @@ class WriterDashboard extends StatelessWidget {
   }
 }
 
-///////////////////////////////////////////////////////////////
 /// STATS CARD
-///////////////////////////////////////////////////////////////
-
 class _StatsCard extends StatelessWidget {
   final String title;
   final String value;
@@ -326,10 +387,7 @@ class _StatsCard extends StatelessWidget {
   }
 }
 
-///////////////////////////////////////////////////////////////
 /// ACTION BUTTON
-///////////////////////////////////////////////////////////////
-
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -383,10 +441,7 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-///////////////////////////////////////////////////////////////
 /// SECTION TITLE
-///////////////////////////////////////////////////////////////
-
 class SectionTitle extends StatelessWidget {
   final String title;
   const SectionTitle(this.title);

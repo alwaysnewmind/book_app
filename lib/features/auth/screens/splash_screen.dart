@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+// 🔐 SaaS Services
+import 'package:book_app/services/auth_guard.dart';
+import '../../../services/session_service.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -8,12 +12,36 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    _handleStartup();
+  }
+
+  Future<void> _handleStartup() async {
+    // splash delay (same as before)
+    await Future.delayed(const Duration(seconds: 2));
+
+    // 🔁 Decide where to go
+    final destination = await AuthGuard.decide();
+
+    if (!mounted) return;
+
+    switch (destination) {
+      case AuthDestination.guestHome:
+        await SessionService.saveGuestSession();
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+
+      case AuthDestination.userHome:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+
+      case AuthDestination.login:
       Navigator.pushReplacementNamed(context, '/login');
-    });
+        break;
+    }
   }
 
   @override

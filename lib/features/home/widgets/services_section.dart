@@ -82,6 +82,7 @@ class ServicesSection extends StatelessWidget {
   }
 }
 /// Services Grid (4 per container) with rounded shadow icons
+// ignore: unused_element
 class _ServicesGrid extends StatelessWidget {
   final List<HomeService> services;
   const _ServicesGrid({required this.services});

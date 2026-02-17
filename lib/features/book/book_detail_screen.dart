@@ -1,4 +1,3 @@
-import 'package:book_app/features/writer/screens/writer_publish_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +25,7 @@ class BookDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final readerProvider = Provider.of<ReaderProvider>(context);
+    Provider.of<ReaderProvider>(context);
 
     /// Check if already in library
     LibraryBook? existingBook =
