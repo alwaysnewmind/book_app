@@ -1,4 +1,4 @@
-import '../models/book_model.dart';
+import '../models/writer_book_model.dart';
 
 final List<Book> dummyBooks = [
   Book(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:book_app/features/library/models/library_book.dart';
+import 'package:book_app/providers/reader_provider.dart';
 
 class BookReaderScreen extends StatefulWidget {
   final LibraryBook book;
@@ -14,94 +16,220 @@ class BookReaderScreen extends StatefulWidget {
 }
 
 class _BookReaderScreenState extends State<BookReaderScreen> {
-  double fontSize = 18;
-  bool isDarkMode = false;
-
-  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
 
-    // ✅ Continue Reading Support
-    _scrollController = ScrollController(
-      initialScrollOffset: widget.book.lastScrollOffset,
+    final readerProvider =
+        Provider.of<ReaderProvider>(context, listen: false);
+
+    readerProvider.loadBook(
+      bookId: widget.book.title,
+      totalChapters: widget.book.chapters.length,
+      lastReadChapter: widget.book.lastReadChapter,
     );
-
-    _scrollController.addListener(() {
-      widget.book.lastScrollOffset = _scrollController.offset;
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final textColor = isDarkMode ? Colors.white : Colors.black;
-    final bgColor = isDarkMode ? Colors.black : Colors.white;
+    return Consumer<ReaderProvider>(
+      builder: (context, readerProvider, child) {
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: bgColor,
-        elevation: 0,
-        iconTheme: IconThemeData(color: textColor),
-        title: Text(
-          widget.book.title,
-          style: TextStyle(color: textColor),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmark_border),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Bookmark Saved")),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.light_mode : Icons.dark_mode,
+        /// ===============================
+        /// THEME
+        /// ===============================
+
+        Color bgColor;
+        Color textColor;
+
+        switch (readerProvider.themeMode) {
+          case ReaderThemeMode.dark:
+            bgColor = Colors.black;
+            textColor = Colors.white;
+            break;
+          case ReaderThemeMode.sepia:
+            bgColor = const Color(0xFFF4ECD8);
+            textColor = Colors.brown;
+            break;
+          default:
+            bgColor = Colors.white;
+            textColor = Colors.black;
+        }
+
+        return Scaffold(
+          backgroundColor: bgColor,
+
+          /// ===============================
+          /// APP BAR
+          /// ===============================
+          appBar: readerProvider.showControls
+              ? AppBar(
+                  backgroundColor: bgColor,
+                  elevation: 0,
+                  iconTheme: IconThemeData(color: textColor),
+                  title: Text(
+                    widget.book.title,
+                    style: TextStyle(color: textColor),
+                  ),
+                  actions: [
+
+                    /// Bookmark
+                    IconButton(
+                      icon: Icon(
+                        readerProvider.isBookmarked(
+                                readerProvider.currentChapter)
+                            ? Icons.bookmark
+                            : Icons.bookmark_border,
+                        color: textColor,
+                      ),
+                      onPressed: () {
+                        readerProvider.toggleBookmark();
+                      },
+                    ),
+
+                    /// Theme
+                    PopupMenuButton<ReaderThemeMode>(
+                      icon: Icon(Icons.color_lens, color: textColor),
+                      onSelected: readerProvider.changeTheme,
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(
+                          value: ReaderThemeMode.light,
+                          child: Text("Light"),
+                        ),
+                        PopupMenuItem(
+                          value: ReaderThemeMode.dark,
+                          child: Text("Dark"),
+                        ),
+                        PopupMenuItem(
+                          value: ReaderThemeMode.sepia,
+                          child: Text("Sepia"),
+                        ),
+                      ],
+                    ),
+
+                    /// Font
+                    PopupMenuButton<String>(
+                      icon: Icon(Icons.text_fields, color: textColor),
+                      onSelected: (value) {
+                        if (value == "inc") {
+                          readerProvider.increaseFont();
+                        } else {
+                          readerProvider.decreaseFont();
+                        }
+                      },
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(
+                          value: "inc",
+                          child: Text("Increase"),
+                        ),
+                        PopupMenuItem(
+                          value: "dec",
+                          child: Text("Decrease"),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              : null,
+
+          /// ===============================
+          /// BODY
+          /// ===============================
+          body: GestureDetector(
+            onTap: readerProvider.toggleControls,
+            child: Column(
+              children: [
+
+                /// Progress Bar
+                if (readerProvider.showControls)
+                  LinearProgressIndicator(
+                    value: readerProvider.progress,
+                    backgroundColor: Colors.grey.shade300,
+                    color: Colors.deepPurple,
+                    minHeight: 3,
+                  ),
+
+                Expanded(
+                  child: PageView.builder(
+                    controller: readerProvider.pageController,
+                    onPageChanged: (index) {
+                      readerProvider.setChapter(index);
+                      widget.book.lastReadChapter = index;
+                    },
+                    itemCount: widget.book.chapters.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 30,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Text(
+                            widget.book.chapters[index],
+                            style: TextStyle(
+                              fontSize: readerProvider.fontSize,
+                              height: 1.7,
+                              color: textColor,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            onPressed: () {
-              setState(() {
-                isDarkMode = !isDarkMode;
-              });
-            },
           ),
-          PopupMenuButton<double>(
-            icon: const Icon(Icons.text_fields),
-            onSelected: (value) {
-              setState(() {
-                fontSize = value;
-              });
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 16, child: Text("Small")),
-              PopupMenuItem(value: 18, child: Text("Medium")),
-              PopupMenuItem(value: 22, child: Text("Large")),
-            ],
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          controller: _scrollController, // ✅ Important
-          child: Text(
-            widget.book.content,
-            style: TextStyle(
-              fontSize: fontSize,
-              height: 1.6,
-              color: textColor,
-            ),
-          ),
-        ),
-      ),
+
+          /// ===============================
+          /// BOTTOM CONTROLS
+          /// ===============================
+          bottomNavigationBar: readerProvider.showControls
+              ? Container(
+                  color: bgColor,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
+                    children: [
+
+                      /// Previous
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios,
+                            color: textColor),
+                        onPressed: readerProvider.previousChapter,
+                      ),
+
+                      /// TTS
+                      IconButton(
+                        icon: Icon(
+                          readerProvider.isSpeaking
+                              ? Icons.stop
+                              : Icons.play_arrow,
+                          color: textColor,
+                        ),
+                        onPressed: () {
+                          readerProvider.setSpeaking(
+                              !readerProvider.isSpeaking);
+                        },
+                      ),
+
+                      /// Next
+                      IconButton(
+                        icon: Icon(Icons.arrow_forward_ios,
+                            color: textColor),
+                        onPressed: readerProvider.nextChapter,
+                      ),
+                    ],
+                  ),
+                )
+              : null,
+        );
+      },
     );
   }
 }

@@ -28,8 +28,11 @@ dependencies:
   # Font
   google_fonts: ^5.0.0
 
-  #shimmer
+  # Shimmer
   shimmer: ^3.0.0
+
+  # Preferences (MOVED HERE ✅)
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -45,5 +48,3 @@ flutter:
     - assets/banners/
     - assets/profile/
     - assets/services/
-
-  

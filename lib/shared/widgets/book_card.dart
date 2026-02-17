@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:book_app/models/book_model.dart';
+import 'package:book_app/models/writer_book_model.dart';
 import 'package:book_app/features/book/book_detail_screen.dart';
 
 class BookCard extends StatefulWidget {

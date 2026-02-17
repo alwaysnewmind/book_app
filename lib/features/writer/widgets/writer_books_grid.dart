@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:book_app/data/dummy_books.dart';
 import 'package:book_app/shared/widgets/book_card.dart';
-import 'package:book_app/models/book_model.dart';
+import 'package:book_app/models/writer_book_model.dart';
 
 
 class WriterBooksGrid extends StatelessWidget {

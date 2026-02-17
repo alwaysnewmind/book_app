@@ -6,25 +6,23 @@ import 'package:book_app/features/reader/screens/book_reader_screen.dart';
 
 // library
 import 'package:book_app/features/library/models/library_store.dart';
+import 'package:book_app/features/library/models/library_book.dart';
 
 class MyLibraryScreen extends StatelessWidget {
   const MyLibraryScreen({super.key});
 
   Route _animatedRoute(Widget page) {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 500),
+      transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (_, animation, __) => page,
       transitionsBuilder: (_, animation, __, child) {
-        final fade = Tween(begin: 0.0, end: 1.0).animate(animation);
-        final slide = Tween<Offset>(
-          begin: const Offset(0, 0.05),
-          end: Offset.zero,
-        ).animate(animation);
-
         return FadeTransition(
-          opacity: fade,
+          opacity: animation,
           child: SlideTransition(
-            position: slide,
+            position: Tween(
+              begin: const Offset(0, 0.05),
+              end: Offset.zero,
+            ).animate(animation),
             child: child,
           ),
         );
@@ -34,61 +32,85 @@ class MyLibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final books = LibraryStore.books;
+    final List<LibraryBook> books = LibraryStore.books;
+
+    if (books.isEmpty) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            "No books in your library yet",
+            style: TextStyle(color: Colors.white70),
+          ),
+        ),
+      );
+    }
+
+    /// Continue reading = progress > 0 and < 1
+    final continueBooks =
+        books.where((b) => b.progress > 0 && b.progress < 1).toList();
+
+    /// Most recently added = last item
+    final featuredBook = books.last;
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: books.isEmpty
-          ? const Center(
-              child: Text(
-                "No books added yet",
-                style: TextStyle(color: Colors.white70),
-              ),
-            )
-          : CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
 
-                /// 🔥 App Bar
-                SliverAppBar(
-                  backgroundColor: Colors.black,
-                  pinned: true,
-                  floating: true,
-                  title: const Text("My Library"),
-                ),
+          /// ===============================
+          /// APP BAR
+          /// ===============================
+          const SliverAppBar(
+            backgroundColor: Colors.black,
+            pinned: true,
+            floating: true,
+            title: Text("My Library"),
+          ),
 
-                /// 🎬 Featured Banner
-                SliverToBoxAdapter(
-                  child: _featuredBanner(context, books.first),
-                ),
+          /// ===============================
+          /// FEATURED BANNER
+          /// ===============================
+          SliverToBoxAdapter(
+            child: _featuredBanner(context, featuredBook),
+          ),
 
-                /// 📚 Continue Reading
-                SliverToBoxAdapter(
-                  child: _sectionTitle("Continue Reading"),
-                ),
-
-                SliverToBoxAdapter(
-                  child: _horizontalList(context, books),
-                ),
-
-                /// ⭐ Recently Added
-                SliverToBoxAdapter(
-                  child: _sectionTitle("Recently Added"),
-                ),
-
-                SliverToBoxAdapter(
-                  child: _horizontalList(context, books.reversed.toList()),
-                ),
-
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 40),
-                ),
-              ],
+          /// ===============================
+          /// CONTINUE READING
+          /// ===============================
+          if (continueBooks.isNotEmpty) ...[
+            SliverToBoxAdapter(
+              child: _sectionTitle("Continue Reading"),
             ),
+            SliverToBoxAdapter(
+              child: _horizontalList(context, continueBooks),
+            ),
+          ],
+
+          /// ===============================
+          /// ALL BOOKS
+          /// ===============================
+          SliverToBoxAdapter(
+            child: _sectionTitle("All Books"),
+          ),
+
+          SliverToBoxAdapter(
+            child: _horizontalList(context, books),
+          ),
+
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 40),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _featuredBanner(BuildContext context, dynamic book) {
+  /// ===============================
+  /// FEATURED BANNER
+  /// ===============================
+  Widget _featuredBanner(BuildContext context, LibraryBook book) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -124,7 +146,7 @@ class MyLibraryScreen extends StatelessWidget {
             book.title,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -133,6 +155,9 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
+  /// ===============================
+  /// SECTION TITLE
+  /// ===============================
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -147,9 +172,13 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  Widget _horizontalList(BuildContext context, List books) {
+  /// ===============================
+  /// HORIZONTAL BOOK LIST
+  /// ===============================
+  Widget _horizontalList(
+      BuildContext context, List<LibraryBook> books) {
     return SizedBox(
-      height: 190,
+      height: 210,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -164,18 +193,59 @@ class MyLibraryScreen extends StatelessWidget {
                 _animatedRoute(BookReaderScreen(book: book)),
               );
             },
-            child: Hero(
-              tag: book.imagePath,
-              child: Container(
-                width: 120,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  image: DecorationImage(
-                    image: AssetImage(book.imagePath),
-                    fit: BoxFit.cover,
+            child: Container(
+              width: 130,
+              margin: const EdgeInsets.only(right: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  /// BOOK COVER
+                  Hero(
+                    tag: book.imagePath,
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 170,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            image: DecorationImage(
+                              image: AssetImage(book.imagePath),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+
+                        /// Progress Bar Overlay
+                        if (book.progress > 0)
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: LinearProgressIndicator(
+                              value: book.progress,
+                              minHeight: 4,
+                              backgroundColor: Colors.white30,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
+
+                  const SizedBox(height: 8),
+
+                  /// BOOK TITLE
+                  Text(
+                    book.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           );

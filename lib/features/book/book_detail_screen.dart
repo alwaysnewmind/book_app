@@ -1,4 +1,6 @@
+import 'package:book_app/features/writer/screens/writer_publish_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // reader
 import 'package:book_app/features/reader/screens/book_reader_screen.dart';
@@ -6,6 +8,9 @@ import 'package:book_app/features/reader/screens/book_reader_screen.dart';
 // library
 import 'package:book_app/features/library/models/library_store.dart';
 import 'package:book_app/features/library/models/library_book.dart';
+
+// provider
+import 'package:book_app/providers/reader_provider.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final String imagePath;
@@ -21,6 +26,17 @@ class BookDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final readerProvider = Provider.of<ReaderProvider>(context);
+
+    /// Check if already in library
+    LibraryBook? existingBook =
+        LibraryStore.books.where((b) => b.title == title).isNotEmpty
+            ? LibraryStore.books.firstWhere((b) => b.title == title)
+            : null;
+
+    final hasStarted = existingBook != null;
+    final progress = hasStarted ? existingBook.progress : 0.0;
+
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: Padding(
@@ -28,6 +44,10 @@ class BookDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            /// ===============================
+            /// BOOK COVER
+            /// ===============================
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.asset(
@@ -40,6 +60,9 @@ class BookDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
+            /// ===============================
+            /// TITLE
+            /// ===============================
             Text(
               title,
               style: const TextStyle(
@@ -48,19 +71,49 @@ class BookDetailScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
+            /// ===============================
+            /// LOCK STATUS
+            /// ===============================
             Text(
               isLocked
-                  ? 'This book is premium. Subscribe to read full content.'
-                  : 'This book is free to read.',
+                  ? 'This book is premium. Subscribe to unlock.'
+                  : 'Free to read.',
               style: TextStyle(
                 color: isLocked ? Colors.red : Colors.green,
+                fontWeight: FontWeight.w500,
               ),
             ),
 
+            const SizedBox(height: 20),
+
+            /// ===============================
+            /// READING PROGRESS
+            /// ===============================
+            if (hasStarted) ...[
+              const Text(
+                "Reading Progress",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              LinearProgressIndicator(
+                value: progress,
+                minHeight: 6,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "${(progress * 100).toStringAsFixed(0)}% completed",
+                style: const TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 20),
+            ],
+
             const Spacer(),
 
+            /// ===============================
+            /// PRIMARY BUTTON
+            /// ===============================
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -76,39 +129,70 @@ class BookDetailScreen extends StatelessWidget {
                     return;
                   }
 
-                  // ✅ Create Library Book
-                  final book = LibraryBook(
-                    title: title,
-                    imagePath: imagePath,
-                    content: '''
-This is the beginning of the book "$title".
+                  LibraryBook book;
 
-You can replace this content later with:
-• Firebase data
-• API response
-• Chapter-wise content
-• Writer uploaded content
+                  /// If already exists → use it
+                  if (existingBook != null) {
+                    book = existingBook;
+                  } else {
+                    /// Create new book
+                    book = LibraryBook(
+                      id: title.hashCode.toString(),
+                      title: title,
+                      imagePath: imagePath,
+                      chapters: [
+                        "Chapter 1\n\nThis is chapter one content...",
+                        "Chapter 2\n\nThis is chapter two content...",
+                        "Chapter 3\n\nThis is chapter three content...",
+                      ],
+                    );
 
-Happy Reading!
-''',
-                  );
+                    LibraryStore.addBook(book);
+                  }
 
-                  // ✅ Save to Library
-                  LibraryStore.addBook(book);
-
-                  // ✅ Open Reader (MODEL BASED)
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => BookReaderScreen(
-                        book: book,
-                      ),
+                      builder: (_) => BookReaderScreen(book: book),
                     ),
                   );
                 },
-                child: Text(isLocked ? 'Subscribe & Read' : 'Read Now'),
+                child: Text(
+                  isLocked
+                      ? 'Subscribe & Read'
+                      : hasStarted
+                          ? 'Continue Reading'
+                          : 'Start Reading',
+                ),
               ),
             ),
+
+            /// ===============================
+            /// RESUME FROM BOOKMARK
+            /// ===============================
+            if (!isLocked &&
+                context.read<ReaderProvider>().isBookmarked(0))
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      if (existingBook != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                BookReaderScreen(book: existingBook),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text("Resume from Bookmark"),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

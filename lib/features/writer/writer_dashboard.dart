@@ -12,202 +12,262 @@ class WriterDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF6F7FB),
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFFF6F7FB),
+                Color(0xFFEDEFFD),
+              ],
+            ),
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
-              /// 👋 Header
-              const WriterHeader(),
+                /// 👋 Header
+                const WriterHeader(),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 28),
 
-              /// 📊 Stats
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: const [
-                    Expanded(
-                      child: _StatsCard(
-                        title: "Total Books",
-                        value: "12",
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _StatsCard(
-                        title: "Earnings",
-                        value: "₹25,000",
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _StatsCard(
-                        title: "Pending",
-                        value: "3",
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              /// ✨ Action Buttons
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-
-                    /// 🔥 CREATE BOOK BUTTON
-                    _ActionButton(
-                      icon: Icons.add,
-                      label: "Create Book",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CreateBookPage(),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const _ActionButton(
-                      icon: Icons.menu_book,
-                      label: "Manage",
-                    ),
-
-                    const _ActionButton(
-                      icon: Icons.attach_money,
-                      label: "Earnings",
-                    ),
-
-                    const _ActionButton(
-                      icon: Icons.people,
-                      label: "Subscribers",
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              /// 📚 Recent Books
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: SectionTitle("Recent Books"),
-              ),
-
-              const SizedBox(height: 12),
-
-              SizedBox(
-                height: 220,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
+                /// 📊 Stats Section
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: dummyBooks.length,
-                  itemBuilder: (context, index) {
-                    final book = dummyBooks[index];
-
-                    return Container(
-                      width: 140,
-                      margin: const EdgeInsets.only(right: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 6,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                        image: DecorationImage(
-                          image: AssetImage(book.coverImage),
-                          fit: BoxFit.cover,
+                  child: Row(
+                    children: const [
+                      Expanded(
+                        child: _StatsCard(
+                          title: "Total Books",
+                          value: "12",
+                          gradient: [
+                            Color(0xFF6C63FF),
+                            Color(0xFF4A3AFF),
+                          ],
                         ),
                       ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(16),
-                                  bottomRight: Radius.circular(16),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _StatsCard(
+                          title: "Earnings",
+                          value: "₹25,000",
+                          gradient: [
+                            Color(0xFF00C9A7),
+                            Color(0xFF00B894),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _StatsCard(
+                          title: "Pending",
+                          value: "3",
+                          gradient: [
+                            Color(0xFFFF6F61),
+                            Color(0xFFFF3D00),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                /// 🚀 Action Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+
+                      _ActionButton(
+                        icon: Icons.add,
+                        label: "Create",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CreateBookPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const _ActionButton(
+                        icon: Icons.menu_book,
+                        label: "Manage",
+                      ),
+
+                      const _ActionButton(
+                        icon: Icons.attach_money,
+                        label: "Earnings",
+                      ),
+
+                      const _ActionButton(
+                        icon: Icons.people,
+                        label: "Subscribers",
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 36),
+
+                /// 📚 Recent Books
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SectionTitle("Recent Books"),
+                ),
+
+                const SizedBox(height: 16),
+
+                SizedBox(
+                  height: 220,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: dummyBooks.length,
+                    itemBuilder: (context, index) {
+                      final book = dummyBooks[index];
+
+                      return Container(
+                        width: 150,
+                        margin: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 12,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                          image: DecorationImage(
+                            image: AssetImage(book.coverImage),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+
+                            /// ⭐ Rating Badge
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.7),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.star,
+                                        size: 14,
+                                        color: Colors.amber),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      book.rating.toString(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              child: Text(
-                                book.title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                            ),
+
+                            /// 🔻 Title Gradient Overlay
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(18),
+                                    bottomRight: Radius.circular(18),
+                                  ),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.8),
+                                    ],
+                                  ),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                child: Text(
+                                  book.title,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
-                          ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                /// 🔥 Promo Banner
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF6C63FF),
+                          Color(0xFF9D4EDD),
                         ],
                       ),
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              /// 🔥 Promo Banner
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurple.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.25),
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.3),
+                          blurRadius: 16,
+                          offset: const Offset(0, 10),
                         ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Boost your book reach with AI recommendations!",
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Boost your book reach with AI recommendations 🚀",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 48),
-            ],
+                const SizedBox(height: 50),
+              ],
+            ),
           ),
         ),
       ),
@@ -215,17 +275,19 @@ class WriterDashboard extends StatelessWidget {
   }
 }
 
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 /// STATS CARD
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 
 class _StatsCard extends StatelessWidget {
   final String title;
   final String value;
+  final List<Color> gradient;
 
   const _StatsCard({
     required this.title,
     required this.value,
+    required this.gradient,
   });
 
   @override
@@ -233,15 +295,13 @@ class _StatsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [Colors.deepPurple, Colors.deepPurpleAccent],
-        ),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(18),
+        gradient: LinearGradient(colors: gradient),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 3),
+            color: gradient.first.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -257,7 +317,7 @@ class _StatsCard extends StatelessWidget {
           Text(value,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               )),
         ],
@@ -266,9 +326,9 @@ class _StatsCard extends StatelessWidget {
   }
 }
 
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 /// ACTION BUTTON
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 
 class _ActionButton extends StatelessWidget {
   final IconData icon;
@@ -290,16 +350,19 @@ class _ActionButton extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF6C63FF),
+                  Color(0xFF9D4EDD),
+                ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
+                  color: Colors.deepPurple.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
@@ -311,6 +374,7 @@ class _ActionButton extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 12,
+              color: Colors.black87,
             ),
           ),
         ],
@@ -319,9 +383,9 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 /// SECTION TITLE
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 
 class SectionTitle extends StatelessWidget {
   final String title;
