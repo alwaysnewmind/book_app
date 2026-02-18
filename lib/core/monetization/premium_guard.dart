@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'access_rules.dart';
 import '../../models/user_model.dart';
+import 'access_rules.dart';
 import 'package:book_app/features/subscription/reader_subscription_screen.dart';
 
-/// A widget that wraps content and ensures only allowed users can access it.
-/// If the user is not allowed, it shows a locked view or a default "Upgrade" prompt.
+/// Wraps content and ensures only allowed users can access it.
+/// Shows `lockedView` or default upgrade prompt if user cannot access.
 class PremiumGuard extends StatelessWidget {
   final AppUser? user;
   final bool isGuest;
@@ -29,17 +29,17 @@ class PremiumGuard extends StatelessWidget {
       contentType: contentType,
     );
 
-    if (allowed) {
-      return child;
-    }
+    // ✅ Allowed: show child content
+    if (allowed) return child;
 
-    // Show custom locked view if provided
+    // ✅ Custom locked view provided
     if (lockedView != null) return lockedView!;
 
-    // Otherwise, show default upgrade prompt
+    // ✅ Default locked view
     return _defaultLockedView(context);
   }
 
+  /// Default locked view for premium content
   Widget _defaultLockedView(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -50,11 +50,7 @@ class PremiumGuard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.lock_outline,
-            color: Colors.amber,
-            size: 40,
-          ),
+          const Icon(Icons.lock_outline, color: Colors.amber, size: 40),
           const SizedBox(height: 12),
           const Text(
             "Premium Content",
@@ -73,9 +69,8 @@ class PremiumGuard extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              // 🔜 Navigate to Subscription Screen
-              Navigator.push(
-                context,
+              // 🔗 Navigate to Subscription Screen
+              Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const ReaderSubscriptionScreen(),
                 ),
@@ -84,10 +79,10 @@ class PremiumGuard extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.black,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text(
               "Upgrade",
@@ -99,5 +94,3 @@ class PremiumGuard extends StatelessWidget {
     );
   }
 }
-
-  

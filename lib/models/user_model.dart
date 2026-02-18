@@ -30,6 +30,8 @@ class AppUser {
     this.photoUrl,
     this.isPremium = false,
     this.subscriptionExpiry,
+    
+    
   });
 
   /// 🔄 Convert Firestore → AppUser

@@ -46,11 +46,8 @@ class MyLibraryScreen extends StatelessWidget {
       );
     }
 
-    /// Continue reading = progress > 0 and < 1
     final continueBooks =
         books.where((b) => b.progress > 0 && b.progress < 1).toList();
-
-    /// Most recently added = last item
     final featuredBook = books.last;
 
     return Scaffold(
@@ -59,9 +56,7 @@ class MyLibraryScreen extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         slivers: [
 
-          /// ===============================
-          /// APP BAR
-          /// ===============================
+          // APP BAR
           const SliverAppBar(
             backgroundColor: Colors.black,
             pinned: true,
@@ -69,47 +64,32 @@ class MyLibraryScreen extends StatelessWidget {
             title: Text("My Library"),
           ),
 
-          /// ===============================
-          /// FEATURED BANNER
-          /// ===============================
+          // FEATURED BANNER
           SliverToBoxAdapter(
             child: _featuredBanner(context, featuredBook),
           ),
 
-          /// ===============================
-          /// CONTINUE READING
-          /// ===============================
+          // CONTINUE READING
           if (continueBooks.isNotEmpty) ...[
-            SliverToBoxAdapter(
-              child: _sectionTitle("Continue Reading"),
-            ),
+            SliverToBoxAdapter(child: _sectionTitle("Continue Reading")),
             SliverToBoxAdapter(
               child: _horizontalList(context, continueBooks),
             ),
           ],
 
-          /// ===============================
-          /// ALL BOOKS
-          /// ===============================
-          SliverToBoxAdapter(
-            child: _sectionTitle("All Books"),
-          ),
-
+          // ALL BOOKS
+          SliverToBoxAdapter(child: _sectionTitle("All Books")),
           SliverToBoxAdapter(
             child: _horizontalList(context, books),
           ),
 
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 40),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
       ),
     );
   }
 
-  /// ===============================
-  /// FEATURED BANNER
-  /// ===============================
+  // FEATURED BANNER WITH TAP ANIMATION
   Widget _featuredBanner(BuildContext context, LibraryBook book) {
     return GestureDetector(
       onTap: () {
@@ -118,36 +98,44 @@ class MyLibraryScreen extends StatelessWidget {
           _animatedRoute(BookReaderScreen(book: book)),
         );
       },
-      child: Container(
-        height: 280,
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            image: AssetImage(book.imagePath),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Container(
-          alignment: Alignment.bottomLeft,
-          padding: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          height: 280,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            gradient: const LinearGradient(
-              colors: [
-                Colors.transparent,
-                Colors.black87,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+            image: DecorationImage(
+              image: AssetImage(book.imagePath),
+              fit: BoxFit.cover,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Text(
-            book.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+          child: Container(
+            alignment: Alignment.bottomLeft,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: const LinearGradient(
+                colors: [Colors.transparent, Colors.black87],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Text(
+              book.title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -155,9 +143,7 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  /// ===============================
-  /// SECTION TITLE
-  /// ===============================
+  // SECTION TITLE
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -172,11 +158,8 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  /// ===============================
-  /// HORIZONTAL BOOK LIST
-  /// ===============================
-  Widget _horizontalList(
-      BuildContext context, List<LibraryBook> books) {
+  // HORIZONTAL BOOK LIST WITH TAP ANIMATION
+  Widget _horizontalList(BuildContext context, List<LibraryBook> books) {
     return SizedBox(
       height: 210,
       child: ListView.builder(
@@ -193,59 +176,71 @@ class MyLibraryScreen extends StatelessWidget {
                 _animatedRoute(BookReaderScreen(book: book)),
               );
             },
-            child: Container(
-              width: 130,
-              margin: const EdgeInsets.only(right: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: Padding(
+              padding: const EdgeInsets.only(right: 14),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                width: 130,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  /// BOOK COVER
-                  Hero(
-                    tag: book.imagePath,
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 170,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            image: DecorationImage(
-                              image: AssetImage(book.imagePath),
-                              fit: BoxFit.cover,
+                    // BOOK COVER WITH HERO ANIMATION AND SHADOW
+                    Hero(
+                      tag: book.imagePath,
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 170,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              image: DecorationImage(
+                                image: AssetImage(book.imagePath),
+                                fit: BoxFit.cover,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
 
-                        /// Progress Bar Overlay
-                        if (book.progress > 0)
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: LinearProgressIndicator(
-                              value: book.progress,
-                              minHeight: 4,
-                              backgroundColor: Colors.white30,
-                              color: Colors.deepPurple,
+                          // PROGRESS BAR
+                          if (book.progress > 0)
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: LinearProgressIndicator(
+                                value: book.progress,
+                                minHeight: 4,
+                                backgroundColor: Colors.white30,
+                                color: Colors.deepPurple,
+                              ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 8),
 
-                  /// BOOK TITLE
-                  Text(
-                    book.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
+                    // BOOK TITLE
+                    Text(
+                      book.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

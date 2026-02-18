@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-// detail screen
+// Detail screen
 import 'package:book_app/features/book/book_detail_screen.dart';
 
-// dummy data (temporary)
+// Dummy data
 import 'package:book_app/data/dummy_books.dart';
 
 class AllBooksScreen extends StatefulWidget {
@@ -24,22 +24,18 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
         .toList();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0F172A),
 
-      /// ===============================
       /// APP BAR
-      /// ===============================
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF0F172A),
         title: const Text("All Books"),
+        elevation: 0,
       ),
 
-      /// ===============================
       /// BODY
-      /// ===============================
       body: Column(
         children: [
-
           /// SEARCH BAR
           Padding(
             padding: const EdgeInsets.all(16),
@@ -50,9 +46,9 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
                 hintStyle: const TextStyle(color: Colors.white54),
                 prefixIcon: const Icon(Icons.search, color: Colors.white54),
                 filled: true,
-                fillColor: Colors.grey.shade900,
+                fillColor: const Color(0xFF1E293B),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -80,9 +76,9 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 14,
+                      crossAxisSpacing: 16,
                       mainAxisSpacing: 18,
-                      childAspectRatio: 0.68,
+                      childAspectRatio: 0.65,
                     ),
                     itemBuilder: (context, index) {
                       final book = books[index];
@@ -103,47 +99,44 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
                             /// BOOK COVER
                             Expanded(
                               child: Hero(
                                 tag: book.coverImage,
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(14),
-                                        image: DecorationImage(
-                                          image:
-                                              AssetImage(book.coverImage),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    image: DecorationImage(
+                                      image: AssetImage(book.coverImage),
+                                      fit: BoxFit.cover,
                                     ),
-
-                                    /// LOCK BADGE
-                                    if (book.isPremium)
-                                      Positioned(
-                                        top: 8,
-                                        right: 8,
-                                        child: Container(
-                                          padding:
-                                              const EdgeInsets.all(6),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black87,
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    20),
-                                          ),
-                                          child: const Icon(
-                                            Icons.lock,
-                                            size: 16,
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black45.withOpacity(0.2),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 4),
                                       ),
-                                  ],
+                                    ],
+                                  ),
+                                  child: book.isPremium
+                                      ? Align(
+                                          alignment: Alignment.topRight,
+                                          child: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black87,
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: const Icon(
+                                              Icons.lock,
+                                              size: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        )
+                                      : null,
                                 ),
                               ),
                             ),
@@ -158,6 +151,7 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
 
@@ -165,11 +159,10 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
 
                             /// FREE / PREMIUM TAG
                             Text(
-                              book.isPremium
-                                  ? "Premium"
-                                  : "Free",
+                              book.isPremium ? "Premium" : "Free",
                               style: TextStyle(
                                 fontSize: 12,
+                                fontWeight: FontWeight.w500,
                                 color: book.isPremium
                                     ? Colors.redAccent
                                     : Colors.greenAccent,

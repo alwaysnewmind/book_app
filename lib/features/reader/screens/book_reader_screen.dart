@@ -7,8 +7,6 @@ import 'package:book_app/features/library/models/library_book.dart';
 // Reader provider
 import 'package:book_app/providers/reader_provider.dart';
 
-// Reader Screen
-
 // Subscription Screen
 import 'package:book_app/features/subscription/reader_subscription_screen.dart';
 
@@ -27,17 +25,25 @@ class BookReaderScreen extends StatefulWidget {
 }
 
 class _BookReaderScreenState extends State<BookReaderScreen> {
+  late final List<String> chapters;
+
   @override
   void initState() {
     super.initState();
+
+    // For demo purposes, you need to define chapters inside widget
+    chapters = widget.book.toJson()['chapters'] != null
+        ? List<String>.from(widget.book.toJson()['chapters'])
+        : List.generate(10, (index) => "Chapter ${index + 1} content");
 
     final readerProvider =
         Provider.of<ReaderProvider>(context, listen: false);
 
     readerProvider.loadBook(
       bookId: widget.book.id,
-      totalChapters: widget.book.chapters.length,
-      lastReadChapter: widget.book.lastReadChapter,
+      totalChapters: chapters.length,
+      lastReadChapter:
+          readerProvider.lastReadChapter, // use provider's stored value
     );
   }
 
@@ -171,9 +177,9 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     controller: readerProvider.pageController,
                     onPageChanged: (index) {
                       readerProvider.setChapter(index);
-                      widget.book.lastReadChapter = index;
+                      // No setter on book.lastReadChapter, provider handles it
                     },
-                    itemCount: widget.book.chapters.length,
+                    itemCount: chapters.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(
@@ -182,7 +188,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                         ),
                         child: SingleChildScrollView(
                           child: Text(
-                            widget.book.chapters[index],
+                            chapters[index],
                             style: TextStyle(
                               fontSize: readerProvider.fontSize,
                               height: 1.7,

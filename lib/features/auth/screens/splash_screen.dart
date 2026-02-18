@@ -20,8 +20,10 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _handleStartup() async {
-    // splash delay (same as before)
+    // 2-second splash delay
     await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
 
     // 🔁 Decide where to go
     final destination = await AuthGuard.decide();
@@ -39,30 +41,39 @@ class _SplashScreenState extends State<SplashScreen> {
         break;
 
       case AuthDestination.login:
-      Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, '/login');
         break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.menu_book, size: 80, color: Colors.amber),
-            SizedBox(height: 12),
-            Text(
-              'Reader App',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.menu_book, size: 80, color: Colors.amber),
+              SizedBox(height: 12),
+              Text(
+                'Reader App',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

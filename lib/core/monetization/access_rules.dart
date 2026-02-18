@@ -1,50 +1,52 @@
 import '../../models/user_model.dart';
 
+/// Defines types of content in the app
 enum ContentType {
   free,
-  premium, Earnings,
+  premium,
+  earnings, // renamed to lowercase for Dart naming consistency
 }
 
 class AccessRules {
-  /// Can user access this content?
+  /// Check if user can fully access the content
   static bool canAccess({
     required AppUser? user,
     required bool isGuest,
     required ContentType contentType,
   }) {
-    // Free content: everyone allowed
-    if (contentType == ContentType.free) {
-      return true;
-    }
-
-    // Premium content rules
-    if (contentType == ContentType.premium) {
-      // Guest never allowed full access
-      if (isGuest) return false;
-
-      // Logged-in premium users allowed
-      if (user != null && user.isPremium) {
+    switch (contentType) {
+      case ContentType.free:
+        // Free content: everyone allowed
         return true;
-      }
 
-      // Logged-in but not premium
-      return false;
+      case ContentType.premium:
+        // Guest cannot access premium
+        if (isGuest) return false;
+
+        // Logged-in premium users allowed
+        return user?.isPremium ?? false;
+
+      case ContentType.earnings:
+        // Only premium users (not guests) can access earnings
+        if (isGuest) return false;
+        return user?.isPremium ?? false;
     }
-
-    return false;
   }
 
-  /// Should show teaser preview?
+  /// Should show teaser/preview for content
   static bool canPreview({
     required AppUser? user,
     required bool isGuest,
     required ContentType contentType,
   }) {
-    // Allow teaser for premium content
-    if (contentType == ContentType.premium) {
-      return true;
-    }
+    switch (contentType) {
+      case ContentType.free:
+        return true; // free content always visible
 
-    return false;
+      case ContentType.premium:
+      case ContentType.earnings:
+        // Teaser available for premium/earnings content
+        return true;
+    }
   }
 }

@@ -32,7 +32,6 @@ import 'package:book_app/features/ai/ai_voice_screen.dart';
 import 'package:book_app/features/ai/ai_writing_assistant_screen.dart';
 
 // BOOK
-import 'package:book_app/features/book/book_detail_screen.dart';
 
 // MODELS
 import 'package:book_app/models/user_model.dart';
@@ -70,7 +69,7 @@ class AppRoutes {
 }
 
 /// =======================================================
-/// ROUTE MAP (USED BY MaterialApp.routes)
+/// ROUTE MAP (MaterialApp.routes)
 /// =======================================================
 Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
   return {
@@ -101,7 +100,6 @@ Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
     AppRoutes.community: (_) => const CommunityScreen(),
     AppRoutes.challenges: (_) => const ChallengesScreen(),
 
-
     // AI
     AppRoutes.aiChat: (_) => const AIChatScreen(),
     AppRoutes.aiMood: (_) => const AIMoodScreen(),
@@ -110,11 +108,7 @@ Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
     AppRoutes.aiWritingAssistant: (_) => const AIWritingAssistantScreen(),
 
     // BOOK
-    AppRoutes.bookDetail: (_) => const BookDetailScreen(
-          imagePath: '', // default, override via Navigator
-          title: '',
-          isLocked: false,
-        ),
+    AppRoutes.bookDetail: (_) => const PlaceholderScreen(title: "Book Detail"),
   };
 }
 

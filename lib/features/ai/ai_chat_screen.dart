@@ -1,7 +1,47 @@
 import 'package:flutter/material.dart';
 
-class AIChatScreen extends StatelessWidget {
+class AIChatScreen extends StatefulWidget {
   const AIChatScreen({super.key});
+
+  @override
+  State<AIChatScreen> createState() => _AIChatScreenState();
+}
+
+class _AIChatScreenState extends State<AIChatScreen> {
+  final List<_ChatMessage> _messages = [
+    _ChatMessage(text: "What is the main theme of this book?", isUser: true),
+    _ChatMessage(
+        text: "This book focuses on self-discovery, inner strength, and conscious living.",
+        isUser: false),
+  ];
+
+  final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  void _sendMessage() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      _messages.add(_ChatMessage(text: text, isUser: true));
+      // Demo AI response (can be replaced with API call)
+      _messages.add(_ChatMessage(
+          text: "AI response for \"$text\" will appear here.", isUser: false));
+    });
+
+    _controller.clear();
+
+    // Scroll to bottom
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,26 +55,30 @@ class AIChatScreen extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
+            child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              children: const [
-                _ChatBubble(
-                  text: "What is the main theme of this book?",
-                  isUser: true,
-                ),
-                _ChatBubble(
-                  text:
-                      "This book focuses on self-discovery, inner strength, and conscious living.",
-                  isUser: false,
-                ),
-              ],
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final msg = _messages[index];
+                return _ChatBubble(text: msg.text, isUser: msg.isUser);
+              },
             ),
           ),
-          _ChatInput(),
+          _ChatInput(
+            controller: _controller,
+            onSend: _sendMessage,
+          ),
         ],
       ),
     );
   }
+}
+
+class _ChatMessage {
+  final String text;
+  final bool isUser;
+  _ChatMessage({required this.text, required this.isUser});
 }
 
 class _ChatBubble extends StatelessWidget {
@@ -56,9 +100,7 @@ class _ChatBubble extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: TextStyle(
-            color: isUser ? Colors.black : Colors.white70,
-          ),
+          style: TextStyle(color: isUser ? Colors.black : Colors.white70),
         ),
       ),
     );
@@ -66,6 +108,14 @@ class _ChatBubble extends StatelessWidget {
 }
 
 class _ChatInput extends StatelessWidget {
+  final TextEditingController controller;
+  final VoidCallback onSend;
+
+  const _ChatInput({
+    required this.controller,
+    required this.onSend,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -74,6 +124,9 @@ class _ChatInput extends StatelessWidget {
         children: [
           Expanded(
             child: TextField(
+              controller: controller,
+              textInputAction: TextInputAction.send,
+              onSubmitted: (_) => onSend(),
               decoration: InputDecoration(
                 hintText: "Ask something...",
                 filled: true,
@@ -83,12 +136,16 @@ class _ChatInput extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
               ),
+              style: const TextStyle(color: Colors.white),
             ),
           ),
           const SizedBox(width: 8),
-          CircleAvatar(
-            backgroundColor: Colors.amber,
-            child: const Icon(Icons.send, color: Colors.black),
+          GestureDetector(
+            onTap: onSend,
+            child: const CircleAvatar(
+              backgroundColor: Colors.amber,
+              child: Icon(Icons.send, color: Colors.black),
+            ),
           ),
         ],
       ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// reader
+// Reader
 import 'package:book_app/features/reader/screens/book_reader_screen.dart';
 
-// library
+// Library
 import 'package:book_app/features/library/models/library_store.dart';
 import 'package:book_app/features/library/models/library_book.dart';
 
-// provider
+// Provider
 import 'package:book_app/providers/reader_provider.dart';
 
 class BookDetailScreen extends StatelessWidget {
@@ -25,28 +25,31 @@ class BookDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<ReaderProvider>(context);
+    final readerProvider = Provider.of<ReaderProvider>(context);
 
-    /// Check if already in library
-    LibraryBook? existingBook =
-        LibraryStore.books.where((b) => b.title == title).isNotEmpty
-            ? LibraryStore.books.firstWhere((b) => b.title == title)
-            : null;
+    // Check if book exists in library
+    final existingBook = LibraryStore.books
+            .where((b) => b.title == title)
+            .isNotEmpty
+        ? LibraryStore.books.firstWhere((b) => b.title == title)
+        : null;
 
     final hasStarted = existingBook != null;
     final progress = hasStarted ? existingBook.progress : 0.0;
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: const Color(0xFF0F172A),
+      ),
+      backgroundColor: const Color(0xFF0F172A),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            /// ===============================
             /// BOOK COVER
-            /// ===============================
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.asset(
@@ -59,60 +62,58 @@ class BookDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            /// ===============================
             /// TITLE
-            /// ===============================
             Text(
               title,
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            /// ===============================
             /// LOCK STATUS
-            /// ===============================
             Text(
               isLocked
                   ? 'This book is premium. Subscribe to unlock.'
                   : 'Free to read.',
               style: TextStyle(
-                color: isLocked ? Colors.red : Colors.green,
+                color: isLocked ? Colors.redAccent : Colors.greenAccent,
                 fontWeight: FontWeight.w500,
               ),
             ),
 
             const SizedBox(height: 20),
 
-            /// ===============================
             /// READING PROGRESS
-            /// ===============================
             if (hasStarted) ...[
               const Text(
                 "Reading Progress",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white70,
+                ),
               ),
               const SizedBox(height: 6),
               LinearProgressIndicator(
                 value: progress,
                 minHeight: 6,
+                backgroundColor: Colors.white24,
+                color: Colors.amber,
               ),
               const SizedBox(height: 6),
               Text(
                 "${(progress * 100).toStringAsFixed(0)}% completed",
-                style: const TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 13, color: Colors.white70),
               ),
               const SizedBox(height: 20),
             ],
 
             const Spacer(),
 
-            /// ===============================
             /// PRIMARY BUTTON
-            /// ===============================
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -121,8 +122,7 @@ class BookDetailScreen extends StatelessWidget {
                   if (isLocked) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content:
-                            Text('Please subscribe to access this book'),
+                        content: Text('Please subscribe to access this book'),
                       ),
                     );
                     return;
@@ -130,11 +130,10 @@ class BookDetailScreen extends StatelessWidget {
 
                   LibraryBook book;
 
-                  /// If already exists → use it
+                  // If book exists, use it; otherwise create new
                   if (existingBook != null) {
                     book = existingBook;
                   } else {
-                    /// Create new book
                     book = LibraryBook(
                       id: title.hashCode.toString(),
                       title: title,
@@ -145,7 +144,6 @@ class BookDetailScreen extends StatelessWidget {
                         "Chapter 3\n\nThis is chapter three content...",
                       ],
                     );
-
                     LibraryStore.addBook(book);
                   }
 
@@ -156,21 +154,22 @@ class BookDetailScreen extends StatelessWidget {
                     ),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                ),
                 child: Text(
                   isLocked
                       ? 'Subscribe & Read'
                       : hasStarted
                           ? 'Continue Reading'
                           : 'Start Reading',
+                  style: const TextStyle(color: Colors.black),
                 ),
               ),
             ),
 
-            /// ===============================
             /// RESUME FROM BOOKMARK
-            /// ===============================
-            if (!isLocked &&
-                context.read<ReaderProvider>().isBookmarked(0))
+            if (!isLocked && readerProvider.isBookmarked(0))
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: SizedBox(
@@ -188,7 +187,13 @@ class BookDetailScreen extends StatelessWidget {
                         );
                       }
                     },
-                    child: const Text("Resume from Bookmark"),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.amber),
+                    ),
+                    child: const Text(
+                      "Resume from Bookmark",
+                      style: TextStyle(color: Colors.amber),
+                    ),
                   ),
                 ),
               ),

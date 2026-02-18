@@ -122,8 +122,12 @@ class LibraryScreen extends StatelessWidget {
                         AppRoutes.bookDetail,
                       );
                     },
-                    child: _continueCard(
-                      "assets/books/Book${index + 1}.png",
+                    child: AnimatedScale(
+                      duration: const Duration(milliseconds: 150),
+                      scale: 1.0,
+                      child: _continueCard(
+                        "assets/books/Book${index + 1}.png",
+                      ),
                     ),
                   );
                 },

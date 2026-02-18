@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 
+/// A reusable widget to display an error message with optional retry action
 class ErrorState extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
+  final Color backgroundColor;
 
   const ErrorState({
     super.key,
     required this.message,
     this.onRetry,
+    this.backgroundColor = Colors.transparent,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(24),
+        color: backgroundColor,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -36,7 +40,19 @@ class ErrorState extends StatelessWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: onRetry,
-                child: const Text("Retry"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  "Retry",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ],

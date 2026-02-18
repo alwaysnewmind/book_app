@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
-class AIMoodScreen extends StatelessWidget {
+class AIMoodScreen extends StatefulWidget {
   const AIMoodScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final moods = ["Motivated", "Calm", "Anxious", "Focused", "Spiritual"];
+  State<AIMoodScreen> createState() => _AIMoodScreenState();
+}
 
+class _AIMoodScreenState extends State<AIMoodScreen> {
+  final List<String> moods = ["Motivated", "Calm", "Anxious", "Focused", "Spiritual"];
+  String? selectedMood;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
@@ -19,15 +25,26 @@ class AIMoodScreen extends StatelessWidget {
         child: Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: moods
-              .map(
-                (mood) => Chip(
-                  label: Text(mood),
-                  backgroundColor: const Color(0xFF1E293B),
-                  labelStyle: const TextStyle(color: Colors.white),
-                ),
-              )
-              .toList(),
+          children: moods.map((mood) {
+            final isSelected = mood == selectedMood;
+            return ChoiceChip(
+              label: Text(mood),
+              selected: isSelected,
+              selectedColor: Colors.amber,
+              backgroundColor: const Color(0xFF1E293B),
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.black : Colors.white,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              onSelected: (_) {
+                setState(() {
+                  selectedMood = mood;
+                  // Optional: Navigate or trigger AI recommendation based on mood
+                  // Navigator.pushNamed(context, AppRoutes.aiRecommendation, arguments: mood);
+                });
+              },
+            );
+          }).toList(),
         ),
       ),
     );

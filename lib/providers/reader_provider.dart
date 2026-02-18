@@ -7,22 +7,22 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Controllers
   /// ===============================
-
   PageController? _pageController;
   PageController get pageController => _pageController!;
 
   /// ===============================
   /// Book State
   /// ===============================
-
   String? _bookId;
   int _currentChapter = 0;
   int _totalChapters = 0;
 
+  /// Track last read chapter per book
+  final Map<String, int> _lastReadChapters = {};
+
   /// ===============================
   /// UI State
   /// ===============================
-
   double _fontSize = 18;
   ReaderThemeMode _themeMode = ReaderThemeMode.light;
   bool _showControls = true;
@@ -38,12 +38,17 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Getters
   /// ===============================
-
   int get currentChapter => _currentChapter;
   double get fontSize => _fontSize;
   ReaderThemeMode get themeMode => _themeMode;
   bool get showControls => _showControls;
   bool get isSpeaking => _isSpeaking;
+
+  /// Last read chapter for current book
+  int get lastReadChapter {
+    if (_bookId == null) return 0;
+    return _lastReadChapters[_bookId!] ?? 0;
+  }
 
   bool isBookmarked(int chapter) {
     if (_bookId == null) return false;
@@ -58,7 +63,6 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Initialize Book
   /// ===============================
-
   void loadBook({
     required String bookId,
     required int totalChapters,
@@ -67,11 +71,10 @@ class ReaderProvider extends ChangeNotifier {
     _bookId = bookId;
     _totalChapters = totalChapters;
     _currentChapter = lastReadChapter;
+    _lastReadChapters[_bookId!] = lastReadChapter;
 
     _pageController?.dispose();
-    _pageController = PageController(
-      initialPage: lastReadChapter,
-    );
+    _pageController = PageController(initialPage: lastReadChapter);
 
     notifyListeners();
   }
@@ -79,15 +82,18 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Chapter Navigation
   /// ===============================
-
   void setChapter(int index) {
     _currentChapter = index;
+
+    if (_bookId != null) {
+      _lastReadChapters[_bookId!] = index;
+    }
+
     notifyListeners();
   }
 
   void nextChapter() {
     if (_pageController == null) return;
-
     if (_currentChapter < _totalChapters - 1) {
       _pageController!.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -98,7 +104,6 @@ class ReaderProvider extends ChangeNotifier {
 
   void previousChapter() {
     if (_pageController == null) return;
-
     if (_currentChapter > 0) {
       _pageController!.previousPage(
         duration: const Duration(milliseconds: 300),
@@ -110,7 +115,6 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Font Controls
   /// ===============================
-
   void increaseFont() {
     if (_fontSize < 30) {
       _fontSize += 2;
@@ -128,7 +132,6 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Theme Controls
   /// ===============================
-
   void changeTheme(ReaderThemeMode mode) {
     _themeMode = mode;
     notifyListeners();
@@ -137,7 +140,6 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Bookmark
   /// ===============================
-
   void toggleBookmark() {
     if (_bookId == null) return;
 
@@ -155,7 +157,6 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Controls Visibility (Immersive Mode)
   /// ===============================
-
   void toggleControls() {
     _showControls = !_showControls;
     notifyListeners();
@@ -176,7 +177,6 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// TTS
   /// ===============================
-
   void setSpeaking(bool value) {
     _isSpeaking = value;
     notifyListeners();
@@ -185,7 +185,6 @@ class ReaderProvider extends ChangeNotifier {
   /// ===============================
   /// Clean Up
   /// ===============================
-
   @override
   void dispose() {
     _pageController?.dispose();

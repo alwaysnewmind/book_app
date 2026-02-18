@@ -10,6 +10,7 @@ class LibraryBooksGrid extends StatelessWidget {
 
     return GridView.builder(
       physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(12),
       itemCount: books.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -20,48 +21,104 @@ class LibraryBooksGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         final bookImage = 'assets/books/Book${(index % 5) + 1}.png';
 
-        return GestureDetector(
+        return _BookTile(
+          imagePath: bookImage,
+          isPremium: index % 4 == 0,
           onTap: () {
-            // Navigate to Book Detail Screen
             Navigator.pushNamed(
               context,
               AppRoutes.bookDetail,
-              // arguments: books[index], // optional: pass book ID
             );
           },
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+        );
+      },
+    );
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// 🔹 Reusable Book Tile with animation & premium overlay
+///////////////////////////////////////////////////////////////////////////////
+class _BookTile extends StatefulWidget {
+  final String imagePath;
+  final bool isPremium;
+  final VoidCallback onTap;
+
+  const _BookTile({
+    required this.imagePath,
+    this.isPremium = false,
+    required this.onTap,
+  });
+
+  @override
+  State<_BookTile> createState() => _BookTileState();
+}
+
+class _BookTileState extends State<_BookTile>
+    with SingleTickerProviderStateMixin {
+  double _scale = 1.0;
+
+  void _onTapDown(_) => setState(() => _scale = 0.95);
+  void _onTapUp(_) => setState(() => _scale = 1.0);
+  void _onTapCancel() => setState(() => _scale = 1.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: (_) {
+        _onTapUp(_);
+        widget.onTap();
+      },
+      onTapCancel: _onTapCancel,
+      child: AnimatedScale(
+        scale: _scale,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Image.asset(
-                  bookImage,
+                  widget.imagePath,
                   fit: BoxFit.cover,
                 ),
               ),
+            ),
 
-              /// Premium lock overlay example
-              if (index % 4 == 0) // simulate premium books
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.amber,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.lock,
-                      size: 16,
-                      color: Colors.black,
-                    ),
+            /// Premium lock overlay
+            if (widget.isPremium)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.amber,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.lock,
+                    size: 16,
+                    color: Colors.black,
                   ),
                 ),
-            ],
-          ),
-        );
-      },
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

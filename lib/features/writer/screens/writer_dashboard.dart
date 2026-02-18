@@ -130,7 +130,7 @@ class WriterDashboard extends StatelessWidget {
                       PremiumGuard(
                         user: currentUser,
                         isGuest: isGuest,
-                        contentType: ContentType.Earnings,//
+                        contentType: ContentType.earnings,//
                         lockedView: ElevatedButton(
                           onPressed: () {
                             Navigator.push(

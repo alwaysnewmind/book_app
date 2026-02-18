@@ -18,24 +18,29 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   final ScrollController _scrollController = ScrollController();
 
-  final String _dummyContent =
-      "📖 Book content starts here...\n\n"
-      "This is a professional reader experience.\n\n"
-      "You can change font size, switch themes, "
-      "and track your reading progress.\n\n"
-      "Later API / PDF / text will load here.\n\n"
-      "Keep scrolling to see progress change.\n\n"
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-      "Vestibulum in neque et nisl.\n\n"
-      "End of sample content.";
+  final String _dummyContent = """
+📖 Book content starts here...
+
+This is a professional reader experience.
+
+You can change font size, switch themes, and track your reading progress.
+
+Later API / PDF / text will load here.
+
+Keep scrolling to see progress change.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in neque et nisl.
+
+End of sample content.
+""";
 
   @override
   void initState() {
     super.initState();
 
     _scrollController.addListener(() {
-      double maxScroll = _scrollController.position.maxScrollExtent;
-      double currentScroll = _scrollController.position.pixels;
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      final currentScroll = _scrollController.position.pixels;
 
       if (maxScroll > 0) {
         setState(() {
@@ -47,9 +52,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLocked) {
-      return const ReaderSubscriptionScreen();
-    }
+    // 🔒 Locked book redirect
+    if (widget.isLocked) return const ReaderSubscriptionScreen();
 
     // 🎨 Dynamic Theme Colors
     Color bgColor = Colors.white;
@@ -65,7 +69,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-
       appBar: AppBar(
         backgroundColor: bgColor,
         elevation: 0,
@@ -77,12 +80,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
           fontWeight: FontWeight.bold,
         ),
         actions: [
-          // 🌙 Dark Mode
+          // 🌙 Dark Mode Toggle
           IconButton(
-            icon: Icon(
-              Icons.dark_mode,
-              color: textColor,
-            ),
+            icon: Icon(Icons.dark_mode, color: textColor),
             onPressed: () {
               setState(() {
                 _isDarkMode = !_isDarkMode;
@@ -90,13 +90,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
               });
             },
           ),
-
-          // 📜 Sepia Mode
+          // 📜 Sepia Mode Toggle
           IconButton(
-            icon: Icon(
-              Icons.menu_book,
-              color: textColor,
-            ),
+            icon: Icon(Icons.menu_book, color: textColor),
             onPressed: () {
               setState(() {
                 _isSepiaMode = !_isSepiaMode;
@@ -141,16 +137,12 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 });
               },
             ),
-
-            // 📊 Progress %
+            // 📊 Reading Progress %
             Text(
               "${_progress.toStringAsFixed(0)}%",
               style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
-
             // ➕ Increase Font
             IconButton(
               icon: const Icon(Icons.add, color: Colors.white),

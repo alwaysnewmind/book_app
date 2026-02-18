@@ -32,6 +32,7 @@ class LanguageSelectionScreen extends StatelessWidget {
             ),
             SizedBox(height: 24),
 
+            // Language options
             _LanguageTile(
               language: "English",
               subtitle: "English (Default)",
@@ -64,10 +65,7 @@ class LanguageSelectionScreen extends StatelessWidget {
   }
 }
 
-//
-// 🌍 LANGUAGE TILE
-//
-
+/// 🌍 LANGUAGE TILE
 class _LanguageTile extends StatelessWidget {
   final String language;
   final String subtitle;
@@ -87,9 +85,7 @@ class _LanguageTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(16),
-        border: selected
-            ? Border.all(color: Colors.amber, width: 1.2)
-            : null,
+        border: selected ? Border.all(color: Colors.amber, width: 1.2) : null,
       ),
       child: Row(
         children: [
