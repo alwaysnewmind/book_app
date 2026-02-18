@@ -1,3 +1,4 @@
+import 'package:book_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app/navigation/app_shell.dart';
 import '../widgets/auth_text_field.dart';
@@ -5,6 +6,8 @@ import '../widgets/auth_button.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+
+  AppUser? get loggedInUser => null;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +63,10 @@ class LoginScreen extends StatelessWidget {
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const AppShell()),
+                          MaterialPageRoute(builder: (_) => AppShell(
+                            currentUser: loggedInUser, // AppUser object from login/signup
+                              isGuest: false,
+                          )),
                         );
                       },
                     ),
