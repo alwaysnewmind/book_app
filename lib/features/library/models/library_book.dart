@@ -4,6 +4,7 @@
 class LibraryBook {
   /// Unique book identifier
   final String id;
+  
 
   /// Book title
   final String title;

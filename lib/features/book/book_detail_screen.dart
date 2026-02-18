@@ -28,10 +28,10 @@ class BookDetailScreen extends StatelessWidget {
     final readerProvider = Provider.of<ReaderProvider>(context);
 
     // Check if book exists in library
-    final existingBook = LibraryStore.books
+    final existingBook = LibraryStore.instance.books
             .where((b) => b.title == title)
             .isNotEmpty
-        ? LibraryStore.books.firstWhere((b) => b.title == title)
+        ? LibraryStore.instance.books.firstWhere((b) => b.title == title)
         : null;
 
     final hasStarted = existingBook != null;
@@ -144,7 +144,7 @@ class BookDetailScreen extends StatelessWidget {
                         "Chapter 3\n\nThis is chapter three content...",
                       ],
                     );
-                    LibraryStore.addBook(book);
+                    LibraryStore.instance.addBook(book);
                   }
 
                   Navigator.push(

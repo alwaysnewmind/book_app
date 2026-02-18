@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:book_app/features/home/home_screen.dart';
 import 'package:book_app/features/library/library_screen.dart';
-import 'package:book_app/features/writer/screens/writer_screen.dart';
+import 'package:book_app/features/writer/screens/writer_dashboard.dart';
 import 'package:book_app/features/profile/profile_screen.dart';
-import '../core/theme/app_colors.dart';
+import 'package:book_app/models/user_model.dart';
+import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/providers/auth_provider.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -15,18 +19,30 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    WriterStats(),
-    LibraryScreen(),
-    ProfileScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final AppUser? user = auth.user;
+    final bool isGuest = auth.isGuest;
+
+    final bool isWriter =
+        !isGuest && user != null && user.role == UserRole.writer;
+
+    /// Pages based on role
+    final List<Widget> pages = [
+      const HomeScreen(),
+      if (isWriter)
+        WriterDashboard(
+          currentUser: user,
+          isGuest: isGuest,
+        ),
+      const LibraryScreen(),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
       extendBody: true,
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
 
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
@@ -46,10 +62,27 @@ class _MainNavigationState extends State<MainNavigation> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+
+              /// HOME
               _buildNavItem(Icons.home, "Home", 0),
-              _buildNavItem(Icons.edit, "Writer", 1),
-              _buildNavItem(Icons.library_books, "Library", 2),
-              _buildNavItem(Icons.person, "Profile", 3),
+
+              /// WRITER (Only for writers)
+              if (isWriter)
+                _buildNavItem(Icons.edit, "Writer", 1),
+
+              /// LIBRARY
+              _buildNavItem(
+                Icons.library_books,
+                "Library",
+                isWriter ? 2 : 1,
+              ),
+
+              /// PROFILE
+              _buildNavItem(
+                Icons.person,
+                "Profile",
+                isWriter ? 3 : 2,
+              ),
             ],
           ),
         ),

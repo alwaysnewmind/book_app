@@ -1,52 +1,57 @@
 import '../../models/user_model.dart';
 
-/// Defines types of content in the app
+/// Types of content in app
 enum ContentType {
   free,
   premium,
-  earnings, // renamed to lowercase for Dart naming consistency
+  earnings,
+  writerOnly,
+  adminOnly,
 }
 
 class AccessRules {
-  /// Check if user can fully access the content
+  /// Check if user has active subscription
+  static bool _hasActiveSubscription(AppUser? user) {
+    if (user == null) return false;
+    if (!user.isPremium) return false;
+
+    if (user.subscriptionExpiry == null) return false;
+
+    return user.subscriptionExpiry!.isAfter(DateTime.now());
+  }
+
+  /// Full access check
   static bool canAccess({
     required AppUser? user,
     required bool isGuest,
     required ContentType contentType,
   }) {
+    final isPremiumActive = _hasActiveSubscription(user);
+
     switch (contentType) {
       case ContentType.free:
-        // Free content: everyone allowed
         return true;
 
       case ContentType.premium:
-        // Guest cannot access premium
-        if (isGuest) return false;
-
-        // Logged-in premium users allowed
-        return user?.isPremium ?? false;
+        return !isGuest && isPremiumActive;
 
       case ContentType.earnings:
-        // Only premium users (not guests) can access earnings
-        if (isGuest) return false;
-        return user?.isPremium ?? false;
+        return !isGuest &&
+            user?.role == UserRole.writer &&
+            isPremiumActive;
+
+      case ContentType.writerOnly:
+        return !isGuest &&
+            (user?.role == UserRole.writer ||
+                user?.role == UserRole.admin);
+
+      case ContentType.adminOnly:
+        return !isGuest && user?.role == UserRole.admin;
     }
   }
 
-  /// Should show teaser/preview for content
-  static bool canPreview({
-    required AppUser? user,
-    required bool isGuest,
-    required ContentType contentType,
-  }) {
-    switch (contentType) {
-      case ContentType.free:
-        return true; // free content always visible
-
-      case ContentType.premium:
-      case ContentType.earnings:
-        // Teaser available for premium/earnings content
-        return true;
-    }
+  /// Preview allowed?
+  static bool canPreview(ContentType contentType) {
+    return true;
   }
 }

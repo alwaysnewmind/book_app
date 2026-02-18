@@ -8,13 +8,13 @@ class DownloadsScreen extends StatelessWidget {
 
   Route _animatedRoute(Widget page) {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 400),
+      transitionDuration: const Duration(milliseconds: 350),
       pageBuilder: (_, animation, __) => page,
       transitionsBuilder: (_, animation, __, child) {
         return FadeTransition(
           opacity: animation,
           child: ScaleTransition(
-            scale: Tween(begin: 0.96, end: 1.0).animate(animation),
+            scale: Tween(begin: 0.95, end: 1.0).animate(animation),
             child: child,
           ),
         );
@@ -24,17 +24,24 @@ class DownloadsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Filter downloaded books from library
     final List<LibraryBook> downloadedBooks =
-        LibraryStore.books.where((b) => b.downloaded).toList();
+        LibraryStore.instance.book.where((b) => b.downloaded).toList();
 
     if (downloadedBooks.isEmpty) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.black,
         body: Center(
-          child: Text(
-            "No downloaded books yet",
-            style: TextStyle(color: Colors.white70, fontSize: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.download_done_rounded,
+                  size: 60, color: Colors.white38),
+              SizedBox(height: 16),
+              Text(
+                "No downloaded books yet",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            ],
           ),
         ),
       );
@@ -46,15 +53,16 @@ class DownloadsScreen extends StatelessWidget {
         title: const Text("Downloaded Books"),
         backgroundColor: Colors.black,
         centerTitle: true,
+        elevation: 0,
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: downloadedBooks.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.6,
+          mainAxisSpacing: 14,
+          crossAxisSpacing: 14,
+          childAspectRatio: 0.62,
         ),
         itemBuilder: (context, index) {
           final book = downloadedBooks[index];
@@ -67,30 +75,62 @@ class DownloadsScreen extends StatelessWidget {
               );
             },
             child: Hero(
-              tag: book.imagePath,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Stack(
-                  children: [
-                    Image.asset(
-                      book.imagePath,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
+              tag: "download_${book.id}", // safer hero tag
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
                     ),
-                    if (book.progress > 0)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: LinearProgressIndicator(
-                          value: book.progress,
-                          minHeight: 4,
-                          backgroundColor: Colors.white30,
-                          color: Colors.deepPurple,
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Image.asset(
+                          book.imagePath,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                  ],
+
+                      // Download Badge
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.download_done,
+                            size: 14,
+                            color: Colors.greenAccent,
+                          ),
+                        ),
+                      ),
+
+                      // Progress bar
+                      if (book.progress > 0)
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: LinearProgressIndicator(
+                            value: book.progress,
+                            minHeight: 4,
+                            backgroundColor: Colors.white30,
+                            color: Colors.deepPurple,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

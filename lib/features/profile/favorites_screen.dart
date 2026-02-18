@@ -26,7 +26,7 @@ class FavoritesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Filter favorite books from library
     final List<LibraryBook> favoriteBooks =
-        LibraryStore.books.where((b) => b.favorite).toList();
+        LibraryStore.instance.books.where((b) => b.favorite).toList();
 
     if (favoriteBooks.isEmpty) {
       return const Scaffold(

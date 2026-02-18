@@ -31,10 +31,13 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   void initState() {
     super.initState();
 
-    // For demo purposes, you need to define chapters inside widget
-    chapters = widget.book.toJson()['chapters'] != null
-        ? List<String>.from(widget.book.toJson()['chapters'])
-        : List.generate(10, (index) => "Chapter ${index + 1} content");
+    /// ✅ Correct way (NO JSON conversion)
+    chapters = widget.book.chapters.isNotEmpty
+        ? widget.book.chapters
+        : List.generate(
+            10,
+            (index) => "Chapter ${index + 1}\n\nThis is demo content...",
+          );
 
     final readerProvider =
         Provider.of<ReaderProvider>(context, listen: false);
@@ -42,8 +45,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
     readerProvider.loadBook(
       bookId: widget.book.id,
       totalChapters: chapters.length,
-      lastReadChapter:
-          readerProvider.lastReadChapter, // use provider's stored value
+      lastReadChapter: widget.book.lastReadChapter,
     );
   }
 
@@ -100,11 +102,14 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                         readerProvider.toggleBookmark();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(readerProvider.isBookmarked(
-                                    readerProvider.currentChapter)
-                                ? 'Bookmarked'
-                                : 'Removed Bookmark'),
-                            duration: const Duration(milliseconds: 800),
+                            content: Text(
+                              readerProvider.isBookmarked(
+                                      readerProvider.currentChapter)
+                                  ? 'Bookmarked'
+                                  : 'Removed Bookmark',
+                            ),
+                            duration:
+                                const Duration(milliseconds: 800),
                           ),
                         );
                       },
@@ -177,7 +182,6 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     controller: readerProvider.pageController,
                     onPageChanged: (index) {
                       readerProvider.setChapter(index);
-                      // No setter on book.lastReadChapter, provider handles it
                     },
                     itemCount: chapters.length,
                     itemBuilder: (context, index) {
@@ -215,15 +219,15 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     vertical: 12,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
                     children: [
-                      /// Previous
                       IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: textColor),
-                        onPressed: readerProvider.previousChapter,
+                        icon: Icon(Icons.arrow_back_ios,
+                            color: textColor),
+                        onPressed:
+                            readerProvider.previousChapter,
                       ),
-
-                      /// TTS
                       IconButton(
                         icon: Icon(
                           readerProvider.isSpeaking
@@ -236,10 +240,9 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                               !readerProvider.isSpeaking);
                         },
                       ),
-
-                      /// Next
                       IconButton(
-                        icon: Icon(Icons.arrow_forward_ios, color: textColor),
+                        icon: Icon(Icons.arrow_forward_ios,
+                            color: textColor),
                         onPressed: readerProvider.nextChapter,
                       ),
                     ],
@@ -259,7 +262,8 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const ReaderSubscriptionScreen(),
+                        builder: (_) =>
+                            const ReaderSubscriptionScreen(),
                       ),
                     );
                   },

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 enum UserRole {
   reader,
   writer,
+  admin,
 }
 
 class AppUser {
@@ -12,11 +13,11 @@ class AppUser {
   final String? photoUrl;
   final UserRole role;
 
-  // SaaS Related Fields
+  // 🔐 Subscription Fields
   final bool isPremium;
   final DateTime? subscriptionExpiry;
 
-  // Metadata
+  // 📅 Metadata
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -30,11 +31,9 @@ class AppUser {
     this.photoUrl,
     this.isPremium = false,
     this.subscriptionExpiry,
-    
-    
   });
 
-  /// 🔄 Convert Firestore → AppUser
+  /// 🔄 Firestore → AppUser
   factory AppUser.fromMap(Map<String, dynamic> map) {
     return AppUser(
       uid: map['uid'] ?? '',
@@ -49,12 +48,16 @@ class AppUser {
       subscriptionExpiry: map['subscriptionExpiry'] != null
           ? (map['subscriptionExpiry'] as Timestamp).toDate()
           : null,
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      updatedAt: (map['updatedAt'] as Timestamp).toDate(),
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
+      updatedAt: map['updatedAt'] != null
+          ? (map['updatedAt'] as Timestamp).toDate()
+          : DateTime.now(),
     );
   }
 
-  /// 🔄 Convert AppUser → Firestore
+  /// 🔄 AppUser → Firestore
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -69,7 +72,7 @@ class AppUser {
     };
   }
 
-  /// 🔁 CopyWith (Future updates ke liye)
+  /// 🔁 CopyWith (safe updates)
   AppUser copyWith({
     String? name,
     String? photoUrl,
@@ -89,4 +92,20 @@ class AppUser {
       updatedAt: DateTime.now(),
     );
   }
+
+  /// 🔐 Check if subscription is ACTIVE
+  bool get hasActiveSubscription {
+    if (!isPremium) return false;
+    if (subscriptionExpiry == null) return false;
+
+    return subscriptionExpiry!.isAfter(DateTime.now());
+  }
+
+  /// 👑 Check if user is writer
+  bool get isWriter => role == UserRole.writer;
+
+  /// 📖 Check if user is reader
+  bool get isReader => role == UserRole.reader;
+
+  
 }

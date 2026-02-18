@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // reader
 import 'package:book_app/features/reader/screens/book_reader_screen.dart';
@@ -32,7 +33,9 @@ class MyLibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<LibraryBook> books = LibraryStore.books;
+    // ✅ UPDATED — Using Provider instead of static access
+    final List<LibraryBook> books =
+        context.watch<LibraryStore>().books;
 
     if (books.isEmpty) {
       return const Scaffold(
@@ -188,7 +191,7 @@ class MyLibraryScreen extends StatelessWidget {
 
                     // BOOK COVER WITH HERO ANIMATION AND SHADOW
                     Hero(
-                      tag: book.imagePath,
+                      tag: book.id,
                       child: Stack(
                         children: [
                           Container(

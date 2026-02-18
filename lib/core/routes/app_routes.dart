@@ -28,10 +28,17 @@ import 'package:book_app/features/services/challenges_screen.dart';
 import 'package:book_app/features/ai/ai_chat_screen.dart';
 import 'package:book_app/features/ai/ai_mood_screen.dart';
 import 'package:book_app/features/ai/ai_recommendation_screen.dart';
+import 'package:book_app/features/ai/ai_summary_screen.dart';
 import 'package:book_app/features/ai/ai_voice_screen.dart';
 import 'package:book_app/features/ai/ai_writing_assistant_screen.dart';
 
-// BOOK
+// SETTINGS
+import 'package:book_app/features/settings/screens/settings_screen.dart';
+import 'package:book_app/features/settings/language_selection_screen.dart';
+
+// PROFILE
+import 'package:book_app/features/profile/favorites_screen.dart';
+import 'package:book_app/features/profile/downloads_screen.dart';
 
 // MODELS
 import 'package:book_app/models/user_model.dart';
@@ -43,6 +50,9 @@ class AppRoutes {
   static const login = '/login';
   static const library = '/library';
   static const subscription = '/subscription';
+
+  static const favorites = '/favorites';
+  static const downloads = '/downloads';
 
   static const writerDashboard = '/writer-dashboard';
   static const writerManageBooks = '/writer-manage-books';
@@ -65,24 +75,30 @@ class AppRoutes {
   static const aiVoice = '/ai-voice';
   static const aiWritingAssistant = '/ai-writing-assistant';
 
+  static const settings = '/settings';
+  static const language = '/language';
+
   static const bookDetail = '/book-detail';
 }
 
 /// =======================================================
-/// ROUTE MAP (MaterialApp.routes)
+/// ROUTE MAP
 /// =======================================================
 Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
   return {
+
     // AUTH
     AppRoutes.login: (_) => const AuthEntryScreen(),
 
     // LIBRARY
     AppRoutes.library: (_) => const LibraryScreen(),
+    AppRoutes.favorites: (_) => const FavoritesScreen(),
+    AppRoutes.downloads: (_) => const DownloadsScreen(),
 
     // SUBSCRIPTION
     AppRoutes.subscription: (_) => const ReaderSubscriptionScreen(),
 
-    // WRITER DASHBOARD & CHILD SCREENS
+    // WRITER
     AppRoutes.writerDashboard: (_) => WriterDashboard(
           currentUser: currentUser,
           isGuest: isGuest,
@@ -104,8 +120,13 @@ Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
     AppRoutes.aiChat: (_) => const AIChatScreen(),
     AppRoutes.aiMood: (_) => const AIMoodScreen(),
     AppRoutes.aiRecommendation: (_) => const AIRecommendationScreen(),
+    AppRoutes.aiSummary: (_) => const AISummaryScreen(bookTitle: '',),
     AppRoutes.aiVoice: (_) => const AIVoiceScreen(),
     AppRoutes.aiWritingAssistant: (_) => const AIWritingAssistantScreen(),
+
+    // SETTINGS
+    AppRoutes.settings: (_) => const SettingsScreen(),
+    AppRoutes.language: (_) => const LanguageSelectionScreen(),
 
     // BOOK
     AppRoutes.bookDetail: (_) => const PlaceholderScreen(title: "Book Detail"),
@@ -113,7 +134,7 @@ Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
 }
 
 /// =======================================================
-/// FALLBACK / PLACEHOLDER SCREEN
+/// FALLBACK SCREEN
 /// =======================================================
 class PlaceholderScreen extends StatelessWidget {
   final String title;
