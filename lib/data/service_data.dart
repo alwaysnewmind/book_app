@@ -2,55 +2,56 @@ import 'package:flutter/material.dart';
 
 class ServiceItem {
   final String title;
-  final IconData icon;
   final String route;
+  final String imagePath;
 
   const ServiceItem({
     required this.title,
-    required this.icon,
+  
     required this.route,
+    required this.imagePath,
   });
 }
 
 final List<ServiceItem> serviceItems = [
   ServiceItem(
     title: 'Read',
-    icon: Icons.menu_book,
+    imagePath: 'assets/services/read.png',
     route: '/library',
   ),
   ServiceItem(
     title: 'Premium',
-    icon: Icons.star,
+    imagePath: 'assets/services/premium.png',
     route: '/subscription',
   ),
   ServiceItem(
     title: 'Write',
-    icon: Icons.edit,
+    imagePath: 'assets/services/write.png',
     route: '/writer',
   ),
   ServiceItem(
     title: 'Earn',
-    icon: Icons.currency_rupee,
+    imagePath: 'assets/services/earn.png',
     route: '/writer-earnings',
   ),
   ServiceItem(
     title: 'Audio',
-    icon: Icons.headphones,
+    imagePath: 'assets/services/audio.png',
     route: '/audio',
   ),
   ServiceItem(
     title: 'Community',
-    icon: Icons.groups,
+    imagePath: 'assets/services/community.png',
     route: '/community',
   ),
   ServiceItem(
     title: 'AI Chat',
-    icon: Icons.smart_toy,
+    imagePath: 'assets/services/ai.png',
     route: '/ai-chat',
   ),
   ServiceItem(
     title: 'Challenges',
-    icon: Icons.flag,
+    imagePath: 'assets/services/challenges.png',
     route: '/challenges',
   ),
 ];

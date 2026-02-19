@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class CreateBookPage extends StatefulWidget {
@@ -23,6 +22,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
   bool _isMonetized = false;
 
   int get _wordCount {
+    if (_chapterContentController.text.trim().isEmpty) return 0;
     return _chapterContentController.text.trim().split(RegExp(r'\s+')).length;
   }
 
@@ -39,7 +39,6 @@ class _CreateBookPageState extends State<CreateBookPage> {
 
   void _saveDraft() {
     if (!_isSaved) {
-      debugPrint("Auto Saving Draft...");
       setState(() => _isSaved = true);
     }
   }
@@ -125,211 +124,219 @@ class _CreateBookPageState extends State<CreateBookPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple[900],
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        title: Row(
-          children: [
-            const Text("Create Book"),
-            const SizedBox(width: 12),
-            Icon(
-              _isSaved ? Icons.check_circle : Icons.sync_problem,
-              color: _isSaved ? Colors.green : Colors.orange,
-              size: 18,
-            ),
-            const SizedBox(width: 12),
-            if (_isPublished)
-              const Text("Published",
-                  style: TextStyle(fontSize: 14, color: Colors.green)),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF6A5AE0), Color(0xFFB57EEB)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _isMonetized ? Icons.lock_open : Icons.lock,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              setState(() {
-                _isMonetized = !_isMonetized;
-              });
-            },
-          ),
-          TextButton(
-            onPressed: _saveDraft,
-            child: const Text("Save",
-                style: TextStyle(color: Colors.white)),
-          ),
-          TextButton(
-            onPressed: _publishBook,
-            child: const Text(
-              "Publish",
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-      body: Row(
-        children: [
-          /// LEFT PANEL - AI
-          Expanded(
-            flex: 2,
-            child: Container(
-              color: Colors.deepPurple[800]?.withOpacity(0.3),
-              padding: const EdgeInsets.all(16),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "AI Assistant",
-                    style: TextStyle(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 16),
-                  Text("• Grammar Check",
-                      style: TextStyle(color: Colors.white70)),
-                  Text("• Improve Writing",
-                      style: TextStyle(color: Colors.white70)),
-                  Text("• Generate Ideas",
-                      style: TextStyle(color: Colors.white70)),
-                ],
-              ),
-            ),
-          ),
-
-          /// RIGHT PANEL - WRITING
-          Expanded(
-            flex: 5,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  /// BOOK TITLE
-                  TextField(
-                    controller: _bookTitleController,
-                    onChanged: (_) => _onTextChanged(),
-                    style: const TextStyle(color: Colors.white),
-                    decoration: _inputDecoration("Book Title"),
-                  ),
-                  const SizedBox(height: 16),
-
-                  /// CHAPTER TITLE
-                  TextField(
-                    controller: _chapterTitleController,
-                    onChanged: (_) => _onTextChanged(),
-                    style: const TextStyle(color: Colors.white),
-                    decoration: _inputDecoration("Chapter Title"),
-                  ),
-                  const SizedBox(height: 16),
-
-                  /// CONTENT
-                  TextField(
-                    controller: _chapterContentController,
-                    onChanged: (_) => _onTextChanged(),
-                    maxLines: 8,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: _inputDecoration("Write chapter here..."),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Text("Word Count: $_wordCount",
-                      style:
-                          const TextStyle(color: Colors.white70)),
-
-                  const SizedBox(height: 12),
-
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: _addOrUpdateChapter,
-                      child: const Text("Add Chapter"),
+        child: SafeArea(
+          child: Column(
+            children: [
+              /// TOP BAR
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    const Spacer(),
+                    Icon(
+                      _isSaved ? Icons.check_circle : Icons.sync_problem,
+                      color: _isSaved ? Colors.green : Colors.orange,
+                      size: 18,
                     ),
+                  ],
+                ),
+              ),
+
+              /// WHITE CARD
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
                   ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    "Chapters",
-                    style: TextStyle(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  SizedBox(
-                    height: 170,
-                    child: ReorderableListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _chapters.length,
-                      onReorder: _reorderChapter,
-                      itemBuilder: (context, index) {
-                        final chapter = _chapters[index];
-
-                        return Container(
-                          key: ValueKey(chapter),
-                          width: 160,
-                          margin: const EdgeInsets.only(right: 16),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurple[700],
-                            borderRadius: BorderRadius.circular(16),
+                        const Text(
+                          "Create New Book",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                chapter['title'] ?? "",
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        TextField(
+                          controller: _bookTitleController,
+                          onChanged: (_) => _onTextChanged(),
+                          decoration: _modernInput("Title"),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        TextField(
+                          controller: _chapterTitleController,
+                          onChanged: (_) => _onTextChanged(),
+                          decoration: _modernInput("Chapter Title"),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        TextField(
+                          controller: _chapterContentController,
+                          onChanged: (_) => _onTextChanged(),
+                          maxLines: 6,
+                          decoration: _modernInput("Write chapter here..."),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Text(
+                          "Word Count: $_wordCount",
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: _addOrUpdateChapter,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6A5AE0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              const Spacer(),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.white70),
-                                    onPressed: () =>
-                                        _editChapter(index),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.redAccent),
-                                    onPressed: () =>
-                                        _deleteChapter(index),
-                                  ),
-                                ],
-                              )
-                            ],
+                            ),
+                            child: const Text("Add Chapter"),
                           ),
-                        );
-                      },
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        const Text(
+                          "Chapters",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        SizedBox(
+                          height: 170,
+                          child: ReorderableListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _chapters.length,
+                            onReorder: _reorderChapter,
+                            itemBuilder: (context, index) {
+                              final chapter = _chapters[index];
+
+                              return Container(
+                                key: ValueKey(chapter),
+                                width: 160,
+                                margin: const EdgeInsets.only(right: 16),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF3F1FF),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      chapter['title'] ?? "",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const Spacer(),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.edit,
+                                              size: 18),
+                                          onPressed: () =>
+                                              _editChapter(index),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.redAccent,
+                                              size: 18),
+                                          onPressed: () =>
+                                              _deleteChapter(index),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: _publishBook,
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF6A5AE0),
+                                    Color(0xFFB57EEB),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  "Publish Book",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _modernInput(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white54),
       filled: true,
-      fillColor: Colors.deepPurple[700],
+      fillColor: const Color(0xFFF3F1FF),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         borderSide: BorderSide.none,
       ),
     );

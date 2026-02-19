@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AuthButton extends StatelessWidget {
   final String text;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;   // ✅ nullable
   final Color backgroundColor;
   final Color textColor;
   final double height;
@@ -12,7 +12,7 @@ class AuthButton extends StatelessWidget {
   const AuthButton({
     super.key,
     required this.text,
-    required this.onTap,
+    this.onTap,  // ✅ required hata diya
     this.backgroundColor = Colors.amber,
     this.textColor = Colors.black,
     this.height = 50,
@@ -26,7 +26,7 @@ class AuthButton extends StatelessWidget {
       width: double.infinity,
       height: height,
       child: ElevatedButton(
-        onPressed: onTap,
+        onPressed: onTap, // null hoga to button disabled ho jayega
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: textColor,
@@ -39,7 +39,6 @@ class AuthButton extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: textColor,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),

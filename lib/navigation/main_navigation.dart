@@ -34,10 +34,10 @@ class _MainNavigationState extends State<MainNavigation> {
       if (isWriter)
         WriterDashboard(
           currentUser: user,
-          isGuest: isGuest,
+          isGuest: isGuest, isWriterMode: isWriter,
         ),
       const LibraryScreen(),
-      const ProfileScreen(),
+      ProfileScreen(isWriterMode: isWriter, onSwap: () {  },),
     ];
 
     return Scaffold(

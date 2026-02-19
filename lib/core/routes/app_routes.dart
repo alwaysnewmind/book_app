@@ -101,7 +101,7 @@ Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
     // WRITER
     AppRoutes.writerDashboard: (_) => WriterDashboard(
           currentUser: currentUser,
-          isGuest: isGuest,
+          isGuest: isGuest, isWriterMode: true,
         ),
     AppRoutes.writerManageBooks: (_) => const ManageBooksPage(),
     AppRoutes.writerCreateBook: (_) => const CreateBookScreen(),

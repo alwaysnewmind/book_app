@@ -35,15 +35,18 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E1A1A),
+      backgroundColor: const Color(0xFF0B1414),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1A1A),
         elevation: 0,
-        title: const Text("Create New Book"),
         centerTitle: true,
+        backgroundColor: const Color(0xFF0B1414),
+        title: const Text(
+          "Create New Book",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,37 +54,38 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
             /// ================= COVER PREVIEW =================
             Center(
               child: Container(
-                height: 190,
-                width: 135,
+                height: 200,
+                width: 145,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   gradient: const LinearGradient(
                     colors: [
-                      Color(0xFF2A3F3F),
-                      Color(0xFF162323),
+                      Color(0xFF1F2F2F),
+                      Color(0xFF121E1E),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
+                  border: Border.all(color: Colors.white10),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: const Offset(0, 12),
                     ),
                   ],
                 ),
                 child: const Center(
                   child: Icon(
                     Icons.add_a_photo_outlined,
-                    color: Colors.white60,
-                    size: 38,
+                    color: Colors.white54,
+                    size: 40,
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 36),
 
             /// ================= TITLE =================
             _label("Book Title"),
@@ -90,7 +94,7 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
               hint: "Enter book title",
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
 
             /// ================= SUBTITLE =================
             _label("Subtitle"),
@@ -99,30 +103,31 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
               hint: "Optional subtitle",
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
 
             /// ================= GENRE =================
             _label("Genre"),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFF162323),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white10),
+                color: const Color(0xFF131F1F),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white12),
               ),
               child: DropdownButton<String>(
                 value: _selectedGenre,
-                dropdownColor: const Color(0xFF162323),
+                dropdownColor: const Color(0xFF131F1F),
                 isExpanded: true,
                 underline: const SizedBox(),
-                icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white70,
+                ),
+                style: const TextStyle(color: Colors.white),
                 items: _genres.map((genre) {
                   return DropdownMenuItem(
                     value: genre,
-                    child: Text(
-                      genre,
-                      style: const TextStyle(color: Colors.white),
-                    ),
+                    child: Text(genre),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -133,7 +138,7 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
               ),
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
 
             /// ================= DESCRIPTION =================
             _label("Description"),
@@ -143,15 +148,15 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
               maxLines: 4,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             /// ================= PREMIUM TOGGLE =================
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: const Color(0xFF162323),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white10),
+                color: const Color(0xFF131F1F),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white12),
               ),
               child: SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -159,7 +164,10 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                 value: _isPremium,
                 title: const Text(
                   "Mark as Premium Book",
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -169,21 +177,15 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 36),
 
             /// ================= SAVE BUTTON =================
             SizedBox(
               width: double.infinity,
-              height: 54,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: () {
+              height: 56,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(18),
+                onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Book saved as draft"),
@@ -191,11 +193,32 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                   );
                   Navigator.pop(context);
                 },
-                child: const Text(
-                  "Save & Continue",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                child: Ink(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFFD54F),
+                        Color(0xFFFFB300),
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.amber.withOpacity(0.4),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "Save & Continue",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -212,13 +235,14 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
 
   Widget _label(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
         style: const TextStyle(
           color: Colors.white70,
           fontSize: 13,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.3,
         ),
       ),
     );
@@ -237,10 +261,21 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.white38),
         filled: true,
-        fillColor: const Color(0xFF162323),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
+        fillColor: const Color(0xFF131F1F),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.white10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: Colors.amber,
+            width: 1.2,
+          ),
         ),
       ),
     );

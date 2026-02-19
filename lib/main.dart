@@ -1,4 +1,3 @@
-import 'package:book_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -7,49 +6,38 @@ import 'firebase_options.dart';
 import 'config/app_config.dart';
 import 'core/theme/app_theme.dart';
 
-// 🔹 Auth
-import 'features/auth/screens/splash_screen.dart';
-import 'features/auth/auth_routes.dart';
-
 // 🔹 Providers
+import 'providers/auth_provider.dart';
 import 'providers/reader_provider.dart';
 import 'providers/app_settings_provider.dart';
 import 'features/library/models/library_store.dart';
 
-// 🔹 Feature Screens (Correct Folder Based Imports)
+// 🔹 Auth
+import 'features/auth/screens/splash_screen.dart';
+import 'features/auth/auth_routes.dart';
 
-// Book
+// 🔹 Book
 import 'features/book/all_books_screen.dart';
 
-// Library
+// 🔹 Library
 import 'features/library/screens/my_library_screen.dart';
 
-// Profile
+// 🔹 Profile
 import 'features/profile/downloads_screen.dart';
 import 'features/profile/favorites_screen.dart';
 
-// AI
-import 'features/ai/ai_summary_screen.dart';
-
-// Services
+// 🔹 Services
 import 'features/services/audio_screen.dart';
 import 'features/services/challenges_screen.dart';
 import 'features/services/community_screen.dart';
-import 'features/services/earn_screen.dart';
-import 'features/services/premium_screen.dart';
 import 'features/services/feedback_screen.dart';
 
-// Settings
+// 🔹 Settings
 import 'features/settings/language_selection_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 
-// Writer
-import 'features/writer/screens/writer_screen.dart';
-
-// Discover → using AllBooksScreen
-// Reviews → using feedback_screen
-// Premium → premium_screen
-// Read Books → all_books_screen
+// 🔹 Writer
+import 'features/writer/screens/writer_earnings_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,10 +51,10 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
         ChangeNotifierProvider(create: (_) => LibraryStore()),
         ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
-        ChangeNotifierProvider<AuthProvider>(create: (_)=> AuthProvider(),)
       ],
       child: const MyApp(),
     ),
@@ -83,7 +71,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
 
-          // 🌍 Language Support
+          /// 🌍 Localization
           locale: settings.locale,
           supportedLocales: const [
             Locale('en'),
@@ -91,32 +79,43 @@ class MyApp extends StatelessWidget {
             Locale('gu'),
           ],
 
-          // 🌗 Theme
+          /// 🌗 Theme
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system,
+          themeMode: settings.themeMode,
 
-          // 🏁 Start
+          /// 🏁 Initial Screen
           home: const SplashScreen(),
 
-          // 🔥 ALL HOME SERVICE ROUTES REGISTERED
+          /// 🔥 Routes
           routes: {
             ...authRoutes,
 
+            // 📚 Reading
             "/read": (_) => const AllBooksScreen(),
             "/discover": (_) => const AllBooksScreen(),
 
+            // ❤️ Profile
             "/favorites": (_) => const FavoritesScreen(),
             "/downloads": (_) => const DownloadsScreen(),
-            "/library": (_) => const MyLibraryScreen(),
-            "/audio": (_) => const AudioScreen(),
 
+            // 📖 Library
+            "/library": (_) => const MyLibraryScreen(),
+
+            // 🎧 Services
+            "/audio": (_) => const AudioScreen(),
             "/community": (_) => const CommunityScreen(),
             "/challenges": (_) => const ChallengesScreen(),
+            "/earn": (_) => const WriterEarningsScreen(),
             "/reviews": (_) => const FeedbackScreen(),
+
+            // ⚙ Settings
             "/language": (_) => const LanguageSelectionScreen(),
             "/settings": (_) => const SettingsScreen(),
             "/help": (_) => const FeedbackScreen(),
+
+            // ✍ Writer
+            "/writer": (_) => const WriterEarningsScreen(),
           },
         );
       },

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:book_app/data/dummy_books.dart' show dummyBooks;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,9 @@ import 'package:book_app/features/reader/screens/book_reader_screen.dart';
 // library
 import 'package:book_app/features/library/models/library_store.dart';
 import 'package:book_app/features/library/models/library_book.dart';
+
+// 🔥 dummy data
+import 'package:book_app/data/dummy_books.dart';
 
 class MyLibraryScreen extends StatelessWidget {
   const MyLibraryScreen({super.key});
@@ -33,25 +37,21 @@ class MyLibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ UPDATED — Using Provider instead of static access
-    final List<LibraryBook> books =
+    /// 🔥 Get books from provider
+    List<LibraryBook> books =
         context.watch<LibraryStore>().books;
 
+    /// 🔥 If library empty → load dummy books
     if (books.isEmpty) {
-      return const Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(
-          child: Text(
-            "No books in your library yet",
-            style: TextStyle(color: Colors.white70),
-          ),
-        ),
-      );
+      books = dummyBooks.cast<LibraryBook>();
     }
 
+    /// Continue Reading Section
     final continueBooks =
         books.where((b) => b.progress > 0 && b.progress < 1).toList();
-    final featuredBook = books.last;
+
+    /// Featured Book
+    final featuredBook = books.first;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -59,40 +59,84 @@ class MyLibraryScreen extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         slivers: [
 
-          // APP BAR
+          /// APP BAR
           const SliverAppBar(
             backgroundColor: Colors.black,
             pinned: true,
-            floating: true,
-            title: Text("My Library"),
+            elevation: 0,
+            title: Text(
+              "My Library",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
 
-          // FEATURED BANNER
+          /// FEATURED BANNER
           SliverToBoxAdapter(
             child: _featuredBanner(context, featuredBook),
           ),
 
-          // CONTINUE READING
+          /// CONTINUE READING
           if (continueBooks.isNotEmpty) ...[
-            SliverToBoxAdapter(child: _sectionTitle("Continue Reading")),
+            SliverToBoxAdapter(
+              child: _sectionTitle("Continue Reading"),
+            ),
             SliverToBoxAdapter(
               child: _horizontalList(context, continueBooks),
             ),
           ],
 
-          // ALL BOOKS
-          SliverToBoxAdapter(child: _sectionTitle("All Books")),
+          /// ALL BOOKS TITLE
           SliverToBoxAdapter(
-            child: _horizontalList(context, books),
+            child: _sectionTitle("All Books"),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          /// 4x4 GRID
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final book = books[index];
+                  return _gridBookItem(context, book);
+                },
+                childCount: books.length > 16 ? 16 : books.length,
+              ),
+              gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: 0.65,
+              ),
+            ),
+          ),
+
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 30),
+          ),
+
+          /// MORE BOOKS (If >16)
+          if (books.length > 16) ...[
+            SliverToBoxAdapter(
+              child: _sectionTitle("More Books"),
+            ),
+            SliverToBoxAdapter(
+              child: _horizontalList(
+                context,
+                books.sublist(16),
+              ),
+            ),
+          ],
+
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 40),
+          ),
         ],
       ),
     );
   }
 
-  // FEATURED BANNER WITH TAP ANIMATION
+  /// 🔥 FEATURED BANNER
   Widget _featuredBanner(BuildContext context, LibraryBook book) {
     return GestureDetector(
       onTap: () {
@@ -102,42 +146,43 @@ class MyLibraryScreen extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          height: 280,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            image: DecorationImage(
-              image: AssetImage(book.imagePath),
-              fit: BoxFit.cover,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+        padding: const EdgeInsets.all(16),
+        child: Hero(
+          tag: book.id,
           child: Container(
-            alignment: Alignment.bottomLeft,
-            padding: const EdgeInsets.all(16),
+            height: 260,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: const LinearGradient(
-                colors: [Colors.transparent, Colors.black87],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+              borderRadius: BorderRadius.circular(22),
+              image: DecorationImage(
+                image: AssetImage(book.imagePath),
+                fit: BoxFit.cover,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.deepPurple.withOpacity(0.4),
+                  blurRadius: 18,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
-            child: Text(
-              book.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              alignment: Alignment.bottomLeft,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                gradient: const LinearGradient(
+                  colors: [Colors.transparent, Colors.black87],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: Text(
+                book.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -146,10 +191,10 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  // SECTION TITLE
+  /// SECTION TITLE
   Widget _sectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
       child: Text(
         title,
         style: const TextStyle(
@@ -161,10 +206,41 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  // HORIZONTAL BOOK LIST WITH TAP ANIMATION
-  Widget _horizontalList(BuildContext context, List<LibraryBook> books) {
+  /// GRID BOOK ITEM
+  Widget _gridBookItem(BuildContext context, LibraryBook book) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          _animatedRoute(BookReaderScreen(book: book)),
+        );
+      },
+      child: Hero(
+        tag: book.id,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            image: DecorationImage(
+              image: AssetImage(book.imagePath),
+              fit: BoxFit.cover,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.deepPurple.withOpacity(0.3),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// HORIZONTAL LIST
+  Widget _horizontalList(
+      BuildContext context, List<LibraryBook> books) {
     return SizedBox(
-      height: 210,
+      height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -181,69 +257,41 @@ class MyLibraryScreen extends StatelessWidget {
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 14),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                width: 130,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    // BOOK COVER WITH HERO ANIMATION AND SHADOW
-                    Hero(
-                      tag: book.id,
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 170,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              image: DecorationImage(
-                                image: AssetImage(book.imagePath),
-                                fit: BoxFit.cover,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
+              child: Stack(
+                children: [
+                  Hero(
+                    tag: book.id,
+                    child: Container(
+                      width: 130,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        image: DecorationImage(
+                          image: AssetImage(book.imagePath),
+                          fit: BoxFit.cover,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.deepPurple.withOpacity(0.3),
+                            blurRadius: 8,
                           ),
-
-                          // PROGRESS BAR
-                          if (book.progress > 0)
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: LinearProgressIndicator(
-                                value: book.progress,
-                                minHeight: 4,
-                                backgroundColor: Colors.white30,
-                                color: Colors.deepPurple,
-                              ),
-                            ),
                         ],
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 8),
-
-                    // BOOK TITLE
-                    Text(
-                      book.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                  if (book.progress > 0)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: LinearProgressIndicator(
+                        value: book.progress,
+                        minHeight: 4,
+                        backgroundColor: Colors.white24,
+                        color: Colors.deepPurpleAccent,
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
           );

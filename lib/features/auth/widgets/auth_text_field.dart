@@ -9,7 +9,7 @@ class AuthTextField extends StatefulWidget {
     super.key,
     required this.hint,
     required this.icon,
-    this.isPassword = false,
+    this.isPassword = false, required TextEditingController controller,
   });
 
   @override

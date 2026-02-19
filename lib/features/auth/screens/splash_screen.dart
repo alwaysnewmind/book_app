@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-// 🔐 SaaS Services
-import 'package:book_app/services/auth_guard.dart';
-import '../../../services/session_service.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,37 +10,48 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
-    _handleStartup();
+    _initialize();
   }
 
-  Future<void> _handleStartup() async {
-    // 2-second splash delay
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> _initialize() async {
+    try {
+      // Small splash delay for UI feel
+      await Future.delayed(const Duration(seconds: 2));
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    // 🔁 Decide where to go
-    final destination = await AuthGuard.decide();
+      final authProvider =
+          Provider.of<AuthProvider>(context, listen: false);
 
-    if (!mounted) return;
+      // Restore session
+      await authProvider.checkAuthState();
 
-    switch (destination) {
-      case AuthDestination.guestHome:
-        await SessionService.saveGuestSession();
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
+      if (!mounted) return;
 
-      case AuthDestination.userHome:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
+      // 🔥 ROUTING LOGIC
 
-      case AuthDestination.login:
-        Navigator.pushReplacementNamed(context, '/login');
-        break;
+      // 1️⃣ Not logged in
+      if (!authProvider.isLoggedIn) {
+        Navigator.pushReplacementNamed(context, "/login");
+        return;
+      }
+
+      // 2️⃣ Logged in but onboarding NOT completed
+      if (authProvider.needsOnboarding) {
+        Navigator.pushReplacementNamed(context, "/genreSelection");
+        return;
+      }
+
+      // 3️⃣ Logged in & onboarding completed
+      Navigator.pushReplacementNamed(context, "/appShell");
+
+    } catch (e) {
+      // Fallback safety
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, "/login");
     }
   }
 
@@ -50,9 +59,14 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
+            colors: [
+              Color(0xFF0F2027),
+              Color(0xFF203A43),
+              Color(0xFF2C5364),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -61,16 +75,27 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.menu_book, size: 80, color: Colors.amber),
-              SizedBox(height: 12),
+              SizedBox(
+                width: 120,
+                height: 120,
+                child: Image(
+                  image: AssetImage("assets/image/Mythica.png"),
+                  fit: BoxFit.contain,
+                ),
+              ),
+              SizedBox(height: 16),
               Text(
-                'Reader App',
+                "Mythica",
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   letterSpacing: 1.2,
                 ),
+              ),
+              SizedBox(height: 24),
+              CircularProgressIndicator(
+                color: Colors.white,
               ),
             ],
           ),

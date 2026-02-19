@@ -14,7 +14,7 @@ class HomeService {
 }
 
 final List<HomeService> homeServices = [
-  HomeService(title: "Read Books", icon: Icons.menu_book, route: AppRoutes.bookDetail),
+  HomeService(title: "Read Books", icon: Icons.menu_book,route: AppRoutes.bookDetail),
   HomeService(title: "Discover", icon: Icons.explore, route: AppRoutes.aiRecommendation),
   HomeService(title: "Premium", icon: Icons.star, route: AppRoutes.subscription),
   HomeService(title: "Favorites", icon: Icons.favorite, route: AppRoutes.favorites),

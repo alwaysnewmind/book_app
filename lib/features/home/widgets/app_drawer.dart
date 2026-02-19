@@ -1,36 +1,30 @@
 import 'dart:ui';
+import 'package:book_app/features/profile/edit_profile_screen.dart' show EditProfileScreen;
 import 'package:flutter/material.dart';
 import 'package:book_app/features/settings/screens/settings_screen.dart';
-
-// Screens (IMPORT KARNA NA BHOOLNA)
 import '../../library/screens/my_library_screen.dart';
-// Future screens yaha add karenge:
-// import '../../profile/screens/profile_screen.dart';
-// import '../../profile/screens/edit_profile_screen.dart';
-// import '../../subscription/screens/subscription_screen.dart';
-// import '../../settings/screens/settings_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   Route _animatedRoute(Widget page) {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 400),
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final slide = Tween<Offset>(
-          begin: const Offset(0.2, 0),
-          end: Offset.zero,
-        ).animate(animation);
+      transitionDuration: const Duration(milliseconds: 350),
+      pageBuilder: (_, animation, __) => page,
+      transitionsBuilder: (_, animation, __, child) {
+        final fade = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOut,
+        );
 
-        final fade = Tween(begin: 0.0, end: 1.0).animate(animation);
+        final slide = Tween<Offset>(
+          begin: const Offset(0.15, 0),
+          end: Offset.zero,
+        ).animate(fade);
 
         return FadeTransition(
           opacity: fade,
-          child: SlideTransition(
-            position: slide,
-            child: child,
-          ),
+          child: SlideTransition(position: slide, child: child),
         );
       },
     );
@@ -40,122 +34,132 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: Colors.transparent,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(30),
-          bottomRight: Radius.circular(30),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF7B2FF7),
+              Color(0xFF9F44D3),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF0E1A1A).withOpacity(0.85),
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+        child: Padding(
+          padding: const EdgeInsets.all(2),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(26),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              child: Container(
+                color: Colors.black.withOpacity(0.88),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+
+                        const SizedBox(height: 30),
+
+                        /// PROFILE HEADER
+                        _buildProfileHeader(),
+
+                        const SizedBox(height: 30),
+
+                        /// MENU ITEMS
+                        _menuItem(
+                          context,
+                          icon: Icons.person_outline,
+                          title: "My Account",
+                          onTap: () {
+                            Navigator.pop(context);
+                            // Navigator.push(context,_animatedRoute(ProfileScreen()));
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              _animatedRoute(const MyLibraryScreen()),
+                            );
+                          },
+                        ),
+
+                        _menuItem(
+                          context,
+                          icon: Icons.edit_outlined,
+                          title: "Edit Profile",
+                          onTap: () {
+                            Navigator.pop(context);
+                            // Navigator.push(context,_animatedRoute(EditProfileScreen()));
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              _animatedRoute(const EditProfileScreen()),
+                            );
+                          },
+                        ),
+
+                        _menuItem(
+                          context,
+                          icon: Icons.subscriptions_outlined,
+                          title: "My Subscription",
+                          onTap: () {
+                            Navigator.pop(context);
+                            // Navigator.push(context,_animatedRoute(SubscriptionScreen()));
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              _animatedRoute(const MyLibraryScreen()),
+                            );
+                          },
+                        ),
+
+                        _menuItem(
+                          context,
+                          icon: Icons.library_books_outlined,
+                          title: "My Library",
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              _animatedRoute(const MyLibraryScreen()),
+                            );
+                          },
+                        ),
+
+                        _menuItem(
+                          context,
+                          icon: Icons.settings_outlined,
+                          title: "Settings",
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              _animatedRoute(const SettingsScreen()),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        /// LOGOUT
+                        _menuItem(
+                          context,
+                          icon: Icons.logout,
+                          title: "Logout",
+                          isLogout: true,
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showLogoutDialog(context);
+                          },
+                        ),
+
+                        const SizedBox(height: 30),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 50),
-
-                // 👤 PROFILE HEADER
-                const CircleAvatar(
-                  radius: 42,
-                  backgroundImage:
-                      AssetImage('assets/profile/male.png'),
-                ),
-                const SizedBox(height: 12),
-
-                const Text(
-                  'Rahul Patel',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                const Text(
-                  '+91 9XXXXXXXXX',
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 13,
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // 📂 MENU ITEMS
-                _drawerItem(
-                  context,
-                  icon: Icons.person,
-                  title: 'My Account',
-                  onTap: () {
-                    Navigator.pop(context);
-                    // Navigator.push(context,_animatedRoute(ProfileScreen()));
-                  },
-                ),
-
-                _drawerItem(
-                  context,
-                  icon: Icons.edit,
-                  title: 'Edit Profile',
-                  onTap: () {
-                    Navigator.pop(context);
-                    // Navigator.push(context,_animatedRoute(EditProfileScreen()));
-                  },
-                ),
-
-                _drawerItem(
-                  context,
-                  icon: Icons.subscriptions,
-                  title: 'My Subscription',
-                  onTap: () {
-                    Navigator.pop(context);
-                    // Navigator.push(context,_animatedRoute(SubscriptionScreen()));
-                  },
-                ),
-
-                _drawerItem(
-                  context,
-                  icon: Icons.library_books,
-                  title: 'My Library',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      _animatedRoute(const MyLibraryScreen()),
-                    );
-                  },
-                ),
-
-                _drawerItem(
-                  context,
-                  icon: Icons.settings,
-                  title: 'Settings',
-                  onTap: () {
-                    Navigator.push(context, _animatedRoute(const SettingsScreen()),);
-                    // Navigator.push(context,_animatedRoute(SettingsScreen()));
-                  },
-                ),
-
-                const Spacer(),
-
-                _drawerItem(
-                  context,
-                  icon: Icons.logout,
-                  title: 'Logout',
-                  isLogout: true,
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-
-                const SizedBox(height: 30),
-              ],
             ),
           ),
         ),
@@ -163,7 +167,56 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _drawerItem(
+  /// PROFILE HEADER
+  Widget _buildProfileHeader() {
+    return Column(
+      children: [
+        Container(
+          height: 90,
+          width: 90,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF9F44D3),
+                Color(0xFF7B2FF7),
+              ],
+            ),
+          ),
+          child: const Center(
+            child: Text(
+              "RP",
+              style: TextStyle(
+                fontSize: 32,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          "Riddhi Shah",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          "0018223778960",
+          style: TextStyle(
+            color: Colors.white54,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// MENU ITEM
+  Widget _menuItem(
     BuildContext context, {
     required IconData icon,
     required String title,
@@ -171,39 +224,71 @@ class AppDrawer extends StatelessWidget {
     bool isLogout = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          splashColor: Colors.deepPurple.withOpacity(0.3),
-          highlightColor: Colors.white.withOpacity(0.05),
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  color: isLogout ? Colors.red : Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: Colors.white.withOpacity(0.06),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: isLogout ? Colors.redAccent : Colors.white,
+              ),
+              const SizedBox(width: 16),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isLogout ? Colors.redAccent : Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                 ),
-                const SizedBox(width: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isLogout ? Colors.red : Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// LOGOUT DIALOG
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.black87,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          "Logout",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          "Are you sure you want to logout?",
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text(
+              "Logout",
+              style: TextStyle(color: Colors.redAccent),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              // Add Firebase logout logic here
+            },
+          ),
+        ],
       ),
     );
   }

@@ -1,136 +1,116 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'widgets/profile_header.dart';
 import 'widgets/profile_stats.dart';
 import 'widgets/profile_menu.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileScreen extends StatelessWidget {
+  final bool isWriterMode;
+  final VoidCallback onSwap;
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
-
-    _fadeAnimation =
-        CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  const ProfileScreen({
+    super.key,
+    required this.isWriterMode,
+    required this.onSwap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isWriter = isWriterMode;
+
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text("My Account"),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF1F1C2C),
-              Color(0xFF928DAB),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
+      backgroundColor: const Color(0xFFF3F4F8),
+      body: SafeArea(
+        child: Column(
+          children: [
+            /// 🔝 Top Gradient Header
+            Container(
+              padding: const EdgeInsets.only(top: 30, bottom: 30),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF7F53AC),
+                    Color(0xFF647DEE),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(30),
+                ),
+              ),
+              child: const ProfileHeader(),
+            ),
+
+            const SizedBox(height: 20),
+
+            /// 📜 Scrollable Content
+            Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-
-                    /// 🔥 Glass Profile Header Card
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
-                            ),
-                          ),
-                          child: const ProfileHeader(),
-                        ),
+                    /// 📊 Stats Card
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
                       ),
+                      child: const ProfileStats(),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    /// ⚙️ Menu Card
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: const ProfileMenu(),
                     ),
 
                     const SizedBox(height: 30),
 
-                    /// 📊 Stats Section
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.25),
-                            ),
+                    /// 🔄 Swap Mode Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isWriter ? Colors.orange : Colors.deepPurple,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                          child: const ProfileStats(),
                         ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    /// ⚙️ Menu Section
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.25),
-                            ),
-                          ),
-                          child: const ProfileMenu(),
+                        onPressed: onSwap,
+                        icon: const Icon(Icons.swap_horiz,
+                            color: Colors.white),
+                        label: Text(
+                          isWriter
+                              ? "Switch to Reader Mode"
+                              : "Switch to Writer Mode",
+                          style:
+                              const TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
@@ -140,16 +120,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
 
       /// ✏ Floating Edit Button
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
-        onPressed: () {
-          // Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
-        },
+        onPressed: () {},
         child: const Icon(Icons.edit),
       ),
     );

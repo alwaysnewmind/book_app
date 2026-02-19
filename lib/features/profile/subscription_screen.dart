@@ -46,83 +46,114 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text("My Subscription"),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF0F2027),
-              Color(0xFF203A43),
-              Color(0xFF2C5364),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fade,
-            child: SlideTransition(
-              position: _slide,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
+      backgroundColor: const Color(0xFFF3F2F8),
+      body: FadeTransition(
+        opacity: _fade,
+        child: SlideTransition(
+          position: _slide,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
 
-                    /// 🔄 Monthly / Yearly Toggle
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.all(6),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _toggleButton("Monthly", !isYearly),
-                          _toggleButton("Yearly", isYearly),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    /// 🧊 Basic Plan
-                    _planCard(
-                      title: "Basic Plan",
-                      price: basicPrice,
-                      features: [
-                        "Access to free books",
-                        "Limited downloads",
-                        "Basic support",
+                /// ================= HEADER =================
+                Container(
+                  padding: const EdgeInsets.only(top: 80, bottom: 40),
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFF8E6CFF),
+                        Color(0xFF6C4DFF),
                       ],
-                      isHighlighted: false,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-
-                    const SizedBox(height: 30),
-
-                    /// 👑 Pro Plan (Highlighted)
-                    _planCard(
-                      title: "Pro Plan",
-                      price: proPrice,
-                      features: [
-                        "Unlimited books access",
-                        "Unlimited downloads",
-                        "AI Writing Assistant",
-                        "Priority support",
-                      ],
-                      isHighlighted: true,
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(40),
                     ),
-
-                    const SizedBox(height: 40),
-                  ],
+                  ),
+                  child: Column(
+                    children: const [
+                      Icon(Icons.workspace_premium,
+                          color: Colors.amber, size: 50),
+                      SizedBox(height: 16),
+                      Text(
+                        "Unlock Unlimited Knowledge",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+
+                const SizedBox(height: 30),
+
+                /// Toggle
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 15,
+                        )
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    child: Row(
+                      children: [
+                        _toggleButton("Monthly", !isYearly),
+                        _toggleButton("Yearly", isYearly),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                /// Plans
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+
+                      _planCard(
+                        title: "Basic Plan",
+                        price: basicPrice,
+                        features: [
+                          "Access to free books",
+                          "Limited downloads",
+                          "Basic support",
+                        ],
+                        isHighlighted: false,
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      _planCard(
+                        title: "Pro Plan",
+                        price: proPrice,
+                        features: [
+                          "Unlimited books access",
+                          "Unlimited downloads",
+                          "AI Writing Assistant",
+                          "Priority support",
+                        ],
+                        isHighlighted: true,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 50),
+              ],
             ),
           ),
         ),
@@ -142,14 +173,17 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? Colors.deepPurple : Colors.transparent,
+            gradient: selected
+                ? const LinearGradient(
+                    colors: [Color(0xFF8E6CFF), Color(0xFF6C4DFF)])
+                : null,
             borderRadius: BorderRadius.circular(30),
           ),
           alignment: Alignment.center,
           child: Text(
             text,
             style: TextStyle(
-              color: selected ? Colors.white : Colors.white70,
+              color: selected ? Colors.white : Colors.black54,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -164,94 +198,112 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
     required List<String> features,
     required bool isHighlighted,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: isHighlighted
-                ? Colors.deepPurple.withOpacity(0.3)
-                : Colors.white.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.25),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: isHighlighted
+            ? const LinearGradient(
+                colors: [Color(0xFF8E6CFF), Color(0xFF6C4DFF)])
+            : null,
+        color: isHighlighted ? null : Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          if (isHighlighted)
+            BoxShadow(
+              color: const Color(0xFF8E6CFF).withOpacity(0.4),
+              blurRadius: 25,
+              offset: const Offset(0, 10),
+            )
+          else
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Text(
+            title,
+            style: TextStyle(
+              color: isHighlighted ? Colors.white : Colors.black87,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
 
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+          const SizedBox(height: 8),
 
-              const SizedBox(height: 8),
+          Text(
+            price,
+            style: TextStyle(
+              color: isHighlighted ? Colors.white70 : Colors.black54,
+              fontSize: 16,
+            ),
+          ),
 
-              Text(
-                price,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                ),
-              ),
+          const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
-
-              ...features.map(
-                (feature) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check,
-                          color: Colors.greenAccent, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          feature,
-                          style: const TextStyle(
-                              color: Colors.white70),
-                        ),
+          ...features.map(
+            (feature) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle,
+                      color: isHighlighted
+                          ? Colors.white
+                          : const Color(0xFF6C4DFF),
+                      size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      feature,
+                      style: TextStyle(
+                        color: isHighlighted
+                            ? Colors.white
+                            : Colors.black54,
                       ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
                     ),
                   ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Selected $title"),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    isHighlighted ? "Upgrade Now" : "Choose Plan",
-                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isHighlighted ? Colors.white : const Color(0xFF6C4DFF),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
                 ),
               ),
-            ],
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Selected $title"),
+                  ),
+                );
+              },
+              child: Text(
+                isHighlighted ? "Upgrade Now" : "Choose Plan",
+                style: TextStyle(
+                  color:
+                      isHighlighted ? const Color(0xFF6C4DFF) : Colors.white,
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

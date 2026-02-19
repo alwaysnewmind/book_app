@@ -27,7 +27,6 @@ class BookDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final readerProvider = Provider.of<ReaderProvider>(context);
 
-    // Check if book exists in library
     final existingBook = LibraryStore.instance.books
             .where((b) => b.title == title)
             .isNotEmpty
@@ -38,168 +37,308 @@ class BookDetailScreen extends StatelessWidget {
     final progress = hasStarted ? existingBook.progress : 0.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: const Color(0xFF0F172A),
-      ),
-      backgroundColor: const Color(0xFF0F172A),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
 
-            /// BOOK COVER
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                imagePath,
-                height: 220,
-                width: double.infinity,
-                fit: BoxFit.cover,
+      body: Stack(
+        children: [
+
+          /// 🔥 PURPLE GRADIENT HEADER
+          Container(
+            height: 280,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF7B2FF7),
+                  Color(0xFF9F44D3),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
+          ),
 
-            const SizedBox(height: 20),
-
-            /// TITLE
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            /// LOCK STATUS
-            Text(
-              isLocked
-                  ? 'This book is premium. Subscribe to unlock.'
-                  : 'Free to read.',
-              style: TextStyle(
-                color: isLocked ? Colors.redAccent : Colors.greenAccent,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            /// READING PROGRESS
-            if (hasStarted) ...[
-              const Text(
-                "Reading Progress",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 6),
-              LinearProgressIndicator(
-                value: progress,
-                minHeight: 6,
-                backgroundColor: Colors.white24,
-                color: Colors.amber,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                "${(progress * 100).toStringAsFixed(0)}% completed",
-                style: const TextStyle(fontSize: 13, color: Colors.white70),
-              ),
-              const SizedBox(height: 20),
-            ],
-
-            const Spacer(),
-
-            /// PRIMARY BUTTON
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (isLocked) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please subscribe to access this book'),
+          /// BACK BUTTON + PROFILE
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Reader Tail",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new,
+                            color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                    );
-                    return;
-                  }
-
-                  LibraryBook book;
-
-                  // If book exists, use it; otherwise create new
-                  if (existingBook != null) {
-                    book = existingBook;
-                  } else {
-                    book = LibraryBook(
-                      id: title.hashCode.toString(),
-                      title: title,
-                      imagePath: imagePath,
-                      chapters: [
-                        "Chapter 1\n\nThis is chapter one content...",
-                        "Chapter 2\n\nThis is chapter two content...",
-                        "Chapter 3\n\nThis is chapter three content...",
-                      ],
-                    );
-                    LibraryStore.instance.addBook(book);
-                  }
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BookReaderScreen(book: book),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                ),
-                child: Text(
-                  isLocked
-                      ? 'Subscribe & Read'
-                      : hasStarted
-                          ? 'Continue Reading'
-                          : 'Start Reading',
-                  style: const TextStyle(color: Colors.black),
-                ),
+                      const CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Colors.white24,
+                        child: Icon(Icons.person, color: Colors.white),
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
+          ),
 
-            /// RESUME FROM BOOKMARK
-            if (!isLocked && readerProvider.isBookmarked(0))
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 45,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      if (existingBook != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                BookReaderScreen(book: existingBook),
+          /// ⚪ MAIN CONTENT
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Container(
+                margin: const EdgeInsets.only(top: 120),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF5F6FA),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(32),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      /// BOOK HEADER SECTION
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.asset(
+                              imagePath,
+                              height: 180,
+                              width: 120,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        );
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.amber),
-                    ),
-                    child: const Text(
-                      "Resume from Bookmark",
-                      style: TextStyle(color: Colors.amber),
-                    ),
+
+                          const SizedBox(width: 20),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+
+                                Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                Row(
+                                  children: const [
+                                    Icon(Icons.star,
+                                        color: Colors.deepPurple, size: 18),
+                                    SizedBox(width: 4),
+                                    Text("4.8",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                const Text(
+                                  "By E.K. Eleoin",
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                const Text(
+                                  "Fantasy • Adventure",
+                                  style: TextStyle(color: Colors.black45),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                /// READ BUTTON ROW
+                                Row(
+                                  children: [
+
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          if (isLocked) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    'Please subscribe to access this book'),
+                                              ),
+                                            );
+                                            return;
+                                          }
+
+                                          LibraryBook book;
+
+                                          if (existingBook != null) {
+                                            book = existingBook;
+                                          } else {
+                                            book = LibraryBook(
+                                              id: title.hashCode.toString(),
+                                              title: title,
+                                              imagePath: imagePath,
+                                              chapters: [
+                                                "Chapter 1\n\nThis is chapter one content...",
+                                                "Chapter 2\n\nThis is chapter two content...",
+                                                "Chapter 3\n\nThis is chapter three content...",
+                                              ],
+                                            );
+                                            LibraryStore.instance
+                                                .addBook(book);
+                                          }
+
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  BookReaderScreen(book: book),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Colors.deepPurple,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 14),
+                                        ),
+                                        child: Text(
+                                          isLocked
+                                              ? "Subscribe"
+                                              : hasStarted
+                                                  ? "Continue"
+                                                  : "Read Book",
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 12),
+
+                                    _circleIcon(Icons.add),
+                                    const SizedBox(width: 10),
+                                    _circleIcon(Icons.favorite_border),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      /// SIMILAR BOOKS
+                      const Text(
+                        "Similar Books",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  Colors.deepPurple.withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: SizedBox(
+                          height: 130,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 5,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              return ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(14),
+                                child: Image.asset(
+                                  imagePath,
+                                  width: 90,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      /// SYNOPSIS
+                      const Text(
+                        "Synopsis",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      const Text(
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                        "Vestibulum at eros eget nunc tempor varius. "
+                        "Sed tristique magna sit amet purus gravida, "
+                        "ac fermentum sapien faucibus.",
+                        style: TextStyle(
+                          color: Colors.black54,
+                          height: 1.5,
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+                    ],
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _circleIcon(IconData icon) {
+    return Container(
+      height: 46,
+      width: 46,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.deepPurple),
+      ),
+      child: Icon(icon, color: Colors.deepPurple),
     );
   }
 }

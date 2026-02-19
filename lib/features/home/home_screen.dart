@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 // widgets
@@ -16,18 +15,21 @@ import '../../shared/widgets/data/home_services.dart';
 // screens
 import '../library/screens/my_library_screen.dart';
 
+///////////////////////////////////////////////////////////////////////////////
+/// 🔥 HOME SCREEN
+///////////////////////////////////////////////////////////////////////////////
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   Route _animatedRoute(Widget page) {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 400),
+      transitionDuration: const Duration(milliseconds: 350),
       pageBuilder: (_, animation, __) => page,
       transitionsBuilder: (_, animation, __, child) {
         return FadeTransition(
           opacity: animation,
           child: ScaleTransition(
-            scale: Tween(begin: 0.96, end: 1.0).animate(animation),
+            scale: Tween(begin: 0.98, end: 1.0).animate(animation),
             child: child,
           ),
         );
@@ -37,14 +39,13 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firstRow = homeServices.sublist(0, 4);
-    final secondRow = homeServices.sublist(4, 8);
-    final remaining = homeServices.sublist(8);
+    final firstRow = homeServices.take(4).toList();
+    final secondRow = homeServices.skip(4).take(4).toList();
+    final remaining = homeServices.skip(8).toList();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
       drawer: const AppDrawer(),
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
 
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
@@ -63,168 +64,81 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
 
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFF8F9FF),
-              Color(0xFFEDEFFF),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: HomeSearchBar(),
-                ),
+            const SizedBox(height: 20),
 
-                const SizedBox(height: 16),
-
-                const BannerSlider(
-                  banners: [
-                    "assets/banners/banner1.jpg",
-                    "assets/banners/banner2.jpg",
-                    "assets/banners/banner3.jpg",
-                  ],
-                ),
-
-                const SizedBox(height: 32),
-
-                const SectionTitle("Our Services"),
-                const SizedBox(height: 16),
-                _ServicesGrid(services: firstRow),
-
-                const SizedBox(height: 36),
-
-                const SectionTitle("Featured Books"),
-                const SizedBox(height: 16),
-                const FeaturedBooks(),
-
-                const SizedBox(height: 36),
-
-                const SectionTitle("Explore"),
-                const SizedBox(height: 16),
-                _ServicesGrid(services: secondRow),
-
-                const SizedBox(height: 36),
-
-                const SectionTitle("Discover More"),
-                const SizedBox(height: 16),
-                _ServicesGrid(services: remaining),
-
-                const SizedBox(height: 36),
-
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: BannerCard(
-                    text: "AI Powered Reading & Writing Experience",
-                  ),
-                ),
-
-                const SizedBox(height: 36),
-
-                const SectionTitle("Recommended For You"),
-                const SizedBox(height: 16),
-                const RecommendedBooksSection(
-                  bookImages: [
-                    "assets/books/Book1.png",
-                    "assets/books/Book2.png",
-                    "assets/books/Book3.png",
-                    "assets/books/Book4.png",
-                    "assets/books/Book5.png",
-                  ],
-                ),
-
-                const SizedBox(height: 60),
-              ],
+            // 🔎 SEARCH
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: HomeSearchBar(),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
-///////////////////////////////////////////////////////////////////////////////
-/// ♻️ REUSABLE SERVICE TILE (NEW)
-///////////////////////////////////////////////////////////////////////////////
-class HomeServiceTile extends StatelessWidget {
-  final HomeService service;
-  final VoidCallback onTap;
+            const SizedBox(height: 24),
 
-  const HomeServiceTile({
-    super.key,
-    required this.service,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.25),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.4),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // 🔵 CIRCULAR ICON
-                  Container(
-                    height: 52,
-                    width: 52,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.deepPurple.withOpacity(0.12),
-                    ),
-                    child: Icon(
-                      service.icon,
-                      size: 26,
-                      color: Colors.deepPurple,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    service.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+            // 🎯 BANNER SLIDER
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: BannerSlider(
+                banners: [
+                  "assets/banners/banner1.jpg",
+                  "assets/banners/banner2.jpg",
+                  "assets/banners/banner3.jpg",
                 ],
               ),
             ),
-          ),
+
+            const SizedBox(height: 36),
+
+            // 🛠 SERVICES
+            const SectionTitle("Our Services"),
+            const SizedBox(height: 16),
+            ServicesContainer(services: firstRow),
+
+            const SizedBox(height: 36),
+
+            // 📚 FEATURED
+            const SectionTitle("Featured Books"),
+            const SizedBox(height: 16),
+            const FeaturedBooks(),
+
+            const SizedBox(height: 36),
+
+            // 🔎 EXPLORE
+            const SectionTitle("Explore"),
+            const SizedBox(height: 16),
+            ServicesContainer(services: secondRow),
+
+            const SizedBox(height: 36),
+
+            // 🚀 DISCOVER MORE
+            const SectionTitle("Discover More"),
+            const SizedBox(height: 16),
+            ServicesContainer(services: remaining),
+
+            const SizedBox(height: 36),
+
+            // 💎 PROMO CARD
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: BannerCard(
+                text: "AI Powered Reading & Writing Experience",
+              ),
+            ),
+
+            const SizedBox(height: 36),
+
+            // ❤️ RECOMMENDED
+            const SectionTitle("Recommended For You"),
+            const SizedBox(height: 16),
+            const RecommendedBooksSection(),
+
+            const SizedBox(height: 60),
+          ],
         ),
       ),
     );
@@ -232,58 +146,134 @@ class HomeServiceTile extends StatelessWidget {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// 🔥 UPDATED GRID USING REUSABLE TILE
+/// 🔥 SERVICES CONTAINER (NO EXTRA SPACE VERSION)
 ///////////////////////////////////////////////////////////////////////////////
-class _ServicesGrid extends StatelessWidget {
+class ServicesContainer extends StatelessWidget {
   final List<HomeService> services;
-  const _ServicesGrid({required this.services});
+  const ServicesContainer({super.key, required this.services});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: services.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 18,
-          crossAxisSpacing: 18,
-          childAspectRatio: 1,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
-        itemBuilder: (context, index) {
-          final service = services[index];
-          return HomeServiceTile(
-            service: service,
-            onTap: () {
-              Navigator.pushNamed(context, service.route);
-            },
-          );
-        },
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: services.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 18,
+            crossAxisSpacing: 18,
+            childAspectRatio: 0.85, // 🔥 prevents bottom extra space
+          ),
+          itemBuilder: (context, index) {
+            final service = services[index];
+            return HomeServiceTile(service: service);
+          },
+        ),
       ),
     );
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// 🔥 Hero Animated Recommended Books (UNCHANGED)
+/// 🔥 SERVICE TILE (COMPACT FIXED HEIGHT)
 ///////////////////////////////////////////////////////////////////////////////
-class RecommendedBooksSection extends StatelessWidget {
-  final List<String> bookImages;
-  const RecommendedBooksSection({super.key, required this.bookImages});
+class HomeServiceTile extends StatelessWidget {
+  final HomeService service;
+  const HomeServiceTile({super.key, required this.service});
 
   @override
   Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () => Navigator.pushNamed(context, service.route),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+          // OUTER RING
+          Container(
+            height: 68,
+            width: 68,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.deepPurple,
+                width: 2.2,
+              ),
+            ),
+            child: Center(
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.deepPurple.withOpacity(0.12),
+                ),
+                child: Icon(
+                  service.icon,
+                  size: 24,
+                  color: Colors.deepPurple,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            service.title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// 🔥 RECOMMENDED BOOKS SECTION (FULL VERSION RESTORED)
+///////////////////////////////////////////////////////////////////////////////
+class RecommendedBooksSection extends StatelessWidget {
+  const RecommendedBooksSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final books = [
+      "assets/books/Book1.png",
+      "assets/books/Book2.png",
+      "assets/books/Book3.png",
+      "assets/books/Book4.png",
+      "assets/books/Book5.png",
+    ];
+
     return SizedBox(
-      height: 180,
+      height: 190,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: bookImages.length,
+        itemCount: books.length,
         separatorBuilder: (_, __) => const SizedBox(width: 14),
         itemBuilder: (context, index) {
-          final image = bookImages[index];
+          final image = books[index];
 
           return Hero(
             tag: image,
@@ -292,7 +282,8 @@ class RecommendedBooksSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
-                    transitionDuration: const Duration(milliseconds: 400),
+                    transitionDuration:
+                        const Duration(milliseconds: 350),
                     pageBuilder: (_, __, ___) => Scaffold(
                       backgroundColor: Colors.black,
                       body: Center(
@@ -307,14 +298,10 @@ class RecommendedBooksSection extends StatelessWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  width: 120,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(image),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                child: Image.asset(
+                  image,
+                  width: 130,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

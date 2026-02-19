@@ -24,20 +24,19 @@ dependencies:
   firebase_core: ^2.32.0
   firebase_auth: ^4.20.0
   cloud_firestore: ^4.17.0
-  
-  # Font
+
+  # Fonts
   google_fonts: ^5.0.0
 
-  # Shimmer
+  # Shimmer Effect
   shimmer: ^3.0.0
 
-  # Preferences (MOVED HERE ✅)
+  # Local Storage
   shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^3.0.1
 
 flutter:
@@ -48,3 +47,4 @@ flutter:
     - assets/banners/
     - assets/profile/
     - assets/services/
+    - assets/image/

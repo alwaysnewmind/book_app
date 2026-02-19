@@ -1,18 +1,35 @@
 import 'package:flutter/material.dart';
 
-class AppSettingsProvider extends ChangeNotifier {
+class AppSettingsProvider with ChangeNotifier {
+
+  /// 🌍 LANGUAGE
   Locale _locale = const Locale('en');
 
   Locale get locale => _locale;
 
-  String get languageCode => _locale.languageCode;
-
-  void changeLanguage(String code) {
-    _locale = Locale(code);
+  void setLocale(Locale newLocale) {
+    _locale = newLocale;
     notifyListeners();
   }
 
-  bool isSelected(String code) {
-    return _locale.languageCode == code;
+  /// 🌗 THEME
+  ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeMode get themeMode => _themeMode;
+
+  bool get isDarkMode => _themeMode == ThemeMode.dark;
+
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
+  }
+
+  void toggleTheme() {
+    if (_themeMode == ThemeMode.dark) {
+      _themeMode = ThemeMode.light;
+    } else {
+      _themeMode = ThemeMode.dark;
+    }
+    notifyListeners();
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/features/writer/screens/writer_dashboard.dart';
 
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -26,9 +27,15 @@ class _SignUpScreenState extends State<SignUpScreen>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _fadeAnimation = CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(_fadeAnimation);
+
+    _fadeAnimation =
+        CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(_fadeAnimation);
+
     _animController.forward();
   }
 
@@ -42,14 +49,34 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   void signUpDemo() {
-    final demoUser = AppUser(
-      uid: "demo_signup",
-      name: _nameController.text.isEmpty ? "Demo User" : _nameController.text,
-      email: _emailController.text.isEmpty ? "demo@signup.com" : _emailController.text,
-      role: UserRole.reader,
-      isPremium: false,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+  final now = DateTime.now();
+
+  final demoUser = AppUser(
+    uid: "demo_signup",
+    name: _nameController.text.trim().isEmpty
+        ? "Demo Writer"
+        : _nameController.text.trim(),
+    email: _emailController.text.trim().isEmpty
+        ? "demo@signup.com"
+        : _emailController.text.trim(),
+
+    role: UserRole.writer,
+    currentMode: UserMode.writer,
+
+    createdAt: now,
+    updatedAt: now,
+
+    // Required but not in your snippet
+    hasCompletedOnboarding: false,
+    selectedGenres: [],
+
+    // Optional fields (explicit for safety)
+    photoUrl: null,
+    profileImageUrl: null,
+    isPremium: false,
+    subscriptionExpiry: null,
+    writerTrialStart: now,
+    isWriterPremium: false,
     );
 
     Navigator.pushReplacement(
@@ -57,7 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen>
       MaterialPageRoute(
         builder: (_) => WriterDashboard(
           currentUser: demoUser,
-          isGuest: false,
+          isGuest: false, isWriterMode: true,
         ),
       ),
     );
@@ -72,7 +99,8 @@ class _SignUpScreenState extends State<SignUpScreen>
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
     );
   }
 
@@ -103,6 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                     ),
                   ),
                 ),
+
                 // Form Card
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -111,11 +140,13 @@ class _SignUpScreenState extends State<SignUpScreen>
                     child: FadeTransition(
                       opacity: _fadeAnimation,
                       child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        margin:
+                            const EdgeInsets.symmetric(horizontal: 20),
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(32),
+                          borderRadius:
+                              BorderRadius.circular(32),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.1),
@@ -135,45 +166,61 @@ class _SignUpScreenState extends State<SignUpScreen>
                               ),
                             ),
                             const SizedBox(height: 16),
+
                             TextField(
                               controller: _nameController,
-                              decoration: _inputDecoration("Full Name"),
+                              decoration:
+                                  _inputDecoration("Full Name"),
                             ),
                             const SizedBox(height: 16),
+
                             TextField(
                               controller: _emailController,
-                              decoration: _inputDecoration("Email"),
+                              decoration:
+                                  _inputDecoration("Email"),
                             ),
                             const SizedBox(height: 16),
+
                             TextField(
                               controller: _passwordController,
-                              decoration: _inputDecoration("Password"),
+                              decoration:
+                                  _inputDecoration("Password"),
                               obscureText: true,
                             ),
                             const SizedBox(height: 24),
+
                             SizedBox(
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
                                 onPressed: signUpDemo,
                                 style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
+                                  shape:
+                                      RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(16),
                                   ),
-                                  backgroundColor: const Color(0xFF6C63FF),
+                                  backgroundColor:
+                                      const Color(0xFF6C63FF),
                                 ),
                                 child: const Text(
                                   "Sign Up",
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16),
                                 ),
                               ),
                             ),
+
                             const SizedBox(height: 16),
+
                             TextButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () =>
+                                  Navigator.pop(context),
                               child: const Text(
                                 "Already have an account? Login",
-                                style: TextStyle(color: Color(0xFF6C63FF)),
+                                style: TextStyle(
+                                    color: Color(0xFF6C63FF)),
                               ),
                             ),
                           ],
