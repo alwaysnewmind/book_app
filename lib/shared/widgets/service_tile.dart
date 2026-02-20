@@ -15,37 +15,43 @@ class ServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final bool isDisabled = onTap == null;
+
+    return InkWell(
       onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            height: 56,
-            width: 56,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: AppColors.border,
-                width: 1.4,
+      borderRadius: BorderRadius.circular(14),
+      child: Opacity(
+        opacity: isDisabled ? 0.5 : 1,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 56,
+              width: 56,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: AppColors.border,
+                  width: 1.4,
+                ),
+              ),
+              padding: const EdgeInsets.all(10),
+              child: Image.asset(
+                image,
+                fit: BoxFit.contain,
               ),
             ),
-            padding: const EdgeInsets.all(10),
-            child: Image.asset(
-              image,
-              fit: BoxFit.contain,
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

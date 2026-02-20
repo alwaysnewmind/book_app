@@ -40,11 +40,14 @@ import 'package:book_app/features/settings/language_selection_screen.dart';
 import 'package:book_app/features/profile/favorites_screen.dart';
 import 'package:book_app/features/profile/downloads_screen.dart';
 
+// BOOK
+import 'package:book_app/features/home/screens/pdf_viewer_screen.dart';
+
 // MODELS
 import 'package:book_app/models/user_model.dart';
 
 /// =======================================================
-/// CENTRAL ROUTE NAMES (Single Source of Truth)
+/// ROUTE NAMES
 /// =======================================================
 class AppRoutes {
   static const login = '/login';
@@ -82,26 +85,30 @@ class AppRoutes {
 }
 
 /// =======================================================
-/// ROUTE MAP
+/// ROUTES MAP
 /// =======================================================
-Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
+Map<String, WidgetBuilder> appRoutes(
+    AppUser? currentUser,
+    bool isGuest,
+    ) {
   return {
 
-    // AUTH
+    /// AUTH
     AppRoutes.login: (_) => const AuthEntryScreen(),
 
-    // LIBRARY
+    /// LIBRARY
     AppRoutes.library: (_) => const LibraryScreen(),
     AppRoutes.favorites: (_) => const FavoritesScreen(),
     AppRoutes.downloads: (_) => const DownloadsScreen(),
 
-    // SUBSCRIPTION
+    /// SUBSCRIPTION
     AppRoutes.subscription: (_) => const ReaderSubscriptionScreen(),
 
-    // WRITER
+    /// WRITER
     AppRoutes.writerDashboard: (_) => WriterDashboard(
           currentUser: currentUser,
-          isGuest: isGuest, isWriterMode: true,
+          isGuest: isGuest,
+          isWriterMode: true,
         ),
     AppRoutes.writerManageBooks: (_) => const ManageBooksPage(),
     AppRoutes.writerCreateBook: (_) => const CreateBookScreen(),
@@ -111,25 +118,26 @@ Map<String, WidgetBuilder> appRoutes(AppUser? currentUser, bool isGuest) {
     AppRoutes.writerProfile: (_) => const WriterProfileScreen(),
     AppRoutes.writerSubscription: (_) => const WriterSubscribersScreen(),
 
-    // SERVICES
+    /// SERVICES
     AppRoutes.audio: (_) => const AudioScreen(),
     AppRoutes.community: (_) => const CommunityScreen(),
     AppRoutes.challenges: (_) => const ChallengesScreen(),
 
-    // AI
+    /// AI
     AppRoutes.aiChat: (_) => const AIChatScreen(),
     AppRoutes.aiMood: (_) => const AIMoodScreen(),
     AppRoutes.aiRecommendation: (_) => const AIRecommendationScreen(),
-    AppRoutes.aiSummary: (_) => const AISummaryScreen(bookTitle: '',),
+    AppRoutes.aiSummary: (_) => const AISummaryScreen(bookTitle: ''),
     AppRoutes.aiVoice: (_) => const AIVoiceScreen(),
-    AppRoutes.aiWritingAssistant: (_) => const AIWritingAssistantScreen(),
+    AppRoutes.aiWritingAssistant: (_) =>
+        const AIWritingAssistantScreen(),
 
-    // SETTINGS
+    /// SETTINGS
     AppRoutes.settings: (_) => const SettingsScreen(),
     AppRoutes.language: (_) => const LanguageSelectionScreen(),
 
-    // BOOK
-    AppRoutes.bookDetail: (_) => const PlaceholderScreen(title: "Book Detail"),
+    /// BOOK
+    AppRoutes.bookDetail: (_) => const PdfViewerScreen(),
   };
 }
 

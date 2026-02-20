@@ -14,20 +14,113 @@ class HomeService {
 }
 
 final List<HomeService> homeServices = [
-  HomeService(title: "Read Books", icon: Icons.menu_book,route: AppRoutes.bookDetail),
-  HomeService(title: "Discover", icon: Icons.explore, route: AppRoutes.aiRecommendation),
-  HomeService(title: "Premium", icon: Icons.star, route: AppRoutes.subscription),
-  HomeService(title: "Favorites", icon: Icons.favorite, route: AppRoutes.favorites),
-  HomeService(title: "Downloads", icon: Icons.download, route: AppRoutes.downloads),
-  HomeService(title: "My Library", icon: Icons.library_books, route: AppRoutes.library),
-  HomeService(title: "AI Summary", icon: Icons.psychology, route: AppRoutes.aiSummary),
-  HomeService(title: "Audio Books", icon: Icons.headphones, route: AppRoutes.audio),
-  HomeService(title: "Write", icon: Icons.edit, route: AppRoutes.writerDashboard),
-  HomeService(title: "Earn as Writer", icon: Icons.currency_rupee, route: AppRoutes.writerEarnings),
-  HomeService(title: "Community", icon: Icons.groups, route: AppRoutes.community),
-  HomeService(title: "Challenges", icon: Icons.flag, route: AppRoutes.challenges),
-  HomeService(title: "Reviews", icon: Icons.rate_review, route: AppRoutes.community),
-  HomeService(title: "Languages", icon: Icons.language, route: AppRoutes.language),
-  HomeService(title: "Settings", icon: Icons.settings, route: AppRoutes.settings),
-  HomeService(title: "Help & Feedback", icon: Icons.help_outline, route: AppRoutes.settings),
+
+  // 🔵 OUR SERVICES (Core Reading)
+  HomeService(
+    title: "Reader Studio",
+    icon: Icons.menu_book,
+    route: AppRoutes.bookDetail,
+  ),
+  HomeService(
+    title: "Discover",
+    icon: Icons.explore,
+    route: AppRoutes.aiRecommendation,
+  ),
+  HomeService(
+    title: "Premium",
+    icon: Icons.workspace_premium,
+    route: AppRoutes.subscription,
+  ),
+  HomeService(
+    title: "Offline Vault",
+    icon: Icons.download_for_offline,
+    route: AppRoutes.downloads,
+  ),
+  HomeService(
+    title: "Audio Books",
+    icon: Icons.headphones,
+    route: AppRoutes.audio,
+  ),
+  HomeService(
+    title: "AI Summary",
+    icon: Icons.psychology_alt,
+    route: AppRoutes.aiSummary,
+  ),
+
+  // 🟢 WRITER ZONE
+  HomeService(
+    title: "Writer Studio",
+    icon: Icons.edit_note,
+    route: AppRoutes.writerDashboard,
+  ),
+  HomeService(
+    title: "Content Writing",
+    icon: Icons.create,
+    route: AppRoutes.writerDashboard,
+  ),
+  HomeService(
+    title: "Story Analytics",
+    icon: Icons.analytics,
+    route: AppRoutes.writerDashboard, // change if separate screen
+  ),
+  HomeService(
+    title: "Earn as Writer",
+    icon: Icons.currency_rupee,
+    route: AppRoutes.writerEarnings,
+  ),
+
+  // 🟠 COMMUNITY & ENGAGEMENT
+  HomeService(
+    title: "Community",
+    icon: Icons.groups,
+    route: AppRoutes.community,
+  ),
+  HomeService(
+    title: "Reviews",
+    icon: Icons.rate_review,
+    route: AppRoutes.community, // change if separate screen
+  ),
+  HomeService(
+    title: "Challenges",
+    icon: Icons.emoji_events,
+    route: AppRoutes.challenges,
+  ),
+  HomeService(
+    title: "Book Battle",
+    icon: Icons.sports_kabaddi,
+    route: AppRoutes.challenges, // change if separate
+  ),
+  HomeService(
+    title: "Quotes",
+    icon: Icons.format_quote,
+    route: AppRoutes.library,
+  ),
+
+  // 🟣 USER SETTINGS
+  HomeService(
+    title: "Favorites",
+    icon: Icons.favorite,
+    route: AppRoutes.favorites,
+  ),
+  HomeService(
+    title: "Languages",
+    icon: Icons.language,
+    route: AppRoutes.language,
+  ),
+  HomeService(
+    title: "Help & Feedback",
+    icon: Icons.help_outline,
+    route: AppRoutes.settings,
+  ),
+  HomeService(
+    title: "Settings",
+    icon: Icons.settings,
+    route: AppRoutes.settings,
+  ),
+  HomeService(
+    title: "Monetize",
+    icon: Icons.monetization_on,
+    route: AppRoutes.subscription, // change if needed
+  ),
+
 ];

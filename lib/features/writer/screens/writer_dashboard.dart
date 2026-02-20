@@ -8,7 +8,6 @@ import 'package:book_app/data/dummy_books.dart';
 import 'package:book_app/features/writer/create_book_entry_page.dart';
 import 'package:book_app/features/writer/screens/manage_books_page.dart';
 import 'package:book_app/features/writer/screens/writer_earnings_screen.dart';
-import 'package:book_app/features/writer/screens/writer_subscription_screen.dart';
 import 'package:book_app/features/book/book_detail_screen.dart';
 import 'package:book_app/models/user_model.dart';
 

@@ -16,28 +16,39 @@ import 'features/library/models/library_store.dart';
 import 'features/auth/screens/splash_screen.dart';
 import 'features/auth/auth_routes.dart';
 
-// 🔹 Book
+// 🔹 Screens
 import 'features/book/all_books_screen.dart';
-
-// 🔹 Library
 import 'features/library/screens/my_library_screen.dart';
-
-// 🔹 Profile
 import 'features/profile/downloads_screen.dart';
 import 'features/profile/favorites_screen.dart';
-
-// 🔹 Services
 import 'features/services/audio_screen.dart';
 import 'features/services/challenges_screen.dart';
 import 'features/services/community_screen.dart';
 import 'features/services/feedback_screen.dart';
-
-// 🔹 Settings
 import 'features/settings/language_selection_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
-
-// 🔹 Writer
 import 'features/writer/screens/writer_earnings_screen.dart';
+
+/// =======================================================
+/// 🔥 CENTRAL ROUTE NAMES (Single Source of Truth)
+/// =======================================================
+class AppRoutes {
+  static const splash = "/";
+  static const read = "/read";
+  static const discover = "/discover";
+  static const favorites = "/favorites";
+  static const downloads = "/downloads";
+  static const library = "/library";
+  static const audio = "/audio";
+  static const community = "/community";
+  static const challenges = "/challenges";
+  static const earn = "/earn";
+  static const reviews = "/reviews";
+  static const language = "/language";
+  static const settings = "/settings";
+  static const help = "/help";
+  static const writer = "/writer";
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,38 +95,40 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
 
-          /// 🏁 Initial Screen
-          home: const SplashScreen(),
+          /// 🏁 Initial Route
+          initialRoute: AppRoutes.splash,
 
-          /// 🔥 Routes
+          /// 🔥 ROUTES
           routes: {
             ...authRoutes,
 
-            // 📚 Reading
-            "/read": (_) => const AllBooksScreen(),
-            "/discover": (_) => const AllBooksScreen(),
+            AppRoutes.splash: (_) => const SplashScreen(),
 
-            // ❤️ Profile
-            "/favorites": (_) => const FavoritesScreen(),
-            "/downloads": (_) => const DownloadsScreen(),
+            /// 📚 Reading
+            AppRoutes.read: (_) => const AllBooksScreen(),
+            AppRoutes.discover: (_) => const AllBooksScreen(),
 
-            // 📖 Library
-            "/library": (_) => const MyLibraryScreen(),
+            /// ❤️ Profile
+            AppRoutes.favorites: (_) => const FavoritesScreen(),
+            AppRoutes.downloads: (_) => const DownloadsScreen(),
 
-            // 🎧 Services
-            "/audio": (_) => const AudioScreen(),
-            "/community": (_) => const CommunityScreen(),
-            "/challenges": (_) => const ChallengesScreen(),
-            "/earn": (_) => const WriterEarningsScreen(),
-            "/reviews": (_) => const FeedbackScreen(),
+            /// 📖 Library
+            AppRoutes.library: (_) => const MyLibraryScreen(),
 
-            // ⚙ Settings
-            "/language": (_) => const LanguageSelectionScreen(),
-            "/settings": (_) => const SettingsScreen(),
-            "/help": (_) => const FeedbackScreen(),
+            /// 🎧 Services
+            AppRoutes.audio: (_) => const AudioScreen(),
+            AppRoutes.community: (_) => const CommunityScreen(),
+            AppRoutes.challenges: (_) => const ChallengesScreen(),
+            AppRoutes.earn: (_) => const WriterEarningsScreen(),
+            AppRoutes.reviews: (_) => const FeedbackScreen(),
 
-            // ✍ Writer
-            "/writer": (_) => const WriterEarningsScreen(),
+            /// ⚙ Settings
+            AppRoutes.language: (_) => const LanguageSelectionScreen(),
+            AppRoutes.settings: (_) => const SettingsScreen(),
+            AppRoutes.help: (_) => const FeedbackScreen(),
+
+            /// ✍ Writer
+            AppRoutes.writer: (_) => const WriterEarningsScreen(),
           },
         );
       },

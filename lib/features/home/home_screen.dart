@@ -5,9 +5,10 @@ import 'widgets/home_app_bar.dart';
 import 'widgets/app_drawer.dart';
 import 'widgets/search_bar.dart';
 import 'widgets/section_title.dart';
-import 'widgets/featured_books.dart';
 import 'widgets/banner_card.dart';
 import 'widgets/banner_slider.dart';
+import 'widgets/services_section.dart';
+import 'widgets/sweet_banner.dart';
 
 // data
 import '../../shared/widgets/data/home_services.dart';
@@ -39,14 +40,14 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firstRow = homeServices.take(4).toList();
-    final secondRow = homeServices.skip(4).take(4).toList();
-    final remaining = homeServices.skip(8).toList();
+    final ourServices = homeServices.take(4).toList();
+    final explore = homeServices.skip(4).take(4).toList();
+    final discoverMore = homeServices.skip(8).take(8).toList();
+    final remaining = homeServices.skip(16).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       drawer: const AppDrawer(),
-
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: HomeAppBar(
@@ -63,126 +64,116 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            const SizedBox(height: 20),
-
-            // 🔎 SEARCH
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: HomeSearchBar(),
-            ),
-
-            const SizedBox(height: 24),
-
-            // 🎯 BANNER SLIDER
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: BannerSlider(
-                banners: [
-                  "assets/banners/banner1.jpg",
-                  "assets/banners/banner2.jpg",
-                  "assets/banners/banner3.jpg",
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 36),
-
-            // 🛠 SERVICES
-            const SectionTitle("Our Services"),
-            const SizedBox(height: 16),
-            ServicesContainer(services: firstRow),
-
-            const SizedBox(height: 36),
-
-            // 📚 FEATURED
-            const SectionTitle("Featured Books"),
-            const SizedBox(height: 16),
-            const FeaturedBooks(),
-
-            const SizedBox(height: 36),
-
-            // 🔎 EXPLORE
-            const SectionTitle("Explore"),
-            const SizedBox(height: 16),
-            ServicesContainer(services: secondRow),
-
-            const SizedBox(height: 36),
-
-            // 🚀 DISCOVER MORE
-            const SectionTitle("Discover More"),
-            const SizedBox(height: 16),
-            ServicesContainer(services: remaining),
-
-            const SizedBox(height: 36),
-
-            // 💎 PROMO CARD
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: BannerCard(
-                text: "AI Powered Reading & Writing Experience",
-              ),
-            ),
-
-            const SizedBox(height: 36),
-
-            // ❤️ RECOMMENDED
-            const SectionTitle("Recommended For You"),
-            const SizedBox(height: 16),
-            const RecommendedBooksSection(),
-
-            const SizedBox(height: 60),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// 🔥 SERVICES CONTAINER (NO EXTRA SPACE VERSION)
-///////////////////////////////////////////////////////////////////////////////
-class ServicesContainer extends StatelessWidget {
-  final List<HomeService> services;
-  const ServicesContainer({super.key, required this.services});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: services.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 18,
-            crossAxisSpacing: 18,
-            childAspectRatio: 0.85, // 🔥 prevents bottom extra space
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 212, 195, 255),
+              Color(0xFFB983FF),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          itemBuilder: (context, index) {
-            final service = services[index];
-            return HomeServiceTile(service: service);
-          },
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                const SizedBox(height: 20),
+
+                /// 🔎 SEARCH BAR
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: HomeSearchBar(),
+                ),
+
+                const SizedBox(height: 24),
+
+                /// 🎯 BANNER SLIDER
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: BannerSlider(
+                    banners: [
+                      "assets/banners/banner1.jpg",
+                      "assets/banners/banner2.jpg",
+                      "assets/banners/banner3.jpg",
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                /// 🛠 OUR SERVICES
+                ServicesSection(
+                  title: "Our Services",
+                  services: ourServices,
+                  crossAxisCount: 4,
+                ),
+
+                const SizedBox(height: 36),
+
+                /// 📚 FEATURED BOOKS
+                const SectionTitle("Featured Books"),
+                const SizedBox(height: 16),
+                const FeaturedBooks(),
+
+                const SizedBox(height: 40),
+
+                /// 🔎 EXPLORE
+                ServicesSection(
+                  title: "Explore",
+                  services: explore,
+                  crossAxisCount: 4,
+                ),
+
+                const SizedBox(height: 36),
+
+                /// 🚀 DISCOVER MORE
+                ServicesSection(
+                  title: "Discover More",
+                  services: discoverMore,
+                  crossAxisCount: 4,
+                ),
+
+                const SizedBox(height: 36),
+
+                /// 💎 PROMO CARD
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  child: BannerCard(
+                    text: "AI Powered Reading & Writing Experience",
+                  ),
+                ),
+
+                const SizedBox(height: 36),
+
+                /// ❤️ RECOMMENDED BOOKS
+                const SectionTitle("Recommended For You"),
+                const SizedBox(height: 16),
+                const RecommendedBooksSection(),
+
+                const SizedBox(height: 30),
+
+                /// 🔥 OTHERS
+                ServicesSection(
+                  title: "Others",
+                  services: remaining,
+                  crossAxisCount: 4,
+                ),
+
+
+                const SizedBox(height: 40),
+
+                /// ✨ SWEET BOTTOM BANNER
+                const SweetBanner(),
+
+                const SizedBox(height: 60),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -190,22 +181,30 @@ class ServicesContainer extends StatelessWidget {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// 🔥 SERVICE TILE (COMPACT FIXED HEIGHT)
+/// 🔥 SERVICE TILE
 ///////////////////////////////////////////////////////////////////////////////
 class HomeServiceTile extends StatelessWidget {
   final HomeService service;
-  const HomeServiceTile({super.key, required this.service});
+
+  const HomeServiceTile({
+    super.key,
+    required this.service,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () => Navigator.pushNamed(context, service.route),
+      onTap: () {
+        if (service.route.isNotEmpty) {
+          Navigator.pushNamed(context, service.route);
+        }
+      },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
 
-          // OUTER RING
+          /// OUTER RING
           Container(
             height: 68,
             width: 68,
@@ -238,6 +237,8 @@ class HomeServiceTile extends StatelessWidget {
           Text(
             service.title,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -250,7 +251,7 @@ class HomeServiceTile extends StatelessWidget {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// 🔥 RECOMMENDED BOOKS SECTION (FULL VERSION RESTORED)
+/// 🔥 RECOMMENDED BOOKS SECTION
 ///////////////////////////////////////////////////////////////////////////////
 class RecommendedBooksSection extends StatelessWidget {
   const RecommendedBooksSection({super.key});

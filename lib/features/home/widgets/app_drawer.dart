@@ -1,6 +1,6 @@
 import 'dart:ui';
-import 'package:book_app/features/profile/edit_profile_screen.dart' show EditProfileScreen;
 import 'package:flutter/material.dart';
+import 'package:book_app/features/profile/edit_profile_screen.dart';
 import 'package:book_app/features/settings/screens/settings_screen.dart';
 import '../../library/screens/my_library_screen.dart';
 
@@ -9,7 +9,7 @@ class AppDrawer extends StatelessWidget {
 
   Route _animatedRoute(Widget page) {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 350),
+      transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (_, animation, __) => page,
       transitionsBuilder: (_, animation, __, child) {
         final fade = CurvedAnimation(
@@ -18,7 +18,7 @@ class AppDrawer extends StatelessWidget {
         );
 
         final slide = Tween<Offset>(
-          begin: const Offset(0.15, 0),
+          begin: const Offset(0.1, 0),
           end: Offset.zero,
         ).animate(fade);
 
@@ -34,130 +34,119 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: Colors.transparent,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF7B2FF7),
-              Color(0xFF9F44D3),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF7B2FF7),
+                Color(0xFF9F44D3),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(2),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(26),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
-                color: Colors.black.withOpacity(0.88),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      children: [
+                color: Colors.black.withOpacity(0.9),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 24),
 
-                        const SizedBox(height: 30),
+                    /// PROFILE
+                    _buildProfileHeader(),
 
-                        /// PROFILE HEADER
-                        _buildProfileHeader(),
+                    const SizedBox(height: 24),
 
-                        const SizedBox(height: 30),
+                    /// SCROLLABLE MENU AREA
+                    Expanded(
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 20),
+                        children: [
+                          _menuItem(
+                            context,
+                            icon: Icons.person_outline,
+                            title: "My Account",
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                _animatedRoute(const MyLibraryScreen()),
+                              );
+                            },
+                          ),
+                          _menuItem(
+                            context,
+                            icon: Icons.edit_outlined,
+                            title: "Edit Profile",
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                _animatedRoute(
+                                    const EditProfileScreen()),
+                              );
+                            },
+                          ),
+                          _menuItem(
+                            context,
+                            icon: Icons.subscriptions_outlined,
+                            title: "My Subscription",
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                _animatedRoute(const MyLibraryScreen()),
+                              );
+                            },
+                          ),
+                          _menuItem(
+                            context,
+                            icon: Icons.library_books_outlined,
+                            title: "My Library",
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                _animatedRoute(const MyLibraryScreen()),
+                              );
+                            },
+                          ),
+                          _menuItem(
+                            context,
+                            icon: Icons.settings_outlined,
+                            title: "Settings",
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                _animatedRoute(const SettingsScreen()),
+                              );
+                            },
+                          ),
 
-                        /// MENU ITEMS
-                        _menuItem(
-                          context,
-                          icon: Icons.person_outline,
-                          title: "My Account",
-                          onTap: () {
-                            Navigator.pop(context);
-                            // Navigator.push(context,_animatedRoute(ProfileScreen()));
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              _animatedRoute(const MyLibraryScreen()),
-                            );
-                          },
-                        ),
+                          const SizedBox(height: 20),
 
-                        _menuItem(
-                          context,
-                          icon: Icons.edit_outlined,
-                          title: "Edit Profile",
-                          onTap: () {
-                            Navigator.pop(context);
-                            // Navigator.push(context,_animatedRoute(EditProfileScreen()));
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              _animatedRoute(const EditProfileScreen()),
-                            );
-                          },
-                        ),
-
-                        _menuItem(
-                          context,
-                          icon: Icons.subscriptions_outlined,
-                          title: "My Subscription",
-                          onTap: () {
-                            Navigator.pop(context);
-                            // Navigator.push(context,_animatedRoute(SubscriptionScreen()));
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              _animatedRoute(const MyLibraryScreen()),
-                            );
-                          },
-                        ),
-
-                        _menuItem(
-                          context,
-                          icon: Icons.library_books_outlined,
-                          title: "My Library",
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              _animatedRoute(const MyLibraryScreen()),
-                            );
-                          },
-                        ),
-
-                        _menuItem(
-                          context,
-                          icon: Icons.settings_outlined,
-                          title: "Settings",
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              _animatedRoute(const SettingsScreen()),
-                            );
-                          },
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        /// LOGOUT
-                        _menuItem(
-                          context,
-                          icon: Icons.logout,
-                          title: "Logout",
-                          isLogout: true,
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showLogoutDialog(context);
-                          },
-                        ),
-
-                        const SizedBox(height: 30),
-                      ],
+                          _menuItem(
+                            context,
+                            icon: Icons.logout,
+                            title: "Logout",
+                            isLogout: true,
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showLogoutDialog(context);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -167,7 +156,6 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  /// PROFILE HEADER
   Widget _buildProfileHeader() {
     return Column(
       children: [
@@ -177,10 +165,7 @@ class AppDrawer extends StatelessWidget {
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [
-                Color(0xFF9F44D3),
-                Color(0xFF7B2FF7),
-              ],
+              colors: [Color(0xFF9F44D3), Color(0xFF7B2FF7)],
             ),
           ),
           child: const Center(
@@ -215,7 +200,6 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  /// MENU ITEM
   Widget _menuItem(
     BuildContext context, {
     required IconData icon,
@@ -256,7 +240,6 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  /// LOGOUT DIALOG
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -275,18 +258,18 @@ class AppDrawer extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            child: const Text("Cancel"),
             onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
           ),
           TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // TODO: Add Firebase logout logic
+            },
             child: const Text(
               "Logout",
               style: TextStyle(color: Colors.redAccent),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              // Add Firebase logout logic here
-            },
           ),
         ],
       ),

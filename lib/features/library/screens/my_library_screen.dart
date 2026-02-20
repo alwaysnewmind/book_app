@@ -1,6 +1,8 @@
 import 'dart:ui';
+import 'package:book_app/core/routes/app_routes.dart' show AppRoutes;
 import 'package:book_app/data/dummy_books.dart' show dummyBooks;
 import 'package:flutter/material.dart';
+import 'package:book_app/data/sample_books.dart';
 import 'package:provider/provider.dart';
 
 // reader
@@ -292,6 +294,41 @@ class MyLibraryScreen extends StatelessWidget {
                       ),
                     ),
                 ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+class FeaturedBooks extends StatelessWidget {
+  const FeaturedBooks({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: sampleBooks.length,
+        itemBuilder: (context, index) {
+          final book = sampleBooks[index];
+
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.bookDetail,
+                arguments: book,
+              );
+            },
+            child: Container(
+              width: 140,
+              margin: const EdgeInsets.only(right: 16),
+              color: Colors.grey.shade300,
+              child: Center(
+                child: Text(book.title),
               ),
             ),
           );
