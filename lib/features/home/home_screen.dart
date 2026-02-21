@@ -68,8 +68,8 @@ class HomeScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromARGB(255, 212, 195, 255),
-              Color(0xFFB983FF),
+              Color (0xFF4A148C),
+              Color(0xFF4A148C),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -113,7 +113,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisCount: 4,
                 ),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 30),
 
                 /// 📚 FEATURED BOOKS
                 const SectionTitle("Featured Books"),
@@ -129,7 +129,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisCount: 4,
                 ),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 30),
 
                 /// 🚀 DISCOVER MORE
                 ServicesSection(
@@ -138,7 +138,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisCount: 4,
                 ),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 30),
 
                 /// 💎 PROMO CARD
                 const Padding(
@@ -155,7 +155,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 const RecommendedBooksSection(),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 36),
 
                 /// 🔥 OTHERS
                 ServicesSection(
@@ -165,7 +165,7 @@ class HomeScreen extends StatelessWidget {
                 ),
 
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
 
                 /// ✨ SWEET BOTTOM BANNER
                 const SweetBanner(),
@@ -211,7 +211,7 @@ class HomeServiceTile extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.deepPurple,
+                color: const Color.fromARGB(255, 22, 224, 224),
                 width: 2.2,
               ),
             ),
@@ -221,12 +221,12 @@ class HomeServiceTile extends StatelessWidget {
                 width: 50,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.deepPurple.withOpacity(0.12),
+                  color: const Color.fromARGB(255, 178, 167, 197).withOpacity(0.12),
                 ),
                 child: Icon(
                   service.icon,
-                  size: 24,
-                  color: Colors.deepPurple,
+                  size: 40,
+                  color: Colors. deepPurple,
                 ),
               ),
             ),

@@ -144,9 +144,7 @@ class MyLibraryScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          _animatedRoute(BookReaderScreen(book: book,
-      bookTitle: book.title,
-      isLocked: false,)),
+          _animatedRoute(BookReaderScreen(book: book,)),
         );
       },
       child: Padding(
@@ -216,9 +214,7 @@ class MyLibraryScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          _animatedRoute(BookReaderScreen(book: book,
-      bookTitle: book.title,
-      isLocked: false,)),
+          _animatedRoute(BookReaderScreen(book: book,)),
         );
       },
       child: Hero(
@@ -258,9 +254,7 @@ class MyLibraryScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                _animatedRoute(BookReaderScreen(book: book,
-      bookTitle: book.title,
-      isLocked: false,)),
+                _animatedRoute(BookReaderScreen(book: book)),
               );
             },
             child: Padding(

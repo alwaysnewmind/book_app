@@ -26,9 +26,9 @@ class ServicesSection extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
-              color: Colors.white.withOpacity(0.08),
+              color: Colors.white.withOpacity(0.14),
               border: Border.all(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withOpacity(0.25),
               ),
             ),
             child: Column(
@@ -75,7 +75,7 @@ class ServicesSection extends StatelessWidget {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.deepPurple.withOpacity(0.12),
+                              color: const Color.fromARGB(255, 47, 47, 48).withOpacity(0.12),
                             ),
                             child: Icon(
                               service.icon,

@@ -209,9 +209,7 @@ class BookDetailScreen extends StatelessWidget {
                                             context,
                                             MaterialPageRoute(
                                               builder: (_) =>
-                                                  BookReaderScreen(book: book,
-      bookTitle: book.title,
-      isLocked: false,),
+                                                  BookReaderScreen(book: book),
                                             ),
                                           );
                                         },

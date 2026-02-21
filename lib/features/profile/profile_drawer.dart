@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'favorites_screen.dart';
-import 'downloads_screen.dart';
+import 'package:book_app/features/home/mainicon/favorites_dashboard.dart';
+import 'package:book_app/features/home/mainicon/offline_vault.dart';
 
 class ProfileDrawer extends StatelessWidget {
   const ProfileDrawer({super.key});
@@ -112,7 +112,7 @@ class ProfileDrawer extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const FavoritesScreen()),
+                              builder: (_) => const FavoritesDashboard()),
                         );
                       },
                     ),
@@ -125,7 +125,7 @@ class ProfileDrawer extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const DownloadsScreen()),
+                              builder: (_) => const OfflineVault()),
                         );
                       },
                     ),

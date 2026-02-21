@@ -105,7 +105,7 @@ class ContentWritingDashboard extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               image: const DecorationImage(
-                                image: AssetImage("assets/book1.jpg"),
+                                image: AssetImage("assets/Book1.jpg"),
                                 fit: BoxFit.cover,
                               ),
                             ),

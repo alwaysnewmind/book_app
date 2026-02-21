@@ -52,9 +52,7 @@ class _RecommendedBookCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => BookReaderScreen(book: book,
-      bookTitle: book.title,
-      isLocked: false,),
+            builder: (_) => BookReaderScreen(book: book,),
           ),
         );
       },

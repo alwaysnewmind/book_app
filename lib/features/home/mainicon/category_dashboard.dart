@@ -53,8 +53,8 @@ class CategoryDashboard extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Icon(Icons.search, color: Colors.grey),
                     SizedBox(width: 10),
                     Expanded(
@@ -295,8 +295,8 @@ class TrendingCard extends StatelessWidget {
 
 ///// DUMMY TRENDING IMAGES
 final List<String> trendingBooks = [
-  "assets/books/book1.png",
-  "assets/books/book2.png",
-  "assets/books/book3.png",
-  "assets/books/book4.png",
+  "assets/books/Book1.png",
+  "assets/books/Book2.png",
+  "assets/books/Book3.png",
+  "assets/books/Book4.png",
 ];

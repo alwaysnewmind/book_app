@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:book_app/models/book_model.dart';
-import 'package:book_app/features/home/screens/pdf_viewer_screen.dart';
 
 class PdfViewerScreen extends StatelessWidget {
   const PdfViewerScreen({super.key});

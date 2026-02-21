@@ -21,25 +21,25 @@ class _FavoritesDashboardState extends State<FavoritesDashboard> {
     BookModel(
       title: "The Midnight Library",
       author: "Matt Haig",
-      image: "assets/books/book1.png",
+      image: "assets/books/Book1.png",
       progress: 0.7,
     ),
     BookModel(
       title: "Project Hail Mary",
       author: "Andy Weir",
-      image: "assets/books/book2.png",
+      image: "assets/books/Book2.png",
       progress: 0.5,
     ),
     BookModel(
       title: "Circe",
       author: "Madeline Miller",
-      image: "assets/books/book3.png",
+      image: "assets/books/Book3.png",
       progress: 0.3,
     ),
     BookModel(
       title: "The Vanishing Half",
       author: "Brit Bennett",
-      image: "assets/books/book4.png",
+      image: "assets/books/Book4.png",
       progress: 0.6,
     ),
   ];
@@ -90,7 +90,7 @@ class _FavoritesDashboardState extends State<FavoritesDashboard> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
                     image: const DecorationImage(
-                      image: AssetImage("assets/books/book1.png"),
+                      image: AssetImage("assets/books/Book1.png"),
                       fit: BoxFit.cover,
                     ),
                   ),

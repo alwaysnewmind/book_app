@@ -19,7 +19,6 @@ class BookReaderScreen extends StatefulWidget {
     super.key,
     required this.book,
     this.isLocked = false, 
-    required String bookTitle,
   });
 
   @override

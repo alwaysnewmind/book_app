@@ -18,8 +18,6 @@ class _CreateBookPageState extends State<CreateBookPage> {
   Timer? _autoSaveTimer;
 
   bool _isSaved = true;
-  bool _isPublished = false;
-  bool _isMonetized = false;
 
   int get _wordCount {
     if (_chapterContentController.text.trim().isEmpty) return 0;
@@ -95,7 +93,6 @@ class _CreateBookPageState extends State<CreateBookPage> {
     }
 
     setState(() {
-      _isPublished = true;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(

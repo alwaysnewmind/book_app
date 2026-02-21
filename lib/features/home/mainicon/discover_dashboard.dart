@@ -81,9 +81,9 @@ class DiscoverDashboard extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: const [
-                    _BookCard(image: "assets/books/book1.jpg"),
-                    _BookCard(image: "assets/books/book2.jpg"),
-                    _BookCard(image: "assets/books/book3.jpg"),
+                    _BookCard(image: "assets/books/Book1.jpg"),
+                    _BookCard(image: "assets/books/Book2.jpg"),
+                    _BookCard(image: "assets/books/Book3.jpg"),
                   ],
                 ),
               ),
@@ -109,10 +109,10 @@ class DiscoverDashboard extends StatelessWidget {
                 crossAxisSpacing: 15,
                 childAspectRatio: 0.7,
                 children: const [
-                  _BookCard(image: "assets/books/book1.jpg"),
-                  _BookCard(image: "assets/books/book2.jpg"),
-                  _BookCard(image: "assets/books/book3.jpg"),
-                  _BookCard(image: "assets/books/book1.jpg"),
+                  _BookCard(image: "assets/books/Book1.jpg"),
+                  _BookCard(image: "assets/books/Book2.jpg"),
+                  _BookCard(image: "assets/books/Book3.jpg"),
+                  _BookCard(image: "assets/books/Book1.jpg"),
                 ],
               ),
 
