@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:book_app/core/routes/app_routes.dart' show AppRoutes;
 import 'package:book_app/data/dummy_books.dart' show dummyBooks;
+import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
 import 'package:flutter/material.dart';
 import 'package:book_app/data/sample_books.dart';
 import 'package:provider/provider.dart';
 
 // reader
-import 'package:book_app/features/reader/screens/book_reader_screen.dart';
 
 // library
 import 'package:book_app/features/library/models/library_store.dart';
@@ -144,7 +144,9 @@ class MyLibraryScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          _animatedRoute(BookReaderScreen(book: book)),
+          _animatedRoute(BookReaderScreen(book: book,
+      bookTitle: book.title,
+      isLocked: false,)),
         );
       },
       child: Padding(
@@ -214,7 +216,9 @@ class MyLibraryScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          _animatedRoute(BookReaderScreen(book: book)),
+          _animatedRoute(BookReaderScreen(book: book,
+      bookTitle: book.title,
+      isLocked: false,)),
         );
       },
       child: Hero(
@@ -254,7 +258,9 @@ class MyLibraryScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                _animatedRoute(BookReaderScreen(book: book)),
+                _animatedRoute(BookReaderScreen(book: book,
+      bookTitle: book.title,
+      isLocked: false,)),
               );
             },
             child: Padding(

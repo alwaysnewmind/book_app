@@ -81,14 +81,14 @@ final List<HomeService> homeServices = [
     route: AppRoutes.community, // change if separate screen
   ),
   HomeService(
-    title: "Challenges",
+    title: "category",
     icon: Icons.emoji_events,
-    route: AppRoutes.challenges,
+    route: AppRoutes.category,
   ),
   HomeService(
     title: "Book Battle",
     icon: Icons.sports_kabaddi,
-    route: AppRoutes.challenges, // change if separate
+    route: AppRoutes.category, // change if separate
   ),
   HomeService(
     title: "Quotes",

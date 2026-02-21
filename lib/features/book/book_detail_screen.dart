@@ -1,8 +1,8 @@
+import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // Reader
-import 'package:book_app/features/reader/screens/book_reader_screen.dart';
 
 // Library
 import 'package:book_app/features/library/models/library_store.dart';
@@ -209,7 +209,9 @@ class BookDetailScreen extends StatelessWidget {
                                             context,
                                             MaterialPageRoute(
                                               builder: (_) =>
-                                                  BookReaderScreen(book: book),
+                                                  BookReaderScreen(book: book,
+      bookTitle: book.title,
+      isLocked: false,),
                                             ),
                                           );
                                         },

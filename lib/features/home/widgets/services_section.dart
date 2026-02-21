@@ -55,8 +55,8 @@ class ServicesSection extends StatelessWidget {
                   gridDelegate:
                       SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
                     childAspectRatio: 1.1, // Compact layout
                   ),
                   itemBuilder: (context, index) {

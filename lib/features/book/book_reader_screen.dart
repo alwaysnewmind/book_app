@@ -13,11 +13,13 @@ import 'package:book_app/features/subscription/reader_subscription_screen.dart';
 class BookReaderScreen extends StatefulWidget {
   final LibraryBook book;
   final bool isLocked;
+  
 
   const BookReaderScreen({
     super.key,
     required this.book,
-    this.isLocked = false,
+    this.isLocked = false, 
+    required String bookTitle,
   });
 
   @override

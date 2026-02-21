@@ -1,7 +1,7 @@
+import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
 import 'package:flutter/material.dart';
 import 'package:book_app/features/library/models/library_store.dart';
 import 'package:book_app/features/library/models/library_book.dart';
-import 'package:book_app/features/reader/screens/book_reader_screen.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -63,7 +63,9 @@ class FavoritesScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                _animatedRoute(BookReaderScreen(book: book)),
+                _animatedRoute(BookReaderScreen(book: book,
+      bookTitle: book.title,
+      isLocked: false,)),
               );
             },
             child: Hero(
