@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:book_app/features/profile/edit_profile_screen.dart';
 import 'package:book_app/features/settings/screens/settings_screen.dart';
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 import '../../library/screens/my_library_screen.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -209,9 +210,9 @@ class AppDrawer extends StatelessWidget {
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+      child: AnimatedTapWrapper(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
+import 'package:flutter/material.dart';
 
 class ServiceTile extends StatelessWidget {
   final String title;
@@ -17,11 +18,11 @@ class ServiceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDisabled = onTap == null;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Opacity(
-        opacity: isDisabled ? 0.5 : 1,
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1,
+      child: AnimatedTapWrapper(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

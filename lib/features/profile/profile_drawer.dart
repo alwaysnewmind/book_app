@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:book_app/features/home/mainicon/favorites_dashboard.dart';
 import 'package:book_app/features/home/mainicon/offline_vault.dart';
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 
 class ProfileDrawer extends StatelessWidget {
   const ProfileDrawer({super.key});
@@ -180,10 +181,9 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return AnimatedTapWrapper(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      splashColor: const Color(0xFF8E6CFF).withOpacity(0.15),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         child: Row(

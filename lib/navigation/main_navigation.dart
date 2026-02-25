@@ -25,19 +25,24 @@ class _MainNavigationState extends State<MainNavigation> {
     final AppUser? user = auth.currentUser;
     final bool isGuest = auth.isGuest;
 
-    final bool isWriter =
-        !isGuest && user != null && user.role == UserRole.writer;
+    final bool isWriterMode =
+        !isGuest &&
+        user != null &&
+        (user.currentMode == UserMode.writer || user.currentMode == UserMode.author);
 
     /// Pages based on role
     final List<Widget> pages = [
       const HomeScreen(),
-      if (isWriter)
-        WriterDashboard(
-          currentUser: user,
-          isGuest: isGuest, isWriterMode: isWriter,
-        ),
+      WriterDashboard(
+        currentUser: user,
+        isGuest: isGuest,
+        isWriterMode: isWriterMode,
+      ),
       const LibraryScreen(),
-      ProfileScreen(isWriterMode: isWriter, onSwap: () {  },),
+      ProfileScreen(
+        isWriterMode: isWriterMode,
+        onSwap: () {},
+      ),
     ];
 
     return Scaffold(
@@ -66,22 +71,21 @@ class _MainNavigationState extends State<MainNavigation> {
               /// HOME
               _buildNavItem(Icons.home, "Home", 0),
 
-              /// WRITER (Only for writers)
-              if (isWriter)
-                _buildNavItem(Icons.edit, "Writer", 1),
+              /// WRITER
+              _buildNavItem(Icons.edit, "Writer", 1),
 
               /// LIBRARY
               _buildNavItem(
                 Icons.library_books,
                 "Library",
-                isWriter ? 2 : 1,
+                2,
               ),
 
               /// PROFILE
               _buildNavItem(
                 Icons.person,
                 "Profile",
-                isWriter ? 3 : 2,
+                3,
               ),
             ],
           ),

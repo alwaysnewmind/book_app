@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/animated_tap_wrapper.dart';
 import '../../../shared/widgets/data/home_services.dart';
 
 class ServicesSection extends StatelessWidget {
@@ -62,10 +63,9 @@ class ServicesSection extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final service = services[index];
 
-                    return InkWell(
+                    return AnimatedTapWrapper(
+                      onTap: () => Navigator.pushNamed(context, service.route),
                       borderRadius: BorderRadius.circular(14),
-                      onTap: () =>
-                          Navigator.pushNamed(context, service.route),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

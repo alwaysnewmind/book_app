@@ -1,8 +1,9 @@
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class AuthButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onTap;   // ✅ nullable
+  final VoidCallback? onTap;
   final Color backgroundColor;
   final Color textColor;
   final double height;
@@ -12,7 +13,7 @@ class AuthButton extends StatelessWidget {
   const AuthButton({
     super.key,
     required this.text,
-    this.onTap,  // ✅ required hata diya
+    this.onTap,
     this.backgroundColor = Colors.amber,
     this.textColor = Colors.black,
     this.height = 50,
@@ -25,22 +26,26 @@ class AuthButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: height,
-      child: ElevatedButton(
-        onPressed: onTap, // null hoga to button disabled ho jayega
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: textColor,
-          elevation: elevation,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
+      child: AnimatedTapWrapper(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: ElevatedButton(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: backgroundColor,
+            foregroundColor: textColor,
+            elevation: elevation,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+            ),
+            shadowColor: Colors.black45,
           ),
-          shadowColor: Colors.black45,
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
         ),
       ),

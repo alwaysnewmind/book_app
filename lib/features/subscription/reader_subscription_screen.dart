@@ -1,3 +1,4 @@
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class ReaderSubscriptionScreen extends StatelessWidget {
@@ -14,8 +15,8 @@ class ReaderSubscriptionScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: const [
+        child: const Column(
+          children: [
             _ReaderPlanCard(
               title: "Free Reader",
               price: "₹0",
@@ -56,10 +57,6 @@ class ReaderSubscriptionScreen extends StatelessWidget {
   }
 }
 
-//
-// 💎 READER PLAN CARD
-//
-
 class _ReaderPlanCard extends StatelessWidget {
   final String title;
   final String price;
@@ -80,9 +77,7 @@ class _ReaderPlanCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: highlight ? const Color(0xFF2A3B55) : const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(18),
-        border: highlight
-            ? Border.all(color: Colors.amber, width: 1.2)
-            : null,
+        border: highlight ? Border.all(color: Colors.amber, width: 1.2) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,17 +100,12 @@ class _ReaderPlanCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-
           ...benefits.map(
             (b) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.check_circle,
-                    color: Colors.greenAccent,
-                    size: 18,
-                  ),
+                  const Icon(Icons.check_circle, color: Colors.greenAccent, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -127,28 +117,27 @@ class _ReaderPlanCard extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
           SizedBox(
             width: double.infinity,
             height: 44,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    highlight ? Colors.amber : const Color(0xFF334155),
-                foregroundColor:
-                    highlight ? Colors.black : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: AnimatedTapWrapper(
+              onTap: () {},
+              borderRadius: BorderRadius.circular(12),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      highlight ? Colors.amber : const Color(0xFF334155),
+                  foregroundColor: highlight ? Colors.black : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              onPressed: () {},
-              child: Text(
-                highlight ? "Upgrade Now" : "Choose Plan",
+                onPressed: () {},
+                child: Text(highlight ? "Upgrade Now" : "Choose Plan"),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

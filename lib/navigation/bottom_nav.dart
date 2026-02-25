@@ -1,3 +1,5 @@
+import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class BottomNav extends StatelessWidget {
@@ -12,33 +14,66 @@ class BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: onTap,
-      height: 72,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: 'Home',
+    const labels = ['Home', 'Writer', 'Library', 'Profile'];
+    const icons = [
+      Icons.home_outlined,
+      Icons.edit_outlined,
+      Icons.library_books_outlined,
+      Icons.person_outline,
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Container(
+        height: 68,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.92),
+          borderRadius: BorderRadius.circular(24),
         ),
-        NavigationDestination(
-          icon: Icon(Icons.edit_outlined),
-          selectedIcon: Icon(Icons.edit),
-          label: 'Writer',
+        child: Row(
+          children: List.generate(labels.length, (index) {
+            final isSelected = currentIndex == index;
+            return Expanded(
+              child: AnimatedTapWrapper(
+                onTap: () => onTap(index),
+                borderRadius: BorderRadius.circular(20),
+                pressedScale: 0.985,
+                enableShadow: false,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.premiumYellow.withOpacity(0.12)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        icons[index],
+                        color: isSelected ? AppColors.white : AppColors.lightText,
+                        size: 21,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        labels[index],
+                        style: TextStyle(
+                          color: isSelected ? AppColors.white : AppColors.lightText,
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
-        NavigationDestination(
-          icon: Icon(Icons.library_books_outlined),
-          selectedIcon: Icon(Icons.library_books),
-          label: 'Library',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
+      ),
     );
   }
 }

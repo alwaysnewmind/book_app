@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 
 class ProfileMenu extends StatelessWidget {
   final void Function(String route)? onItemTap;
@@ -53,7 +54,7 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return AnimatedTapWrapper(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(

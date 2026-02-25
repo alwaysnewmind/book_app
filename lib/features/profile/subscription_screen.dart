@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class MySubscriptionScreen extends StatefulWidget {
@@ -163,12 +164,13 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
 
   Widget _toggleButton(String text, bool selected) {
     return Expanded(
-      child: GestureDetector(
+      child: AnimatedTapWrapper(
         onTap: () {
           setState(() {
             isYearly = text == "Yearly";
           });
         },
+        borderRadius: BorderRadius.circular(30),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -278,27 +280,37 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
 
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isHighlighted ? Colors.white : const Color(0xFF6C4DFF),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22),
-                ),
-              ),
-              onPressed: () {
+            child: AnimatedTapWrapper(
+              onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("Selected $title"),
                   ),
                 );
               },
-              child: Text(
-                isHighlighted ? "Upgrade Now" : "Choose Plan",
-                style: TextStyle(
-                  color:
-                      isHighlighted ? const Color(0xFF6C4DFF) : Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      isHighlighted ? Colors.white : const Color(0xFF6C4DFF),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                ),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Selected $title"),
+                    ),
+                  );
+                },
+                child: Text(
+                  isHighlighted ? "Upgrade Now" : "Choose Plan",
+                  style: TextStyle(
+                    color:
+                        isHighlighted ? const Color(0xFF6C4DFF) : Colors.white,
+                  ),
                 ),
               ),
             ),

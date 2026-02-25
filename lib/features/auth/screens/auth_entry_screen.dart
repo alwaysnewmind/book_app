@@ -1,7 +1,8 @@
+import 'package:book_app/navigation/app_shell.dart';
+import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/shared/widgets/animated_tap_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:book_app/providers/auth_provider.dart';
-import 'package:book_app/navigation/app_shell.dart';
 
 class AuthEntryScreen extends StatefulWidget {
   const AuthEntryScreen({super.key});
@@ -16,56 +17,38 @@ class _AuthEntryScreenState extends State<AuthEntryScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void toggleForm() {
-    setState(() => isLogin = !isLogin);
-  }
+  void toggleForm() => setState(() => isLogin = !isLogin);
 
   Future<void> submit() async {
-    final authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter email & password"),
-        ),
+        const SnackBar(content: Text('Please enter email & password')),
       );
       return;
     }
 
-    bool success;
-
-    if (isLogin) {
-      success = await authProvider.login(
-        email: email,
-        password: password,
-      );
-    } else {
-      success = await authProvider.signUp(
-        email: email,
-        password: password,
-        name: "New User",
-      );
-    }
+    final success = isLogin
+        ? await authProvider.login(email: email, password: password)
+        : await authProvider.signUp(
+            email: email,
+            password: password,
+            name: 'New User',
+          );
 
     if (!mounted) return;
 
     if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const AppShell(),
-        ),
+        MaterialPageRoute(builder: (_) => const AppShell()),
       );
     } else if (authProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.error!),
-        ),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(authProvider.error!)));
     }
   }
 
@@ -89,55 +72,54 @@ class _AuthEntryScreenState extends State<AuthEntryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                isLogin ? "Welcome Back" : "Create Account",
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                isLogin ? 'Welcome Back' : 'Create Account',
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-
               TextField(
                 controller: _emailController,
-                decoration:
-                    const InputDecoration(labelText: "Email"),
+                decoration: const InputDecoration(labelText: 'Email'),
               ),
               const SizedBox(height: 16),
-
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: "Password"),
+                decoration: const InputDecoration(labelText: 'Password'),
               ),
               const SizedBox(height: 24),
-
               SizedBox(
                 width: double.infinity,
                 height: 50,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : submit,
-                  child: isLoading
-                      ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(isLogin ? "Login" : "Sign Up"),
+                child: AnimatedTapWrapper(
+                  onTap: isLoading ? null : submit,
+                  borderRadius: BorderRadius.circular(12),
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : submit,
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(isLogin ? 'Login' : 'Sign Up'),
+                  ),
                 ),
               ),
-
               const SizedBox(height: 16),
-
-              TextButton(
-                onPressed: toggleForm,
-                child: Text(
-                  isLogin
-                      ? "Don't have an account? Sign Up"
-                      : "Already have an account? Login",
+              AnimatedTapWrapper(
+                onTap: toggleForm,
+                enableShadow: false,
+                borderRadius: BorderRadius.circular(10),
+                child: TextButton(
+                  onPressed: toggleForm,
+                  child: Text(
+                    isLogin
+                        ? "Don't have an account? Sign Up"
+                        : 'Already have an account? Login',
+                  ),
                 ),
               ),
             ],
