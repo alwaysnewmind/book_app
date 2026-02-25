@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class CreateBookPage extends StatefulWidget {
   const CreateBookPage({super.key});
@@ -18,6 +19,8 @@ class _CreateBookPageState extends State<CreateBookPage> {
   Timer? _autoSaveTimer;
   bool _isSaved = true;
 
+  Map<String, dynamic>? _bookArgs;
+
   int get _wordCount {
     if (_chapterContentController.text.trim().isEmpty) return 0;
     return _chapterContentController.text.trim().split(RegExp(r'\s+')).length;
@@ -27,6 +30,17 @@ class _CreateBookPageState extends State<CreateBookPage> {
   void initState() {
     super.initState();
     _startAutoSave();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic>) {
+        _bookArgs = args;
+        final incomingTitle = args['title'] as String?;
+        if (incomingTitle != null && incomingTitle.isNotEmpty) {
+          _bookTitleController.text = incomingTitle;
+        }
+      }
+    });
   }
 
   void _startAutoSave() {
@@ -92,7 +106,17 @@ class _CreateBookPageState extends State<CreateBookPage> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Book Published Successfully 🚀")),
+      const SnackBar(content: Text("Entry saved successfully 🚀")),
+    );
+
+    Navigator.pushNamed(
+      context,
+      AppRoutes.writeChapter,
+      arguments: {
+        ...?_bookArgs,
+        'bookTitle': title,
+        'chapters': _chapters,
+      },
     );
   }
 
@@ -138,8 +162,11 @@ class _CreateBookPageState extends State<CreateBookPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.arrow_back_ios,
-                        color: Color(0xFFF5C84C)),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.arrow_back_ios,
+                          color: Color(0xFFF5C84C)),
+                    ),
                     const Spacer(),
                     Icon(
                       _isSaved ? Icons.check_circle : Icons.sync_problem,

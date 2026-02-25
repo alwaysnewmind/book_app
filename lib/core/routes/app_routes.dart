@@ -2,8 +2,21 @@ import 'package:book_app/features/auth/screens/genre_selection_screen.dart';
 import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart' show ReaderGenreSelectionScreen;
 import 'package:book_app/features/auth/screens/signup_screen.dart';
 import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dart' show WriterGenreSelectionScreen;
+import 'package:book_app/features/writer/create_book_entry_page.dart';
+import 'package:book_app/features/writer/create_book_screen.dart';
+import 'package:book_app/features/writer/screens/manage_books_page.dart';
+import 'package:book_app/features/writer/screens/write_chapter_screen.dart';
+import 'package:book_app/features/writer/screens/writer_analytics_screen.dart';
+import 'package:book_app/features/writer/screens/writer_dashboard.dart';
+import 'package:book_app/features/writer/screens/writer_profile_screen.dart';
+import 'package:book_app/features/writer/screens/writer_publish_page.dart';
+import 'package:book_app/features/writer/screens/writer_subscription_screen.dart';
+import 'package:book_app/navigation/app_shell.dart';
+import 'package:book_app/models/user_model.dart';
+import 'package:book_app/providers/auth_provider.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// 🔥 Auth
 import '../../features/auth/screens/splash_screen.dart';
@@ -58,6 +71,14 @@ class AppRoutes {
   static const profileUpload = '/profileupload';
   static const readerDashboard = '/readerdashboard';
   static const writerDashboard = '/writerdashboard';
+  static const createBook = '/writer/create-book';
+  static const createBookEntry = '/writer/create-book-entry';
+  static const writeChapter = '/writer/write-chapter';
+  static const manageBooks = '/writer/manage-books';
+  static const writerAnalytics = '/writer/analytics';
+  static const writerProfile = '/writer/profile';
+  static const writerSubscription = '/writer/subscription';
+  static const writerPublish = '/writer/publish';
 
   /// 🔥 Reading
   static const read = "/read";
@@ -97,6 +118,8 @@ class AppRoutes {
     genreSelection: (_) => const RoleSelectionScreen(), // 👈 ADD
     readerGenres: (_) => const ReaderGenreSelectionScreen(),
     writerGenres: (_) => const WriterGenreSelectionScreen(),
+    home: (_) => const AppShell(),
+    appShell: (_) => const AppShell(),
 
     
     subscription: (_) => const ReaderSubscriptionScreen(),
@@ -130,6 +153,27 @@ class AppRoutes {
 
     /// Writer
     earn: (_) => const WriterEarningsScreen(),
+    writerDashboard: (context) {
+      final authProvider = context.read<AuthProvider>();
+      final user = authProvider.currentUser;
+      final isWriterMode =
+          user?.currentMode == UserMode.writer ||
+          user?.currentMode == UserMode.author;
+
+      return WriterDashboard(
+        currentUser: user,
+        isGuest: authProvider.isGuest,
+        isWriterMode: isWriterMode,
+      );
+    },
+    createBook: (_) => const CreateBookScreen(),
+    createBookEntry: (_) => const CreateBookPage(),
+    writeChapter: (_) => const WriteChapterScreen(),
+    manageBooks: (_) => const ManageBooksPage(),
+    writerAnalytics: (_) => const WriterAnalyticsScreen(),
+    writerProfile: (_) => const WriterProfileScreen(),
+    writerSubscription: (_) => const WriterSubscribersScreen(),
+    writerPublish: (_) => const WriterPublishPage(),
 
     /// Settings
     helpSupportDashboard: (_) => const HelpSupportScreen(),

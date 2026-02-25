@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class WriteChapterScreen extends StatefulWidget {
   const WriteChapterScreen({super.key});
@@ -44,10 +45,13 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 alignment: Alignment.centerLeft,
                 child: Row(
-                  children: const [
-                    Icon(Icons.arrow_back, color: Color(0xFFF5C84C), size: 26),
-                    SizedBox(width: 14),
-                    Text(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.arrow_back, color: Color(0xFFF5C84C), size: 26),
+                    ),
+                    const SizedBox(width: 14),
+                    const Text(
                       "Write Chapter",
                       style: TextStyle(
                         color: Colors.white,
@@ -201,7 +205,18 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
                 ),
               ),
             );
-            Navigator.pop(context);
+            final args = ModalRoute.of(context)?.settings.arguments;
+            final routeArgs = args is Map<String, dynamic> ? args : <String, dynamic>{};
+
+            Navigator.pushNamed(
+              context,
+              AppRoutes.writerPublish,
+              arguments: {
+                ...routeArgs,
+                'chapterTitle': _chapterTitleController.text.trim(),
+                'chapterContent': _chapterContentController.text.trim(),
+              },
+            );
           },
           child: const Text(
             "Save Chapter",

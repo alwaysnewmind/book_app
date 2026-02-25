@@ -2,10 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:book_app/core/monetization/access_rules.dart';
 import 'package:book_app/data/dummy_books.dart';
-import 'package:book_app/features/writer/create_book_entry_page.dart';
-import 'package:book_app/features/writer/screens/manage_books_page.dart';
-import 'package:book_app/features/writer/screens/writer_earnings_screen.dart';
 import 'package:book_app/features/book/book_detail_screen.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 import 'package:book_app/models/user_model.dart';
 
 class WriterDashboard extends StatefulWidget {
@@ -129,11 +127,7 @@ class _WriterDashboardState extends State<WriterDashboard> {
                         icon: Icons.add,
                         label: "Create",
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const CreateBookPage()),
-                          );
+                          Navigator.pushNamed(context, AppRoutes.createBook, arguments: const {'source': 'dashboard'});
                         },
                       ),
                       ActionButton(
@@ -141,23 +135,57 @@ class _WriterDashboardState extends State<WriterDashboard> {
                         label: "Manage",
                         highlighted: true,
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const ManageBooksPage()),
-                          );
+                          Navigator.pushNamed(context, AppRoutes.manageBooks);
                         },
                       ),
                       ActionButton(
                         icon: Icons.attach_money,
                         label: "Earnings",
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    const WriterEarningsScreen()),
-                          );
+                          Navigator.pushNamed(context, AppRoutes.earn);
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ActionButton(
+                        icon: Icons.analytics,
+                        label: "Analytics",
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.writerAnalytics);
+                        },
+                      ),
+                      ActionButton(
+                        icon: Icons.person,
+                        label: "Profile",
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.writerProfile);
+                        },
+                      ),
+                      ActionButton(
+                        icon: Icons.subscriptions,
+                        label: "Subscription",
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.writerSubscription);
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Row(
+                    children: [
+                      ActionButton(
+                        icon: Icons.publish,
+                        label: "Publish",
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.writerPublish);
                         },
                       ),
                     ],
@@ -217,11 +245,7 @@ class _WriterDashboardState extends State<WriterDashboard> {
                   /// FLOATING PILL BUTTON (inside scroll)
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const CreateBookPage()),
-                      );
+                      Navigator.pushNamed(context, AppRoutes.createBook, arguments: const {'source': 'dashboard'});
                     },
                     child: Container(
                       height: 60,
