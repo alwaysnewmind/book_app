@@ -11,6 +11,10 @@ import 'package:book_app/features/writer/screens/writer_dashboard.dart';
 import 'package:book_app/features/writer/screens/writer_profile_screen.dart';
 import 'package:book_app/features/writer/screens/writer_publish_page.dart';
 import 'package:book_app/features/writer/screens/writer_subscription_screen.dart';
+import 'package:book_app/features/reader/screens/reader_dashboard_screen.dart';
+import 'package:book_app/features/reader/screens/reader_screen.dart';
+import 'package:book_app/features/reader/screens/pdf_reader_screen.dart';
+import 'package:book_app/features/reader/data/dummy_reader_data.dart';
 import 'package:book_app/navigation/app_shell.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/providers/auth_provider.dart';
@@ -70,6 +74,8 @@ class AppRoutes {
   static const writerGenres = '/writergenres';
   static const profileUpload = '/profileupload';
   static const readerDashboard = '/readerdashboard';
+  static const readerScreen = '/reader-screen';
+  static const pdfReader = '/reader/pdf';
   static const writerDashboard = '/writerdashboard';
   static const createBook = '/writer/create-book';
   static const createBookEntry = '/writer/create-book-entry';
@@ -123,6 +129,19 @@ class AppRoutes {
 
     
     subscription: (_) => const ReaderSubscriptionScreen(),
+    readerDashboard: (_) => const ReaderDashboardScreen(),
+    readerScreen: (context) {
+      final isLocked =
+          (ModalRoute.of(context)?.settings.arguments as bool?) ?? false;
+      return ReaderScreen(isLocked: isLocked);
+    },
+    pdfReader: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final book = args is ReaderBook
+          ? args
+          : DummyReaderData.continueReading.first;
+      return PdfReaderScreen(book: book);
+    },
 
     /// Reading
     read: (_) => const AllBooksScreen(),

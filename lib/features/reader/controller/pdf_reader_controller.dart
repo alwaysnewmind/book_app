@@ -91,7 +91,7 @@ class PdfReaderController extends ChangeNotifier {
   /// ==============================
 
   void _checkBookCompletion() {
-    if (_currentPage == _totalPages) {
+    if (_totalPages > 0 && _currentPage >= _totalPages - 1) {
       _addCoins(50); // Completion reward
     }
   }

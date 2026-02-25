@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ReadingTaskSection extends StatefulWidget {
-  const ReadingTaskSection({super.key});
+  final ValueChanged<Map<String, dynamic>>? onTaskTap;
+
+  const ReadingTaskSection({super.key, this.onTaskTap});
 
   @override
   State<ReadingTaskSection> createState() => _ReadingTaskSectionState();
@@ -119,6 +121,11 @@ class _ReadingTaskSectionState extends State<ReadingTaskSection> {
                         ),
                       ),
                       onTap: () {
+                        if (widget.onTaskTap != null) {
+                          widget.onTaskTap!(task);
+                          return;
+                        }
+
                         setState(() {
                           task["completed"] = !task["completed"];
                         });

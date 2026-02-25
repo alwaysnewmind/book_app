@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class ServiceItem {
   final String title;
@@ -17,7 +18,7 @@ final List<ServiceItem> serviceItems = [
   ServiceItem(
     title: 'Read',
     imagePath: 'assets/services/read.png',
-    route: '/library',
+    route: AppRoutes.readerDashboard,
   ),
   ServiceItem(
     title: 'Premium',

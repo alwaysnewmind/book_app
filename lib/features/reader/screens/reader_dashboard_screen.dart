@@ -1,6 +1,8 @@
 import 'package:book_app/features/reader/widgets/continue_reading_list.dart' show ContinueReadingSlider;
+import 'package:book_app/features/reader/data/dummy_reader_data.dart' show DummyReaderData, ReaderBook;
 import 'package:book_app/features/reader/widgets/reader_recommended_books_grid.dart' show RecommendedBooksGrid;
 import 'package:book_app/features/reader/widgets/reader_section.dart' show ReaderSectionTitle;
+import 'package:book_app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/reader_header.dart';
@@ -13,13 +15,29 @@ class ReaderDashboardScreen extends StatelessWidget {
   static const double _horizontalPadding = 16;
   static const double _sectionSpacing = 28;
 
+  void _openPdfReader(BuildContext context, ReaderBook book) {
+    Navigator.pushNamed(
+      context,
+      AppRoutes.pdfReader,
+      arguments: book,
+    );
+  }
+
+  void _openReaderScreen(BuildContext context) {
+    Navigator.pushNamed(
+      context,
+      AppRoutes.readerScreen,
+      arguments: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: const SafeArea(
+      body: SafeArea(
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
           child: Column(
@@ -36,32 +54,44 @@ class ReaderDashboardScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(
                   horizontal: _horizontalPadding,
                 ),
-                child: ReaderStatsGrid(),
+                child: ReaderStatsGrid(
+                  onTap: () => _openReaderScreen(context),
+                ),
               ),
 
               SizedBox(height: _sectionSpacing),
 
               /// Continue Reading
               ReaderSectionTitle(title: "Continue Reading"),
-              ContinueReadingSlider(),
+              ContinueReadingSlider(
+                books: DummyReaderData.continueReading,
+                onBookTap: (book) => _openPdfReader(context, book),
+              ),
 
               SizedBox(height: _sectionSpacing),
 
               /// Featured Books
               ReaderSectionTitle(title: "Featured Books"),
-              ContinueReadingSlider(),
+              ContinueReadingSlider(
+                books: DummyReaderData.featuredBooks,
+                onBookTap: (book) => _openPdfReader(context, book),
+              ),
 
               SizedBox(height: _sectionSpacing),
 
               /// Recommended
               ReaderSectionTitle(title: "Recommended For You"),
-              RecommendedBooksGrid(),
+              RecommendedBooksGrid(
+                onBookTap: (book) => _openPdfReader(context, book),
+              ),
 
               SizedBox(height: _sectionSpacing),
 
               /// Reading Tasks
               ReaderSectionTitle(title: "Reading Tasks"),
-              ReadingTaskSection(),
+              ReadingTaskSection(
+                onTaskTap: (_) => _openReaderScreen(context),
+              ),
 
               SizedBox(height: 40),
             ],

@@ -1,9 +1,10 @@
-import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
-import 'package:book_app/features/reader/data/dummy_reader_data.dart' show DummyReaderData;
+import 'package:book_app/features/reader/data/dummy_reader_data.dart' show DummyReaderData, ReaderBook;
 import 'package:flutter/material.dart';
 
 class RecommendedBooksGrid extends StatelessWidget {
-  const RecommendedBooksGrid({super.key});
+  final ValueChanged<ReaderBook>? onBookTap;
+
+  const RecommendedBooksGrid({super.key, this.onBookTap});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class RecommendedBooksGrid extends StatelessWidget {
           return _RecommendedBookCard(
             book: book,
             isDark: isDark,
+            onTap: onBookTap,
           );
         },
       ),
@@ -36,26 +38,21 @@ class RecommendedBooksGrid extends StatelessWidget {
 }
 
 class _RecommendedBookCard extends StatelessWidget {
-  final dynamic book;
+  final ReaderBook book;
   final bool isDark;
+  final ValueChanged<ReaderBook>? onTap;
 
   const _RecommendedBookCard({
     required this.book,
     required this.isDark,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => BookReaderScreen(book: book,),
-          ),
-        );
-      },
+      onTap: () => onTap?.call(book),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -81,10 +78,11 @@ class _RecommendedBookCard extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(18),
                   ),
-                  child: Image.network(
-                    book.coverUrl,
+                  child: Image.asset(
+                    book.cover,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const SizedBox.expand(),
                   ),
                 ),
               ),
@@ -123,19 +121,17 @@ class _RecommendedBookCard extends StatelessWidget {
                   /// 🔹 Rating + Coins
                   Row(
                     children: [
-                      const Icon(Icons.star,
-                          size: 14, color: Colors.orange),
+                      const Icon(Icons.star, size: 14, color: Colors.orange),
                       const SizedBox(width: 4),
                       Text(
-                        book.rating.toString(),
+                        "4.8",
                         style: const TextStyle(fontSize: 12),
                       ),
                       const Spacer(),
-                      const Icon(Icons.monetization_on,
-                          size: 14, color: Colors.amber),
+                      const Icon(Icons.monetization_on, size: 14, color: Colors.amber),
                       const SizedBox(width: 4),
                       Text(
-                        "${book.coins} Coins",
+                        "${book.price} Coins",
                         style: const TextStyle(fontSize: 12),
                       ),
                     ],
