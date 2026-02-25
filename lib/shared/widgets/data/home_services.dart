@@ -52,7 +52,7 @@ final List<HomeService> homeServices = [
   HomeService(
     title: "Writer Studio",
     icon: Icons.edit_note,
-    route: AppRoutes.earn,
+    route: AppRoutes.writerDashboard,
   ),
   HomeService(
     title: "Content Writing",

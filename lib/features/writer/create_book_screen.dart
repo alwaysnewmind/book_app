@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class CreateBookScreen extends StatefulWidget {
   const CreateBookScreen({super.key});
@@ -202,7 +203,13 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                         content: Text("Book saved as draft"),
                       ),
                     );
-                    Navigator.pop(context);
+                    Navigator.pushNamed(context, AppRoutes.createBookEntry, arguments: {
+                      'title': _titleController.text.trim(),
+                      'subtitle': _subtitleController.text.trim(),
+                      'description': _descController.text.trim(),
+                      'genre': _selectedGenre,
+                      'isPremium': _isPremium,
+                    });
                   },
                   child: Ink(
                     decoration: BoxDecoration(
