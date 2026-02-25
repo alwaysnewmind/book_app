@@ -11,41 +11,61 @@ class CommunityProfileScreen extends StatelessWidget {
     required this.role,
   });
 
+  // 🎨 LUXURY COLOR SYSTEM
+  static const Color bgPrimary = Color(0xFF1F1533);
+  static const Color bgSecondary = Color(0xFF2A1E47);
+  static const Color bgDeep = Color(0xFF140F26);
+
+  static const Color goldPrimary = Color(0xFFF5C84C);
+  static const Color goldDark = Color(0xFFE6B93E);
+  static const Color goldGlow = Color(0xFFFFD76A);
+
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFCFC8E8);
+  static const Color textMuted = Color(0xFF9F96C8);
+
+  static const Color cardFill = Color(0xFF251A3F);
+  static const Color cardBorder = Color(0xFF3A2D5C);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgPrimary,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFC9B6FF),
-              Color(0xFF8F6BFF),
+              bgPrimary,
+              bgSecondary,
+              bgDeep,
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
               _buildHeader(context),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 28),
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: cardFill,
                     borderRadius: BorderRadius.vertical(
                         top: Radius.circular(30)),
                   ),
                   child: ListView(
+                    physics: const BouncingScrollPhysics(),
                     children: [
                       _buildStats(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 28),
                       _buildBio(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 28),
                       _buildButtons(context),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 36),
                       _buildSharedImages(),
                     ],
                   ),
@@ -58,95 +78,146 @@ class CommunityProfileScreen extends StatelessWidget {
     );
   }
 
+  // 🔹 HEADER
   Widget _buildHeader(BuildContext context) {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: [
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back,
-                    color: Colors.white),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: cardBorder),
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back,
+                    color: textSecondary,
+                  ),
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
-        const CircleAvatar(
-          radius: 50,
-          backgroundColor: Colors.white,
-          child: Icon(Icons.person,
-              size: 60, color: Color(0xFF7B4DFF)),
+        const SizedBox(height: 28),
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: cardBorder),
+            boxShadow: [
+              BoxShadow(
+                color: goldGlow.withOpacity(0.15),
+                blurRadius: 20,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: const CircleAvatar(
+            radius: 50,
+            backgroundColor: cardFill,
+            child: Icon(
+              Icons.person,
+              size: 60,
+              color: goldPrimary,
+            ),
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         Text(
           name,
           style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: textPrimary,
+            letterSpacing: 0.3,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           role,
           style: const TextStyle(
             fontSize: 14,
-            color: Colors.white70,
+            color: textSecondary,
           ),
         ),
       ],
     );
   }
 
+  // 🔹 STATS
   Widget _buildStats() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: const [
-        _StatItem("120", "Friends"),
-        _StatItem("8", "Groups"),
-        _StatItem("24", "Books"),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
+        color: bgPrimary.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: cardBorder),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _StatItem("120", "Friends"),
+          _VerticalDivider(),
+          _StatItem("8", "Groups"),
+          _VerticalDivider(),
+          _StatItem("24", "Books"),
+        ],
+      ),
     );
   }
 
+  // 🔹 BIO
   Widget _buildBio() {
     return const Text(
       "Passionate reader who loves fantasy and self-growth books. "
       "Always open for book discussions and new recommendations!",
-      style: TextStyle(fontSize: 14, color: Colors.black87),
+      style: TextStyle(
+        fontSize: 14,
+        height: 1.6,
+        color: textMuted,
+      ),
     );
   }
 
+  // 🔹 BUTTONS
   Widget _buildButtons(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7B4DFF),
+              backgroundColor: goldPrimary,
+              foregroundColor: bgPrimary,
+              elevation: 0,
               padding:
-                  const EdgeInsets.symmetric(vertical: 14),
+                  const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(30),
               ),
+              shadowColor: goldGlow.withOpacity(0.3),
             ),
             onPressed: () {},
-            child: const Text("Add Friend"),
+            child: const Text(
+              "Add Friend",
+              style:
+                  TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 16),
         Expanded(
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(
-                  color: Color(0xFF7B4DFF)),
+              side: const BorderSide(color: cardBorder),
+              backgroundColor: Colors.transparent,
               padding:
-                  const EdgeInsets.symmetric(vertical: 14),
+                  const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(30),
               ),
             ),
             onPressed: () {
@@ -161,7 +232,9 @@ class CommunityProfileScreen extends StatelessWidget {
             child: const Text(
               "Message",
               style: TextStyle(
-                  color: Color(0xFF7B4DFF)),
+                color: textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
@@ -169,6 +242,7 @@ class CommunityProfileScreen extends StatelessWidget {
     );
   }
 
+  // 🔹 SHARED PHOTOS
   Widget _buildSharedImages() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,10 +250,12 @@ class CommunityProfileScreen extends StatelessWidget {
         const Text(
           "Shared Photos",
           style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600),
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: textPrimary,
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         GridView.builder(
           shrinkWrap: true,
           physics:
@@ -188,19 +264,21 @@ class CommunityProfileScreen extends StatelessWidget {
           gridDelegate:
               const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
           ),
           itemBuilder: (context, index) {
             return Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFEDE7FF),
+                color: bgPrimary.withOpacity(0.5),
                 borderRadius:
-                    BorderRadius.circular(12),
+                    BorderRadius.circular(18),
+                border:
+                    Border.all(color: cardBorder),
               ),
               child: const Icon(
                 Icons.image,
-                color: Color(0xFF7B4DFF),
+                color: goldPrimary,
               ),
             );
           },
@@ -219,23 +297,22 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
-        Text(
-          number,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
+      children: const [
+        SizedBox(height: 2),
       ],
+    );
+  }
+}
+
+class _VerticalDivider extends StatelessWidget {
+  const _VerticalDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      width: 1,
+      color: Color(0xFF3A2D5C),
     );
   }
 }

@@ -7,19 +7,19 @@ class AudioScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        backgroundColor: AppColors.card,
+        backgroundColor: AppColors.cardDark,
         title: const Text(
           "Audio Books",
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.white),
         ),
       ),
       body: const Center(
         child: Text(
           "Audio Books Coming Soon",
           style: TextStyle(
-            color: AppColors.textSecondary,
+            color: AppColors.white,
             fontSize: 16,
           ),
         ),

@@ -9,6 +9,9 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  CollectionReference<Map<String, dynamic>> get _usersCollection =>
+      _firestore.collection('users');
+
   // =====================================================
   // SIGN UP
   // =====================================================
@@ -17,14 +20,31 @@ class AuthService {
     required String email,
     required String password,
     required String name,
+    String? city,
+    String? phone,
+    String? gender,
+    DateTime? dob,
   }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
+      email: email.trim(),
+      password: password.trim(),
     );
 
-    final firebaseUser = credential.user!;
-    return await _createUser(firebaseUser, name: name);
+    final firebaseUser = credential.user;
+    if (firebaseUser == null) {
+      throw Exception("User creation failed");
+    }
+
+    await firebaseUser.sendEmailVerification();
+
+    return _createUser(
+      firebaseUser,
+      name: name,
+      city: city,
+      phone: phone,
+      gender: gender,
+      dob: dob,
+    );
   }
 
   // =====================================================
@@ -36,12 +56,27 @@ class AuthService {
     required String password,
   }) async {
     final credential = await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
+      email: email.trim(),
+      password: password.trim(),
     );
 
-    final firebaseUser = credential.user!;
-    return await _getOrCreateUser(firebaseUser);
+    final firebaseUser = credential.user;
+    if (firebaseUser == null) {
+      throw Exception("Login failed");
+    }
+
+    return _getOrCreateUser(firebaseUser);
+  }
+
+  // =====================================================
+  // CURRENT USER
+  // =====================================================
+
+  Future<AppUser?> getCurrentUser() async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return null;
+
+    return _getOrCreateUser(firebaseUser);
   }
 
   // =====================================================
@@ -53,33 +88,11 @@ class AuthService {
   }
 
   // =====================================================
-  // FETCH USER (SESSION RESTORE)
-  // =====================================================
-
-  Future<AppUser> fetchUserFromFirestore(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
-
-    if (!doc.exists || doc.data() == null) {
-      throw Exception("User not found");
-    }
-
-    return AppUser.fromMap(doc.data()!);
-  }
-
-  // =====================================================
-  // UPDATE USER (🔥 REQUIRED FIX)
+  // UPDATE USER
   // =====================================================
 
   Future<void> updateUser(AppUser user) async {
-    await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .update(
-      user.toMap()
-        ..addAll({
-          "updatedAt": Timestamp.now(),
-        }),
-    );
+    await _usersCollection.doc(user.uid).update(user.toMap());
   }
 
   // =====================================================
@@ -87,23 +100,26 @@ class AuthService {
   // =====================================================
 
   Future<AppUser> _getOrCreateUser(User firebaseUser) async {
-    final ref = _firestore.collection('users').doc(firebaseUser.uid);
-    final snapshot = await ref.get();
+    final doc = await _usersCollection.doc(firebaseUser.uid).get();
 
-    if (snapshot.exists && snapshot.data() != null) {
-      return AppUser.fromMap(snapshot.data()!);
-    } else {
-      return await _createUser(firebaseUser);
+    if (doc.exists && doc.data() != null) {
+      return AppUser.fromMap(doc.data()!);
     }
+
+    return _createUser(firebaseUser);
   }
 
   // =====================================================
-  // CREATE NEW USER
+  // CREATE USER
   // =====================================================
 
   Future<AppUser> _createUser(
     User firebaseUser, {
     String? name,
+    String? city,
+    String? phone,
+    String? gender,
+    DateTime? dob,
   }) async {
     final now = DateTime.now();
 
@@ -111,21 +127,27 @@ class AuthService {
       uid: firebaseUser.uid,
       email: firebaseUser.email ?? '',
       name: name ?? firebaseUser.displayName ?? 'User',
+      phone: phone ?? firebaseUser.phoneNumber ?? '',
+      city: city ?? '',
+      gender: gender ?? '',
+      dob: dob,
       photoUrl: firebaseUser.photoURL,
+      profileImageUrl: null,
       role: UserRole.reader,
-      currentMode: UserMode.reader, 
+      hasActiveSubscription: false, 
+      currentMode: UserMode.reader,
       isPremium: false,
+      subscriptionExpiry: null,
+      writerTrialStart: null,
       isWriterPremium: false,
       hasCompletedOnboarding: false,
       selectedGenres: [],
+      favoriteGenres: [],
       createdAt: now,
       updatedAt: now,
     );
 
-    await _firestore
-        .collection('users')
-        .doc(firebaseUser.uid)
-        .set(user.toMap());
+    await _usersCollection.doc(firebaseUser.uid).set(user.toMap());
 
     return user;
   }

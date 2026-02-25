@@ -33,39 +33,59 @@ class _ReaderGenreSelectionScreenState
     });
   }
 
+  // 🎨 Exact Design Colors (From Image)
+  static const Color bgDark = Color(0xFF1F1533);
+  static const Color bgTop = Color(0xFF2E1B47);
+  static const Color cardColor = Color(0xFF24163A);
+
+  static const Color yellow = Color(0xFFFFD86B);
+  static const Color yellowDark = Color(0xFFF6C453);
+
+  static const Color white = Colors.white;
+  static const Color subtitleColor = Color(0xFFB8AFCF);
+  static const Color chipBorder = Color(0xFF5C4A80);
+
+  void _goToHome() {
+    Navigator.pushReplacementNamed(context, "/home");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
+          gradient: RadialGradient(
+            center: Alignment.topCenter,
+            radius: 1.2,
             colors: [
-              Color(0xFF7B2FF7),
-              Color(0xFFF107A3),
+              bgTop,
+              bgDark,
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
 
-              /// Top Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const SizedBox(height: 20),
+
+                /// 🔥 Top Header
+                Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                   children: const [
                     Row(
                       children: [
-                        Icon(Icons.menu_book_rounded, color: Colors.white),
-                        SizedBox(width: 8),
+                        Icon(Icons.menu_book,
+                            color: yellow, size: 26),
+                        SizedBox(width: 10),
                         Text(
                           "Reader App",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -73,139 +93,160 @@ class _ReaderGenreSelectionScreenState
                       ],
                     ),
                     CircleAvatar(
+                      radius: 18,
                       backgroundColor: Colors.white24,
-                      child: Icon(Icons.person, color: Colors.white),
                     )
                   ],
                 ),
-              ),
 
-              const Spacer(),
+                const SizedBox(height: 40),
 
-              /// White Card Container
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                margin: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
+                /// 🔥 Title
+                const Text(
+                  "Tell Us What You Love",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: white,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
 
-                    const Text(
-                      "Tell Us What You Love",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      "Choose your favorite genres to get started.",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 20),
+                const SizedBox(height: 8),
 
-                    /// Genre Grid
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
+                const Text(
+                  "Choose your favorite genres to get started.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: subtitleColor,
+                    fontSize: 14,
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                /// 🔥 Genre Chips
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
                       children: genres.map((genre) {
-                        final isSelected = selectedGenres.contains(genre);
+                        final isSelected =
+                            selectedGenres.contains(genre);
 
                         return GestureDetector(
-                          onTap: () => toggleGenre(genre),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
+                          onTap: () =>
+                              toggleGenre(genre),
+                          child: AnimatedContainer(
+                            duration:
+                                const Duration(milliseconds: 250),
+                            padding:
+                                const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF7B2FF7).withOpacity(0.15)
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(20),
+                                  ? yellow.withOpacity(0.15)
+                                  : Colors.transparent,
+                              borderRadius:
+                                  BorderRadius.circular(30),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF7B2FF7)
-                                    : Colors.transparent,
+                                    ? yellow
+                                    : chipBorder,
+                                width: 1.5,
                               ),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: yellow
+                                            .withOpacity(0.5),
+                                        blurRadius: 20,
+                                        spreadRadius: 1,
+                                      )
+                                    ]
+                                  : [],
                             ),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisSize:
+                                  MainAxisSize.min,
                               children: [
-                                Icon(
-                                  isSelected
-                                      ? Icons.check_box
-                                      : Icons.check_box_outline_blank,
-                                  size: 18,
-                                  color: isSelected
-                                      ? const Color(0xFF7B2FF7)
-                                      : Colors.grey,
-                                ),
-                                const SizedBox(width: 8),
                                 Text(
                                   genre,
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
                                     color: isSelected
-                                        ? const Color(0xFF7B2FF7)
-                                        : Colors.black,
+                                        ? yellow
+                                        : white,
+                                    fontWeight:
+                                        FontWeight.w500,
                                   ),
                                 ),
+                                if (isSelected) ...[
+                                  const SizedBox(width: 8),
+                                  const Icon(
+                                    Icons.check_circle,
+                                    color: yellow,
+                                    size: 18,
+                                  ),
+                                ]
                               ],
                             ),
                           ),
                         );
                       }).toList(),
                     ),
+                  ),
+                ),
 
-                    const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
-                    /// Continue Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7B2FF7),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        onPressed: selectedGenres.isEmpty
-                            ? null
-                            : () {
-                                // Save genres logic here
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  "/home",
-                                );
-                              },
-                        child: const Text(
-                          "Continue",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                /// 🔥 Continue Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: yellow,
+                      disabledBackgroundColor:
+                          chipBorder,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30),
                       ),
                     ),
-
-                    const SizedBox(height: 12),
-
-                    Center(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, "/home");
-                        },
-                        child: const Text("Skip for now"),
+                    onPressed: selectedGenres.isEmpty
+                        ? null
+                        : _goToHome,
+                    child: const Text(
+                      "Continue",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: bgDark,
                       ),
-                    )
-                  ],
+                    ),
+                  ),
                 ),
-              ),
 
-              const Spacer(),
-            ],
+                const SizedBox(height: 10),
+
+                /// 🔥 Skip Button
+                TextButton(
+                  onPressed: _goToHome,
+                  child: const Text(
+                    "Skip for now",
+                    style: TextStyle(
+                      color: subtitleColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

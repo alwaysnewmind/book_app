@@ -5,15 +5,32 @@ class ReadingRoomScreen extends StatelessWidget {
 
   const ReadingRoomScreen({super.key, required this.groupName});
 
+  // 🎨 LUXURY COLOR SYSTEM
+  static const Color primaryBg = Color(0xFF1F1533);
+  static const Color gradientMid = Color(0xFF2A1E47);
+  static const Color deepDark = Color(0xFF140F26);
+
+  static const Color goldPrimary = Color(0xFFF5C84C);
+  static const Color goldDark = Color(0xFFE6B93E);
+  static const Color goldGlow = Color(0xFFFFD76A);
+
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFCFC8E8);
+  static const Color textMuted = Color(0xFF9F96C8);
+
+  static const Color cardFill = Color(0xFF251A3F);
+  static const Color borderInactive = Color(0xFF3A2D5C);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: primaryBg,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFC9B6FF),
-              Color(0xFF8F6BFF),
+              primaryBg,
+              gradientMid,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -23,23 +40,23 @@ class ReadingRoomScreen extends StatelessWidget {
           child: Column(
             children: [
               _buildHeader(context),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: primaryBg,
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(30)),
                   ),
                   child: ListView(
                     children: [
                       _buildCurrentBookCard(),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 32),
                       _buildProgressSection(),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 32),
                       _buildMembersProgress(),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 40),
                       _buildActions(),
                     ],
                   ),
@@ -54,20 +71,22 @@ class ReadingRoomScreen extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: const Icon(Icons.arrow_back, color: Colors.white),
+            child: const Icon(Icons.arrow_back,
+                color: goldPrimary, size: 26),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Text(
             groupName,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: textPrimary,
+              letterSpacing: 0.4,
             ),
           ),
         ],
@@ -77,24 +96,38 @@ class ReadingRoomScreen extends StatelessWidget {
 
   Widget _buildCurrentBookCard() {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0xFFEDE7FF),
-        borderRadius: BorderRadius.circular(20),
+        color: cardFill,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: borderInactive),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ],
       ),
       child: Row(
         children: [
           Container(
-            height: 90,
-            width: 60,
+            height: 95,
+            width: 65,
             decoration: BoxDecoration(
-              color: const Color(0xFF7B4DFF),
-              borderRadius: BorderRadius.circular(12),
+              color: goldPrimary,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: goldGlow.withOpacity(0.3),
+                  blurRadius: 16,
+                )
+              ],
             ),
             child: const Icon(Icons.menu_book,
-                color: Colors.white, size: 30),
+                color: primaryBg, size: 32),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,14 +135,18 @@ class ReadingRoomScreen extends StatelessWidget {
                 Text(
                   "Atomic Habits",
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: textPrimary,
+                  ),
                 ),
-                SizedBox(height: 6),
+                SizedBox(height: 8),
                 Text(
                   "James Clear",
                   style: TextStyle(
-                      fontSize: 13, color: Colors.grey),
+                    fontSize: 14,
+                    color: textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -125,22 +162,31 @@ class ReadingRoomScreen extends StatelessWidget {
       children: [
         const Text(
           "Group Progress",
-          style:
-              TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: LinearProgressIndicator(
-            value: 0.6,
-            minHeight: 10,
-            backgroundColor: Colors.grey.shade200,
-            valueColor: const AlwaysStoppedAnimation(
-                Color(0xFF7B4DFF)),
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: textPrimary,
           ),
         ),
-        const SizedBox(height: 6),
-        const Text("60% Completed"),
+        const SizedBox(height: 16),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: LinearProgressIndicator(
+            value: 0.6,
+            minHeight: 12,
+            backgroundColor: borderInactive,
+            valueColor:
+                const AlwaysStoppedAnimation(goldPrimary),
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          "60% Completed",
+          style: TextStyle(
+            color: textMuted,
+            fontSize: 13,
+          ),
+        ),
       ],
     );
   }
@@ -157,28 +203,36 @@ class ReadingRoomScreen extends StatelessWidget {
       children: [
         const Text(
           "Members Progress",
-          style:
-              TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: textPrimary,
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         ...members.map((member) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: 18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(member["name"] as String),
-                const SizedBox(height: 6),
+                Text(
+                  member["name"] as String,
+                  style: const TextStyle(
+                    color: textSecondary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(30),
                   child: LinearProgressIndicator(
                     value: member["progress"] as double,
-                    minHeight: 8,
-                    backgroundColor:
-                        Colors.grey.shade200,
+                    minHeight: 10,
+                    backgroundColor: borderInactive,
                     valueColor:
-                        const AlwaysStoppedAnimation(
-                            Color(0xFF7B4DFF)),
+                        const AlwaysStoppedAnimation(goldPrimary),
                   ),
                 ),
               ],
@@ -192,38 +246,60 @@ class ReadingRoomScreen extends StatelessWidget {
   Widget _buildActions() {
     return Column(
       children: [
-        SizedBox(
+        Container(
           width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: goldGlow.withOpacity(0.3),
+                blurRadius: 20,
+              )
+            ],
+          ),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  const Color(0xFF7B4DFF),
+              backgroundColor: goldPrimary,
               padding:
-                  const EdgeInsets.symmetric(vertical: 14),
+                  const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius:
-                    BorderRadius.circular(25),
+                    BorderRadius.circular(30),
               ),
             ),
             onPressed: () {},
-            child: const Text("Start Reading Together"),
-          ),
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(
-                color: Color(0xFF7B4DFF)),
-            shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(25),
+            child: const Text(
+              "Start Reading Together",
+              style: TextStyle(
+                color: primaryBg,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          onPressed: () {},
-          child: const Text(
-            "Schedule Session",
-            style:
-                TextStyle(color: Color(0xFF7B4DFF)),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              backgroundColor: cardFill,
+              side: const BorderSide(
+                  color: borderInactive),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(30),
+              ),
+            ),
+            onPressed: () {},
+            child: const Text(
+              "Schedule Session",
+              style: TextStyle(
+                color: textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         )
       ],

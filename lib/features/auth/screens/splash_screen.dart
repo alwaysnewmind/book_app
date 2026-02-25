@@ -1,6 +1,9 @@
+import 'package:book_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/routes/app_routes.dart';
+import 'package:book_app/navigation/app_shell.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,45 +16,83 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _initialize();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initialize();
+    });
   }
 
   Future<void> _initialize() async {
     try {
-      // Small splash delay for UI feel
       await Future.delayed(const Duration(seconds: 2));
 
       if (!mounted) return;
 
-      final authProvider =
-          Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = context.read<AuthProvider>();
 
-      // Restore session
-      await authProvider.checkAuthState();
+      await authProvider.initialize(); // ✅ use initialize()
 
       if (!mounted) return;
 
-      // 🔥 ROUTING LOGIC
-
-      // 1️⃣ Not logged in
+      /// 1️⃣ Not Logged In
       if (!authProvider.isLoggedIn) {
-        Navigator.pushReplacementNamed(context, "/login");
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.login,
+        );
         return;
       }
 
-      // 2️⃣ Logged in but onboarding NOT completed
+      final user = authProvider.currentUser;
+
+      /// 2️⃣ Safety Check
+      if (user == null) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.login,
+        );
+        return;
+      }
+
+      /// 3️⃣ Role NOT selected
+      if (user.role == null) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.genreSelection,
+        );
+        return;
+      }
+
+      /// 4️⃣ Onboarding NOT completed
       if (authProvider.needsOnboarding) {
-        Navigator.pushReplacementNamed(context, "/genreSelection");
+        if (user.role == UserRole.reader) {
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.readerGenres,
+          );
+        } else {
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.writerGenres,
+          );
+        }
         return;
       }
 
-      // 3️⃣ Logged in & onboarding completed
-      Navigator.pushReplacementNamed(context, "/appShell");
-
+      /// 5️⃣ Everything OK → Go to App
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AppShell(), // ✅ FIXED
+        ),
+      );
     } catch (e) {
-      // Fallback safety
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, "/login");
+
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.login,
+      );
     }
   }
 

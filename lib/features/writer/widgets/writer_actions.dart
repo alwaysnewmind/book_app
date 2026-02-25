@@ -40,19 +40,19 @@ class _ActionButton extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: AppColors.cardDark,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderColor),
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.primary),
+          Icon(icon, color: AppColors.white),
           const SizedBox(width: 12),
           Text(
             title,
             style: const TextStyle(
               fontSize: 14,
-              color: AppColors.textPrimary,
+              color: AppColors.white,
               fontWeight: FontWeight.w500,
             ),
           ),

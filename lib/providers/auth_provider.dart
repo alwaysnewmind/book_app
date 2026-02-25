@@ -1,320 +1,201 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:book_app/models/user_model.dart';
-import 'package:book_app/services/auth_service.dart';
+import '../../models/user_model.dart';
+import '../services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService.instance;
 
   AppUser? _user;
-  bool _isGuest = true;
-
-  // Temporary signup storage (before OTP verify)
-  String? _pendingName;
-  String? _pendingEmail;
-  String? _pendingPassword;
-
   bool _isLoading = false;
+  bool _isGuest = true;
   String? _error;
+  String? _selectedUserRole;
 
   // ===============================
   // GETTERS
   // ===============================
 
-  AppUser? get user => _user;
+  AppUser? get currentUser => _user;
+  bool get isLoading => _isLoading;
   bool get isGuest => _isGuest;
   bool get isLoggedIn => _user != null && !_isGuest;
-  bool get isWriterMode => _user?.isWriterMode ?? false;
-  bool get canAccessWriter => _user?.canAccessWriter ?? false;
-  bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get selectedUserRole => _selectedUserRole;
 
-  bool get needsOnboarding =>
-      _user != null && !_user!.hasCompletedOnboarding;
-
-  AppUser? get currentUser => null;
+  bool get needsOnboarding => false;
 
   // ===============================
-  // INTERNAL HELPERS
+  // INITIALIZE
   // ===============================
 
-  void _setLoading(bool value) {
-    _isLoading = value;
-    notifyListeners();
-  }
-
-  void _setError(String? message) {
-    _error = message;
-    notifyListeners();
-  }
-
-  void clearError() {
-    _error = null;
-  }
-
-  void _clearPendingSignup() {
-    _pendingEmail = null;
-    _pendingPassword = null;
-    _pendingName = null;
-  }
-
-  // =====================================================
-  // 🔥 SESSION RESTORE (Splash Screen)
-  // =====================================================
-
-  Future<void> checkAuthState() async {
+  Future<void> initialize() async {
     _setLoading(true);
 
     try {
-      final firebaseUser = FirebaseAuth.instance.currentUser;
-
-      if (firebaseUser != null) {
-        final appUser =
-            await _authService.fetchUserFromFirestore(firebaseUser.uid);
-
-        _user = appUser;
-        _isGuest = false;
-      } else {
-        _user = null;
-        _isGuest = true;
-      }
+      final user = await _authService.getCurrentUser();
+      _user = user;
+      _isGuest = user == null;
+      _error = null;
     } catch (e) {
-      _setError("Session restore failed");
+      _error = e.toString();
     }
 
     _setLoading(false);
   }
 
-  // =====================================================
-  // 🎯 DEMO LOGIN - READER (Onboarding visible)
-  // =====================================================
+  // ===============================
+  // SET USER ROLE
+  // ===============================
 
-  Future<void> demoLoginReader() async {
+  Future<void> setUserRole(String role) async {
+    _selectedUserRole = role;
+    notifyListeners();
+  }
+
+  // ===============================
+  // CONTINUE AS GUEST
+  // ===============================
+
+  Future<void> continueAsGuest() async {
     _setLoading(true);
 
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      final now = DateTime.now();
 
-    _user = AppUser(
-      uid: "demo_reader",
-      email: "reader@demo.com",
-      name: "Demo Reader",
-      role: UserRole.reader,
-      currentMode: UserMode.reader,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      hasCompletedOnboarding: false, // 🔥 onboarding show
-      selectedGenres: [],
-    );
+      _user = AppUser(
+        uid: now.millisecondsSinceEpoch.toString(),
+        name: "Guest",
+        email: "guest@mythica.com",
+        role: UserRole.reader,
+        phone: "",
+        city: "",
+        currentMode: UserMode.reader,
+        createdAt: now,
+        updatedAt: now,
+        gender: "unknown",
+        selectedGenres: [],
+        favoriteGenres: [],
+        hasCompletedOnboarding: false,
+        hasActiveSubscription: false,
+      );
 
-    _isGuest = false;
+      _isGuest = true;
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    }
+
     _setLoading(false);
   }
 
-  // =====================================================
-  // 🎯 DEMO LOGIN - WRITER (Onboarding visible)
-  // =====================================================
+  // ===============================
+  // SIGN UP
+  // ===============================
 
-  Future<void> demoLoginWriter() async {
-    _setLoading(true);
-
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    _user = AppUser(
-      uid: "demo_writer",
-      email: "writer@demo.com",
-      name: "Demo Writer",
-      role: UserRole.writer,
-      currentMode: UserMode.writer,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      hasCompletedOnboarding: false, // 🔥 onboarding show
-      selectedGenres: [],
-    );
-
-    _isGuest = false;
-    _setLoading(false);
-  }
-
-  // =====================================================
-  // 📝 REGISTER (TEMP – BEFORE OTP)
-  // =====================================================
-
-  Future<void> registerTempUser({
-    required String name,
+  Future<bool> signUp({
     required String email,
     required String password,
+    required String name,
   }) async {
-    _pendingName = name;
-    _pendingEmail = email;
-    _pendingPassword = password;
-  }
-
-  // =====================================================
-  // 🔐 VERIFY OTP (TEMP OTP: 123456)
-  // =====================================================
-
-  Future<bool> verifyOtp(String enteredOtp) async {
     _setLoading(true);
-    _setError(null);
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (enteredOtp != "123456") {
-      _setLoading(false);
-      _setError("Invalid OTP");
-      return false;
-    }
-
-    if (_pendingEmail == null ||
-        _pendingPassword == null ||
-        _pendingName == null) {
-      _setLoading(false);
-      _setError("Registration session expired");
-      return false;
-    }
 
     try {
-      final appUser = await _authService.signUp(
-        email: _pendingEmail!,
-        password: _pendingPassword!,
-        name: _pendingName!,
+      final user = await _authService.signUp(
+        email: email,
+        password: password,
+        name: name,
       );
 
-      _user = appUser.copyWith(
-        hasCompletedOnboarding: false,
-        selectedGenres: [],
-      );
-
+      _user = user;
       _isGuest = false;
+      _error = null;
 
-      _clearPendingSignup();
       _setLoading(false);
-
       return true;
     } catch (e) {
+      _error = e.toString();
       _setLoading(false);
-      _setError("Signup failed");
       return false;
     }
   }
 
-  // =====================================================
-  // 🔑 LOGIN
-  // =====================================================
+  // ===============================
+  // LOGIN
+  // ===============================
 
   Future<bool> login({
     required String email,
     required String password,
   }) async {
     _setLoading(true);
-    _setError(null);
 
     try {
-      final appUser = await _authService.login(
+      final user = await _authService.login(
         email: email,
         password: password,
       );
 
-      _user = appUser;
+      _user = user;
       _isGuest = false;
+      _error = null;
 
       _setLoading(false);
       return true;
     } catch (e) {
+      _error = e.toString();
       _setLoading(false);
-      _setError("Login failed");
       return false;
     }
   }
 
-  // =====================================================
-  // 🚪 LOGOUT
-  // =====================================================
+  // ===============================
+  // GOOGLE LOGIN (PLACEHOLDER)
+  // ===============================
+
+  Future<bool> signInWithGoogle() async {
+    _error = "Google Sign-In not implemented yet";
+    notifyListeners();
+    return false;
+  }
+
+  // ===============================
+  // MICROSOFT LOGIN (PLACEHOLDER)
+  // ===============================
+
+  Future<bool> signInWithMicrosoft() async {
+    _error = "Microsoft Sign-In not implemented yet";
+    notifyListeners();
+    return false;
+  }
+
+  // ===============================
+  // LOGOUT
+  // ===============================
 
   Future<void> logout() async {
     await _authService.logout();
-
     _user = null;
     _isGuest = true;
-
+    _selectedUserRole = null;
     notifyListeners();
   }
 
-  // =====================================================
-  // 🔥 COMPLETE ONBOARDING
-  // =====================================================
+  // ===============================
+  // UPDATE USER
+  // ===============================
 
-  Future<void> completeOnboarding({
-    required List<String> genres,
-    required String? profileImageUrl,
-  }) async {
-    if (_user == null) return;
-
-    final updatedUser = _user!.copyWith(
-      selectedGenres: genres,
-      profileImageUrl: profileImageUrl,
-      hasCompletedOnboarding: true,
-    );
-
-    _user = updatedUser;
-
-    // Optional: update Firestore
+  Future<void> updateUser(AppUser updatedUser) async {
     await _authService.updateUser(updatedUser);
-
+    _user = updatedUser;
     notifyListeners();
   }
 
-  // =====================================================
-  // 🔁 SWITCH MODE
-  // =====================================================
+  // ===============================
+  // HELPER
+  // ===============================
 
-  void switchMode(UserMode mode) {
-    if (_user == null) return;
-
-    _user = _user!.copyWith(currentMode: mode);
+  void _setLoading(bool value) {
+    _isLoading = value;
     notifyListeners();
   }
-
-  // =====================================================
-  // 🚀 WRITER TRIAL
-  // =====================================================
-
-  void activateWriterTrialIfNeeded() {
-    if (_user == null) return;
-
-    if (_user!.writerTrialStart == null) {
-      _user = _user!.copyWith(
-        writerTrialStart: DateTime.now(),
-      );
-      notifyListeners();
-    }
-  }
-
-  // =====================================================
-  // 💰 UPGRADE WRITER
-  // =====================================================
-
-  void upgradeToWriterPremium() {
-    if (_user == null) return;
-
-    _user = _user!.copyWith(isWriterPremium: true);
-    notifyListeners();
-  }
-
-  // =====================================================
-  // 👑 UPGRADE READER
-  // =====================================================
-
-  void upgradeToReaderPremium(DateTime expiryDate) {
-    if (_user == null) return;
-
-    _user = _user!.copyWith(
-      isPremium: true,
-      subscriptionExpiry: expiryDate,
-    );
-
-    notifyListeners();
-  }
-
-  void continueAsGuest() {}
 }

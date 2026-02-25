@@ -12,7 +12,7 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-    final AppUser? user = authProvider.user;
+    final AppUser? user = authProvider.currentUser;
     final bool isGuest = authProvider.isGuest;
 
     final bool isPremiumActive =
@@ -21,9 +21,9 @@ class ProfileHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: AppColors.cardDark,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -53,7 +53,7 @@ class ProfileHeader extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: AppColors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -65,7 +65,7 @@ class ProfileHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: AppColors.white,
                   ),
                 ),
                 const SizedBox(height: 8),

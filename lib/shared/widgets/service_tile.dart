@@ -29,10 +29,10 @@ class ServiceTile extends StatelessWidget {
               height: 56,
               width: 56,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.secondaryDark,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppColors.border,
+                  color: AppColors.cardDark,
                   width: 1.4,
                 ),
               ),
@@ -47,7 +47,7 @@ class ServiceTile extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.premiumYellow,
                   ),
             ),
           ],

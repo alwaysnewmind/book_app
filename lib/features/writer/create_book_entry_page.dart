@@ -16,7 +16,6 @@ class _CreateBookPageState extends State<CreateBookPage> {
   List<Map<String, String>> _chapters = [];
 
   Timer? _autoSaveTimer;
-
   bool _isSaved = true;
 
   int get _wordCount {
@@ -92,9 +91,6 @@ class _CreateBookPageState extends State<CreateBookPage> {
       return;
     }
 
-    setState(() {
-    });
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Book Published Successfully 🚀")),
     );
@@ -121,41 +117,52 @@ class _CreateBookPageState extends State<CreateBookPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF1F1533),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF6A5AE0), Color(0xFFB57EEB)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
+
               /// TOP BAR
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    const Icon(Icons.arrow_back_ios,
+                        color: Color(0xFFF5C84C)),
                     const Spacer(),
                     Icon(
                       _isSaved ? Icons.check_circle : Icons.sync_problem,
-                      color: _isSaved ? Colors.green : Colors.orange,
-                      size: 18,
+                      color: _isSaved
+                          ? const Color(0xFFF5C84C)
+                          : const Color(0xFFE6B93E),
+                      size: 20,
                     ),
                   ],
                 ),
               ),
 
-              /// WHITE CARD
+              /// MAIN CARD
               Expanded(
                 child: Container(
                   margin: const EdgeInsets.all(16),
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFF251A3F),
                     borderRadius: BorderRadius.circular(28),
+                    border: Border.all(
+                      color: const Color(0xFF3A2D5C),
+                    ),
                   ),
                   child: SingleChildScrollView(
                     child: Column(
@@ -165,72 +172,74 @@ class _CreateBookPageState extends State<CreateBookPage> {
                         const Text(
                           "Create New Book",
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 26,
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFFFFFFFF),
                           ),
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 28),
 
-                        TextField(
-                          controller: _bookTitleController,
-                          onChanged: (_) => _onTextChanged(),
-                          decoration: _modernInput("Title"),
-                        ),
+                        _luxuryInput(_bookTitleController, "Book Title"),
+                        const SizedBox(height: 18),
 
-                        const SizedBox(height: 16),
+                        _luxuryInput(_chapterTitleController, "Chapter Title"),
+                        const SizedBox(height: 18),
 
-                        TextField(
-                          controller: _chapterTitleController,
-                          onChanged: (_) => _onTextChanged(),
-                          decoration: _modernInput("Chapter Title"),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        TextField(
-                          controller: _chapterContentController,
-                          onChanged: (_) => _onTextChanged(),
-                          maxLines: 6,
-                          decoration: _modernInput("Write chapter here..."),
-                        ),
-
-                        const SizedBox(height: 8),
+                        _luxuryInput(
+                            _chapterContentController,
+                            "Write chapter here...",
+                            maxLines: 6),
+                        const SizedBox(height: 10),
 
                         Text(
                           "Word Count: $_wordCount",
-                          style: const TextStyle(color: Colors.grey),
+                          style: const TextStyle(
+                            color: Color(0xFF9F96C8),
+                          ),
                         ),
 
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         Align(
                           alignment: Alignment.centerRight,
                           child: ElevatedButton(
                             onPressed: _addOrUpdateChapter,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF6A5AE0),
+                              backgroundColor: const Color(0xFFF5C84C),
+                              foregroundColor: const Color(0xFF1F1533),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(22),
                               ),
+                              elevation: 0,
+                              shadowColor:
+                                  const Color(0xFFFFD76A).withOpacity(0.3),
                             ),
-                            child: const Text("Add Chapter"),
+                            child: const Text(
+                              "Add Chapter",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 30),
 
                         const Text(
                           "Chapters",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFFFFFFFF),
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
 
                         SizedBox(
-                          height: 170,
+                          height: 180,
                           child: ReorderableListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: _chapters.length,
@@ -240,34 +249,40 @@ class _CreateBookPageState extends State<CreateBookPage> {
 
                               return Container(
                                 key: ValueKey(chapter),
-                                width: 160,
+                                width: 170,
                                 margin: const EdgeInsets.only(right: 16),
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF3F1FF),
-                                  borderRadius: BorderRadius.circular(18),
+                                  color: const Color(0xFF251A3F),
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                      color: const Color(0xFF3A2D5C)),
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       chapter['title'] ?? "",
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFFFFFFF),
+                                      ),
                                     ),
                                     const Spacer(),
                                     Row(
                                       children: [
                                         IconButton(
                                           icon: const Icon(Icons.edit,
-                                              size: 18),
+                                              size: 18,
+                                              color: Color(0xFFF5C84C)),
                                           onPressed: () =>
                                               _editChapter(index),
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.delete,
-                                              color: Colors.redAccent,
-                                              size: 18),
+                                              size: 18,
+                                              color: Color(0xFFE6B93E)),
                                           onPressed: () =>
                                               _deleteChapter(index),
                                         ),
@@ -280,35 +295,32 @@ class _CreateBookPageState extends State<CreateBookPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 32),
 
                         SizedBox(
                           width: double.infinity,
-                          height: 55,
+                          height: 60,
                           child: ElevatedButton(
                             onPressed: _publishBook,
                             style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.zero,
+                              backgroundColor:
+                                  const Color(0xFFF5C84C),
+                              foregroundColor:
+                                  const Color(0xFF1F1533),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius:
+                                    BorderRadius.circular(30),
                               ),
+                              elevation: 0,
+                              shadowColor:
+                                  const Color(0xFFFFD76A)
+                                      .withOpacity(0.3),
                             ),
-                            child: Ink(
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF6A5AE0),
-                                    Color(0xFFB57EEB),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  "Publish Book",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
+                            child: const Text(
+                              "Publish Book",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
                           ),
@@ -325,17 +337,32 @@ class _CreateBookPageState extends State<CreateBookPage> {
     );
   }
 
-  InputDecoration _modernInput(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      filled: true,
-      fillColor: const Color(0xFFF3F1FF),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: BorderSide.none,
+  Widget _luxuryInput(TextEditingController controller, String hint,
+      {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      onChanged: (_) => _onTextChanged(),
+      style: const TextStyle(color: Color(0xFFFFFFFF)),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Color(0xFF9F96C8)),
+        filled: true,
+        fillColor: const Color(0xFF251A3F),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide:
+              const BorderSide(color: Color(0xFF3A2D5C)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide:
+              const BorderSide(color: Color(0xFFF5C84C)),
+        ),
       ),
     );
   }
 }
+

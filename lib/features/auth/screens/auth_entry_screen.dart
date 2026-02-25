@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:book_app/models/user_model.dart';
-
+import 'package:provider/provider.dart';
+import 'package:book_app/providers/auth_provider.dart';
 import 'package:book_app/navigation/app_shell.dart';
 
 class AuthEntryScreen extends StatefulWidget {
@@ -10,285 +10,137 @@ class AuthEntryScreen extends StatefulWidget {
   State<AuthEntryScreen> createState() => _AuthEntryScreenState();
 }
 
-class _AuthEntryScreenState extends State<AuthEntryScreen>
-    with SingleTickerProviderStateMixin {
-
+class _AuthEntryScreenState extends State<AuthEntryScreen> {
   bool isLogin = true;
 
-  late AnimationController _animController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  final TextEditingController _emailController =
-      TextEditingController();
-  final TextEditingController _passwordController =
-      TextEditingController();
+  void toggleForm() {
+    setState(() => isLogin = !isLogin);
+  }
 
-  @override
-  void initState() {
-    super.initState();
+  Future<void> submit() async {
+    final authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
 
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeInOut,
-    );
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter email & password"),
+        ),
+      );
+      return;
+    }
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
-            .animate(_fadeAnimation);
+    bool success;
 
-    _animController.forward();
+    if (isLogin) {
+      success = await authProvider.login(
+        email: email,
+        password: password,
+      );
+    } else {
+      success = await authProvider.signUp(
+        email: email,
+        password: password,
+        name: "New User",
+      );
+    }
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AppShell(),
+        ),
+      );
+    } else if (authProvider.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.error!),
+        ),
+      );
+    }
   }
 
   @override
   void dispose() {
-    _animController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void toggleForm() {
-    setState(() {
-      isLogin = !isLogin;
-    });
-  }
-
-  void demoLogin() {
-  if (_emailController.text.trim().isEmpty ||
-      _passwordController.text.trim().isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Please enter email & password"),
-      ),
-    );
-    return;
-  }
-
-  final now = DateTime.now();
-
-  final demoUser = AppUser(
-    uid: "demo123",
-    name: "Demo User",
-    email: _emailController.text.trim(),
-    photoUrl: null,
-
-    role: UserRole.reader,
-    currentMode: UserMode.reader,
-
-    createdAt: now,
-    updatedAt: now,
-
-    hasCompletedOnboarding: true,
-    selectedGenres: [],
-
-    // optional values (can skip but keeping clean)
-    profileImageUrl: null,
-    isPremium: false,
-    subscriptionExpiry: null,
-    writerTrialStart: now,
-    isWriterPremium: false,
-  );
-
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (_) => AppShell(
-        currentUser: demoUser,
-        isGuest: false,  )
-  )
-  );
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => AppShell(
-          currentUser: demoUser,
-          isGuest: false,
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
-      ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height: size.height -
-                MediaQuery.of(context).padding.top,
-            child: Stack(
-              children: [
-
-                /// Gradient Header
-                Container(
-                  height: size.height * 0.4,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF6C63FF),
-                        Color(0xFF9D4EDD),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
-                    ),
-                  ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isLogin ? "Welcome Back" : "Create Account",
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+              const SizedBox(height: 20),
 
-                /// Form Card
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Container(
-                        margin:
-                            const EdgeInsets.symmetric(horizontal: 20),
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(32),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset:
-                                  const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize:
-                              MainAxisSize.min,
-                          children: [
+              TextField(
+                controller: _emailController,
+                decoration:
+                    const InputDecoration(labelText: "Email"),
+              ),
+              const SizedBox(height: 16),
 
-                            Text(
-                              isLogin
-                                  ? "Welcome Back"
-                                  : "Create Account",
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight:
-                                    FontWeight.bold,
-                              ),
-                            ),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration:
+                    const InputDecoration(labelText: "Password"),
+              ),
+              const SizedBox(height: 24),
 
-                            const SizedBox(height: 20),
-
-                            TextField(
-                              controller:
-                                  _emailController,
-                              keyboardType:
-                                  TextInputType.emailAddress,
-                              decoration:
-                                  _inputDecoration(
-                                      "Email"),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            TextField(
-                              controller:
-                                  _passwordController,
-                              obscureText: true,
-                              decoration:
-                                  _inputDecoration(
-                                      "Password"),
-                            ),
-
-                            const SizedBox(height: 24),
-
-                            SizedBox(
-                              width:
-                                  double.infinity,
-                              height: 50,
-                              child:
-                                  ElevatedButton(
-                                onPressed:
-                                    demoLogin,
-                                style:
-                                    ElevatedButton
-                                        .styleFrom(
-                                  shape:
-                                      RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius
-                                            .circular(
-                                                16),
-                                  ),
-                                  backgroundColor:
-                                      const Color(
-                                          0xFF6C63FF),
-                                ),
-                                child: Text(
-                                  isLogin
-                                      ? "Login"
-                                      : "Sign Up",
-                                  style:
-                                      const TextStyle(
-                                    color:
-                                        Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(
-                                height: 16),
-
-                            TextButton(
-                              onPressed:
-                                  toggleForm,
-                              child: Text(
-                                isLogin
-                                    ? "Don't have an account? Sign Up"
-                                    : "Already have an account? Login",
-                                style:
-                                    const TextStyle(
-                                  color: Color(
-                                      0xFF6C63FF),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: isLoading ? null : submit,
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(isLogin ? "Login" : "Sign Up"),
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextButton(
+                onPressed: toggleForm,
+                child: Text(
+                  isLogin
+                      ? "Don't have an account? Sign Up"
+                      : "Already have an account? Login",
+                ),
+              ),
+            ],
           ),
         ),
       ),

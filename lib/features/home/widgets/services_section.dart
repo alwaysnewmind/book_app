@@ -26,9 +26,9 @@ class ServicesSection extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
-              color: Colors.white.withOpacity(0.14),
+              color:const Color(0xFF2F2B4D),
               border: Border.all(
-                color: Colors.white.withOpacity(0.25),
+                color: const Color(0xFF3A3A5A),
               ),
             ),
             child: Column(
@@ -41,7 +41,7 @@ class ServicesSection extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1F0322),
+                    color: Color(0xFFE2E2E5),
                   ),
                 ),
 
@@ -57,7 +57,7 @@ class ServicesSection extends StatelessWidget {
                     crossAxisCount: crossAxisCount,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
-                    childAspectRatio: 1.1, // Compact layout
+                    childAspectRatio: 1.05, // Compact layout
                   ),
                   itemBuilder: (context, index) {
                     final service = services[index];
@@ -71,18 +71,32 @@ class ServicesSection extends StatelessWidget {
                         children: [
 
                           /// 🔹 Icon Circle
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: const Color.fromARGB(255, 47, 47, 48).withOpacity(0.12),
-                            ),
-                            child: Icon(
-                              service.icon,
-                              size: 30, // Balanced size
-                              color: Colors.deepPurple,
+                           Container(
+                      height: 64,
+                      width: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFFFD600), // Gold Ring
+                          width: 2,
+                        ),
+                      ),
+                      child: Center(
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF2B3250), // Inner Purple
+                          ),
+                          child: Icon(
+                            service.icon,
+                            size: 28,
+                            color: Color(0xFFFFD600),
                             ),
                           ),
+                      ),
+                           ),
 
                           const SizedBox(height: 6),
 
@@ -95,7 +109,7 @@ class ServicesSection extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF1F0322),
+                              color: Color(0xFFE2E2E5),
                             ),
                           ),
                         ],

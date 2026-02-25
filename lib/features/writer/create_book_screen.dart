@@ -35,219 +35,225 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1414),
+      backgroundColor: const Color(0xFF1F1533),
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: const Color(0xFF0B1414),
+        backgroundColor: Colors.transparent,
         title: const Text(
           "Create New Book",
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        iconTheme: const IconThemeData(color: Color(0xFFF5C84C)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-            /// ================= COVER PREVIEW =================
-            Center(
-              child: Container(
-                height: 200,
-                width: 145,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF1F2F2F),
-                      Color(0xFF121E1E),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(color: Colors.white10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
-                      blurRadius: 20,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.add_a_photo_outlined,
-                    color: Colors.white54,
-                    size: 40,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 36),
-
-            /// ================= TITLE =================
-            _label("Book Title"),
-            _inputField(
-              controller: _titleController,
-              hint: "Enter book title",
-            ),
-
-            const SizedBox(height: 20),
-
-            /// ================= SUBTITLE =================
-            _label("Subtitle"),
-            _inputField(
-              controller: _subtitleController,
-              hint: "Optional subtitle",
-            ),
-
-            const SizedBox(height: 20),
-
-            /// ================= GENRE =================
-            _label("Genre"),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131F1F),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: DropdownButton<String>(
-                value: _selectedGenre,
-                dropdownColor: const Color(0xFF131F1F),
-                isExpanded: true,
-                underline: const SizedBox(),
-                icon: const Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Colors.white70,
-                ),
-                style: const TextStyle(color: Colors.white),
-                items: _genres.map((genre) {
-                  return DropdownMenuItem(
-                    value: genre,
-                    child: Text(genre),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedGenre = value!;
-                  });
-                },
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            /// ================= DESCRIPTION =================
-            _label("Description"),
-            _inputField(
-              controller: _descController,
-              hint: "Write short description...",
-              maxLines: 4,
-            ),
-
-            const SizedBox(height: 24),
-
-            /// ================= PREMIUM TOGGLE =================
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131F1F),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                activeColor: Colors.amber,
-                value: _isPremium,
-                title: const Text(
-                  "Mark as Premium Book",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _isPremium = value;
-                  });
-                },
-              ),
-            ),
-
-            const SizedBox(height: 36),
-
-            /// ================= SAVE BUTTON =================
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(18),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Book saved as draft"),
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-                child: Ink(
+              /// ================= COVER PREVIEW =================
+              Center(
+                child: Container(
+                  height: 210,
+                  width: 155,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFFFD54F),
-                        Color(0xFFFFB300),
-                      ],
-                    ),
+                    color: const Color(0xFF251A3F),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(color: const Color(0xFF3A2D5C)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.amber.withOpacity(0.4),
-                        blurRadius: 18,
-                        offset: const Offset(0, 8),
-                      ),
+                        color: const Color(0xFFFFD76A)
+                            .withOpacity(0.08),
+                        blurRadius: 40,
+                        spreadRadius: 2,
+                      )
                     ],
                   ),
                   child: const Center(
-                    child: Text(
-                      "Save & Continue",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
+                    child: Icon(
+                      Icons.add_a_photo_outlined,
+                      color: Color(0xFFCFC8E8),
+                      size: 42,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              /// ================= TITLE =================
+              _label("BOOK TITLE"),
+              _inputField(
+                controller: _titleController,
+                hint: "Enter book title",
+              ),
+
+              const SizedBox(height: 22),
+
+              /// ================= SUBTITLE =================
+              _label("SUBTITLE"),
+              _inputField(
+                controller: _subtitleController,
+                hint: "Optional subtitle",
+              ),
+
+              const SizedBox(height: 22),
+
+              /// ================= GENRE =================
+              _label("GENRE"),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF251A3F),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF3A2D5C)),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedGenre,
+                  dropdownColor: const Color(0xFF251A3F),
+                  isExpanded: true,
+                  underline: const SizedBox(),
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Color(0xFFF5C84C),
+                  ),
+                  style: const TextStyle(color: Color(0xFFFFFFFF)),
+                  items: _genres.map((genre) {
+                    return DropdownMenuItem(
+                      value: genre,
+                      child: Text(genre),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGenre = value!;
+                    });
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 22),
+
+              /// ================= DESCRIPTION =================
+              _label("DESCRIPTION"),
+              _inputField(
+                controller: _descController,
+                hint: "Write short description...",
+                maxLines: 4,
+              ),
+
+              const SizedBox(height: 26),
+
+              /// ================= PREMIUM TOGGLE =================
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF251A3F),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFF3A2D5C)),
+                ),
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: const Color(0xFFF5C84C),
+                  activeTrackColor:
+                      const Color(0xFFE6B93E).withOpacity(0.5),
+                  value: _isPremium,
+                  title: const Text(
+                    "Mark as Premium Book",
+                    style: TextStyle(
+                      color: Color(0xFFFFFFFF),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _isPremium = value;
+                    });
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 42),
+
+              /// ================= SAVE BUTTON =================
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(28),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Book saved as draft"),
+                      ),
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5C84C),
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFFD76A)
+                              .withOpacity(0.3),
+                          blurRadius: 25,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Save & Continue",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1F1533),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // ======================================================
-  // REUSABLE UI COMPONENTS
-  // ======================================================
-
+  // ================= LABEL =================
   Widget _label(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white70,
-          fontSize: 13,
+          color: Color(0xFF9F96C8),
+          fontSize: 12,
           fontWeight: FontWeight.w600,
-          letterSpacing: 0.3,
+          letterSpacing: 1,
         ),
       ),
     );
   }
 
+  // ================= INPUT =================
   Widget _inputField({
     required TextEditingController controller,
     required String hint,
@@ -256,26 +262,23 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: Color(0xFFFFFFFF)),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white38),
+        hintStyle: const TextStyle(color: Color(0xFF9F96C8)),
         filled: true,
-        fillColor: const Color(0xFF131F1F),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        fillColor: const Color(0xFF251A3F),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.white10),
+          borderRadius: BorderRadius.circular(20),
+          borderSide:
+              const BorderSide(color: Color(0xFF3A2D5C)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: Colors.amber,
-            width: 1.2,
-          ),
+          borderRadius: BorderRadius.circular(20),
+          borderSide:
+              const BorderSide(color: Color(0xFFF5C84C), width: 1.3),
         ),
       ),
     );

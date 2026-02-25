@@ -7,20 +7,20 @@ class FavoritePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        backgroundColor: AppColors.card,
+        backgroundColor: AppColors.cardDark,
         title: const Text(
           "Favorites",
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.white),
         ),
       ),
-      body: Center(
+      body: const Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(
                 Icons.favorite,
                 size: 60,
@@ -33,7 +33,7 @@ class FavoritePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: AppColors.white,
                 ),
               ),
               SizedBox(height: 12),
@@ -42,7 +42,7 @@ class FavoritePage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: AppColors.lightText,
                 ),
               ),
             ],

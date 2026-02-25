@@ -10,33 +10,54 @@ class CommunityHomeScreen extends StatefulWidget {
 
 class _CommunityHomeScreenState extends State<CommunityHomeScreen>
     with SingleTickerProviderStateMixin {
-  int selectedTab = 1;
+  int selectedTab = 0;
   TextEditingController searchController = TextEditingController();
 
   final List<String> tabs = ["Readers", "Writers", "Common"];
 
+  // 🎨 Luxury Color System
+  static const Color bgPrimary = Color(0xFF1F1533);
+  static const Color bgSecondary = Color(0xFF2A1E47);
+  static const Color bgDeep = Color(0xFF140F26);
+
+  static const Color goldPrimary = Color(0xFFF5C84C);
+  static const Color goldDark = Color(0xFFE6B93E);
+  static const Color goldGlow = Color(0xFFFFD76A);
+
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFCFC8E8);
+  static const Color textMuted = Color(0xFF9F96C8);
+
+  static const Color cardFill = Color(0xFF251A3F);
+  static const Color cardBorder = Color(0xFF3A2D5C);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgPrimary,
       floatingActionButton: _buildDiscussionButton(),
-      backgroundColor: const Color(0xFF8F6BFF),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFC9B6FF), Color(0xFF7B4DFF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [
+              bgPrimary,
+              bgSecondary,
+              bgDeep,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
+              const SizedBox(height: 16),
               _buildHeader(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
               _buildSegmentedTabs(),
-              const SizedBox(height: 15),
+              const SizedBox(height: 22),
               _buildSearchBar(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
               Expanded(child: _buildMainCard()),
             ],
           ),
@@ -55,22 +76,40 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
           const Text(
             "Community",
             style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white),
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: textPrimary,
+              letterSpacing: 0.5,
+            ),
           ),
           Stack(
-            children: const [
-              CircleAvatar(
-                radius: 22,
-                backgroundImage: AssetImage("assets/user.jpg"),
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: cardBorder),
+                ),
+                child: const CircleAvatar(
+                  radius: 24,
+                  backgroundImage: AssetImage("assets/user.jpg"),
+                ),
               ),
               Positioned(
-                right: 0,
-                top: 0,
-                child: CircleAvatar(
-                  radius: 6,
-                  backgroundColor: Colors.green,
+                right: 2,
+                top: 2,
+                child: Container(
+                  height: 10,
+                  width: 10,
+                  decoration: BoxDecoration(
+                    color: goldPrimary,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: goldGlow.withOpacity(0.6),
+                        blurRadius: 6,
+                      )
+                    ],
+                  ),
                 ),
               )
             ],
@@ -80,19 +119,20 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
     );
   }
 
-  /// SEGMENTED TAB
+  /// SEGMENTED TABS
   Widget _buildSegmentedTabs() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 25),
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.3),
+        color: cardFill,
         borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: cardBorder),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(tabs.length, (index) {
           bool isSelected = selectedTab == index;
+
           return Expanded(
             child: GestureDetector(
               onTap: () {
@@ -101,19 +141,27 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
                 });
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
+                  color: isSelected ? goldPrimary : Colors.transparent,
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: goldGlow.withOpacity(0.3),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          )
+                        ]
+                      : [],
                 ),
                 child: Center(
                   child: Text(
                     tabs[index],
                     style: TextStyle(
-                      color:
-                          isSelected ? const Color(0xFF7B4DFF) : Colors.white,
                       fontWeight: FontWeight.w600,
+                      color: isSelected ? bgPrimary : textSecondary,
                     ),
                   ),
                 ),
@@ -125,151 +173,147 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
     );
   }
 
-  /// SEARCH BAR (Unique Feature 🔥)
+  /// SEARCH BAR
   Widget _buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: TextField(
-        controller: searchController,
-        decoration: InputDecoration(
-          hintText: "Search members or groups...",
-          prefixIcon: const Icon(Icons.search),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide.none,
+      child: Container(
+        decoration: BoxDecoration(
+          color: cardFill,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: cardBorder),
+        ),
+        child: TextField(
+          controller: searchController,
+          style: const TextStyle(color: textPrimary),
+          decoration: const InputDecoration(
+            hintText: "Search members or groups...",
+            hintStyle: TextStyle(color: textMuted),
+            prefixIcon: Icon(Icons.search, color: textSecondary),
+            border: InputBorder.none,
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           ),
         ),
       ),
     );
   }
 
-  /// MAIN GLASS CARD
+  /// MAIN CONTENT
   Widget _buildMainCard() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            padding: const EdgeInsets.all(25),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.85),
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: ListView(
-              children: [
-                const Text(
-                  "Readers Active Members",
-                  style: TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 15),
-                _memberCard("Alexia R", "Fantasy Lover", true),
-                _memberCard("Rohan Mehta", "Sci-Fi Enthusiast", true),
-                _groupCard("Epic Sci-Fi Reads", "120 members"),
-                const SizedBox(height: 25),
-                const Text(
-                  "Readers Groups",
-                  style: TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 15),
-                _joinGroupCard("Epic Sci-Fi Reads", "120 members"),
-              ],
+      child: ListView(
+        physics: const BouncingScrollPhysics(),
+        children: [
+          const Text(
+            "Readers Active Members",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textPrimary,
             ),
           ),
-        ),
+          const SizedBox(height: 20),
+          _memberCard("Alexia R", "Fantasy Lover", true),
+          _memberCard("Rohan Mehta", "Sci-Fi Enthusiast", true),
+          const SizedBox(height: 32),
+          const Text(
+            "Readers Groups",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textPrimary,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _joinGroupCard("Epic Sci-Fi Reads", "120 members"),
+          const SizedBox(height: 110),
+        ],
       ),
     );
   }
 
   /// MEMBER CARD
   Widget _memberCard(String name, String subtitle, bool online) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              const CircleAvatar(radius: 25),
-              if (online)
-                const Positioned(
-                  right: 0,
-                  top: 0,
-                  child: CircleAvatar(
-                    radius: 6,
-                    backgroundColor: Colors.green,
-                  ),
-                )
-            ],
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name,
-                    style:
-                        const TextStyle(fontWeight: FontWeight.bold)),
-                Text(subtitle,
-                    style: const TextStyle(color: Colors.grey)),
-              ],
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 18),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: cardFill,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: cardBorder),
+        ),
+        child: Row(
+          children: [
+            const CircleAvatar(radius: 26),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name,
+                      style: const TextStyle(
+                          color: textPrimary,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(subtitle,
+                      style: const TextStyle(color: textMuted)),
+                ],
+              ),
             ),
-          ),
-          const Icon(Icons.arrow_forward_ios, size: 16)
-        ],
+            const Icon(Icons.arrow_forward_ios,
+                size: 16, color: textSecondary)
+          ],
+        ),
       ),
     );
   }
 
-  /// GROUP CARD
-  Widget _groupCard(String title, String subtitle) {
-    return _memberCard(title, subtitle, true);
-  }
-
-  /// JOIN GROUP CARD (Animated Button 🔥)
+  /// JOIN GROUP CARD
   Widget _joinGroupCard(String title, String subtitle) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(25),
+        color: cardFill,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: cardBorder),
       ),
       child: Row(
         children: [
           const CircleAvatar(
-            backgroundColor: Color(0xFF7B4DFF),
-            child: Icon(Icons.menu_book, color: Colors.white),
+            backgroundColor: goldPrimary,
+            child: Icon(Icons.menu_book, color: bgPrimary),
           ),
-          const SizedBox(width: 15),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style:
-                        const TextStyle(fontWeight: FontWeight.bold)),
+                    style: const TextStyle(
+                        color: textPrimary,
+                        fontWeight: FontWeight.w600)),
+                const SizedBox(height: 4),
                 Text(subtitle,
-                    style: const TextStyle(color: Colors.grey)),
+                    style: const TextStyle(color: textMuted)),
               ],
             ),
           ),
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
+              backgroundColor: goldPrimary,
+              foregroundColor: bgPrimary,
+              elevation: 0,
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              backgroundColor: const Color(0xFF7B4DFF),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              shadowColor: goldGlow.withOpacity(0.3),
             ),
             child: const Text("Join"),
           )
@@ -278,15 +322,17 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
     );
   }
 
-  /// FLOATING DISCUSSION BUTTON
+  /// FLOATING BUTTON
   Widget _buildDiscussionButton() {
     return FloatingActionButton.extended(
       onPressed: () {},
-      backgroundColor: Colors.white,
-      icon: const Icon(Icons.chat_bubble, color: Color(0xFF7B4DFF)),
+      backgroundColor: goldPrimary,
+      elevation: 0,
+      icon: const Icon(Icons.chat_bubble, color: bgPrimary),
       label: const Text(
         "Start Discussion",
-        style: TextStyle(color: Color(0xFF7B4DFF)),
+        style: TextStyle(
+            color: bgPrimary, fontWeight: FontWeight.w600),
       ),
     );
   }

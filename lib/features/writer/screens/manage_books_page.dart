@@ -7,42 +7,49 @@ class ManageBooksPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF7B3FE4),
+      backgroundColor: const Color(0xFF1F1533),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF7B3FE4),
         elevation: 0,
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
         title: const Text(
           "Manage Books",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        iconTheme: const IconThemeData(color: Color(0xFFF5C84C)),
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF7B3FE4),
-              Color(0xFF9D5CFF),
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           itemCount: dummyBooks.length,
           itemBuilder: (context, index) {
             final book = dummyBooks[index];
 
             return Container(
-              margin: const EdgeInsets.only(bottom: 18),
+              margin: const EdgeInsets.only(bottom: 22),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                color: Colors.white.withOpacity(0.12),
+                color: const Color(0xFF251A3F),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFF3A2D5C)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
+                    color:
+                        const Color(0xFFFFD76A).withOpacity(0.05),
+                    blurRadius: 25,
+                    spreadRadius: 1,
                   ),
                 ],
               ),
@@ -52,13 +59,13 @@ class ManageBooksPage extends StatelessWidget {
                   /// 📕 Cover Image
                   ClipRRect(
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(18),
-                      bottomLeft: Radius.circular(18),
+                      topLeft: Radius.circular(24),
+                      bottomLeft: Radius.circular(24),
                     ),
                     child: Image.asset(
                       book.coverImage,
-                      width: 100,
-                      height: 150,
+                      width: 105,
+                      height: 160,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -66,7 +73,7 @@ class ManageBooksPage extends StatelessWidget {
                   /// 📖 Details
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(18),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -75,8 +82,8 @@ class ManageBooksPage extends StatelessWidget {
                           Text(
                             book.title,
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
+                              color: Color(0xFFFFFFFF),
+                              fontSize: 17,
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 1,
@@ -89,12 +96,12 @@ class ManageBooksPage extends StatelessWidget {
                           Text(
                             book.author,
                             style: const TextStyle(
-                              color: Colors.white70,
+                              color: Color(0xFFCFC8E8),
                               fontSize: 13,
                             ),
                           ),
 
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 12),
 
                           /// Rating + Status Row
                           Row(
@@ -103,21 +110,26 @@ class ManageBooksPage extends StatelessWidget {
                               /// ⭐ Rating
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                    horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: const Color(0xFF251A3F),
+                                  borderRadius:
+                                      BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: const Color(0xFF3A2D5C)),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.star,
-                                        size: 14,
-                                        color: Colors.amber),
-                                    const SizedBox(width: 4),
+                                    const Icon(
+                                      Icons.star,
+                                      size: 15,
+                                      color: Color(0xFFF5C84C),
+                                    ),
+                                    const SizedBox(width: 6),
                                     Text(
                                       book.rating.toString(),
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: Color(0xFFFFFFFF),
                                         fontSize: 12,
                                       ),
                                     ),
@@ -125,32 +137,42 @@ class ManageBooksPage extends StatelessWidget {
                                 ),
                               ),
 
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 12),
 
-                              /// 💰 Premium / Free Badge
+                              /// Premium / Free Badge
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  gradient: book.isPremium
-                                      ? const LinearGradient(
-                                          colors: [
-                                            Color(0xFF6A11CB),
-                                            Color(0xFF9D5CFF)
-                                          ],
-                                        )
-                                      : const LinearGradient(
-                                          colors: [
-                                            Color(0xFF00C853),
-                                            Color(0xFF69F0AE)
-                                          ],
-                                        ),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: book.isPremium
+                                      ? const Color(0xFFF5C84C)
+                                      : const Color(0xFF251A3F),
+                                  borderRadius:
+                                      BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: book.isPremium
+                                        ? const Color(0xFFE6B93E)
+                                        : const Color(0xFF3A2D5C),
+                                  ),
+                                  boxShadow: book.isPremium
+                                      ? [
+                                          BoxShadow(
+                                            color: const Color(
+                                                    0xFFFFD76A)
+                                                .withOpacity(0.3),
+                                            blurRadius: 18,
+                                          )
+                                        ]
+                                      : [],
                                 ),
                                 child: Text(
-                                  book.isPremium ? "Premium" : "Free",
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  book.isPremium
+                                      ? "Premium"
+                                      : "Free",
+                                  style: TextStyle(
+                                    color: book.isPremium
+                                        ? const Color(0xFF1F1533)
+                                        : const Color(0xFFCFC8E8),
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -159,7 +181,7 @@ class ManageBooksPage extends StatelessWidget {
                             ],
                           ),
 
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 18),
 
                           /// ✏ Action Buttons
                           Row(
@@ -169,19 +191,16 @@ class ManageBooksPage extends StatelessWidget {
 
                               _ActionIcon(
                                 icon: Icons.edit,
-                                color: Colors.lightBlueAccent,
                                 onTap: () {},
                               ),
 
                               _ActionIcon(
                                 icon: Icons.analytics,
-                                color: Colors.amberAccent,
                                 onTap: () {},
                               ),
 
                               _ActionIcon(
                                 icon: Icons.delete,
-                                color: Colors.redAccent,
                                 onTap: () {},
                               ),
                             ],
@@ -201,17 +220,15 @@ class ManageBooksPage extends StatelessWidget {
 }
 
 ///////////////////////////////////////////////////////////////
-/// ACTION ICON
+/// ACTION ICON (Luxury Version)
 ///////////////////////////////////////////////////////////////
 
 class _ActionIcon extends StatelessWidget {
   final IconData icon;
-  final Color color;
   final VoidCallback onTap;
 
   const _ActionIcon({
     required this.icon,
-    required this.color,
     required this.onTap,
   });
 
@@ -219,14 +236,18 @@ class _ActionIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.18),
-          borderRadius: BorderRadius.circular(8),
+          color: const Color(0xFF251A3F),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF3A2D5C)),
         ),
-        child: Icon(icon, color: color, size: 20),
+        child: const Icon(
+          Icons.circle,
+          size: 0,
+        ),
       ),
     );
   }

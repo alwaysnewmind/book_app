@@ -11,14 +11,8 @@ import 'package:book_app/navigation/bottom_nav.dart';
 import 'package:book_app/models/user_model.dart';
 
 class AppShell extends StatefulWidget {
-  final AppUser? currentUser;
-  final bool isGuest;
-
-  const AppShell({
-    super.key,
-    required this.currentUser,
-    required this.isGuest,
-  });
+  
+  const AppShell({super.key});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -37,35 +31,45 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    final isWriterMode = authProvider.isWriterMode;
+    final AppUser? user = authProvider.currentUser;
+    final bool isGuest = authProvider.isGuest;
 
-    final pages = [
+    final bool isWriterMode =
+        user?.currentMode == UserMode.writer ||
+        user?.currentMode == UserMode.author;
+
+    final List<Widget> pages = [
       const HomeScreen(),
 
-      /// ✍ Writer / Reader Dashboard
       WriterDashboard(
-        currentUser: widget.currentUser,
-        isGuest: widget.isGuest,
+        currentUser: user,
+        isGuest: isGuest,
         isWriterMode: isWriterMode,
       ),
 
       const MyLibraryScreen(),
 
-      /// 👤 Profile
       ProfileScreen(
         isWriterMode: isWriterMode,
-        onSwap: () {
-          authProvider.switchMode(
-            isWriterMode
-                ? UserMode.reader
-                : UserMode.author,
-          );
+        onSwap: () async {
+          if (user == null) return;
+
+          final newMode =
+              isWriterMode ? UserMode.reader : UserMode.writer;
+
+          final updatedUser =
+              user.copyWith(currentMode: newMode);
+
+          await authProvider.updateUser(updatedUser);
         },
       ),
     ];
 
     return Scaffold(
-      body: pages[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: pages,
+      ),
       bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: _onTabChanged,

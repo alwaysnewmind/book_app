@@ -6,13 +6,14 @@ class WriterProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF7B3FE4),
+      backgroundColor: const Color(0xFF1F1533),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF7B3FE4),
-              Color(0xFF9D5CFF),
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+              Color(0xFF140F26),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -22,13 +23,13 @@ class WriterProfileScreen extends StatelessWidget {
           child: Column(
             children: const [
               _ProfileHeader(),
-              SizedBox(height: 70),
+              SizedBox(height: 80),
               _StatsSection(),
-              SizedBox(height: 30),
+              SizedBox(height: 36),
               _SectionTitle("Published Books"),
-              SizedBox(height: 16),
+              SizedBox(height: 20),
               _BooksGrid(),
-              SizedBox(height: 40),
+              SizedBox(height: 50),
             ],
           ),
         ),
@@ -50,46 +51,58 @@ class _ProfileHeader extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          height: 220,
+          height: 230,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFF7B3FE4),
-                Color(0xFF9D5CFF),
+                Color(0xFF1F1533),
+                Color(0xFF2A1E47),
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
+              bottomLeft: Radius.circular(36),
+              bottomRight: Radius.circular(36),
             ),
           ),
         ),
         Positioned(
-          bottom: -60,
+          bottom: -65,
           left: 0,
           right: 0,
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
+                  border: Border.all(
+                    color: const Color(0xFFF5C84C),
+                    width: 3,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x4DFFD76A),
+                      blurRadius: 18,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
                 child: const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.amber,
+                  radius: 52,
+                  backgroundColor: Color(0xFF251A3F),
                   child: Text(
                     "AM",
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Color(0xFFF5C84C),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
@@ -99,41 +112,41 @@ class _ProfileHeader extends StatelessWidget {
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      letterSpacing: 0.6,
                     ),
                   ),
                   SizedBox(width: 6),
                   Icon(
                     Icons.verified,
-                    color: Colors.white,
+                    color: Color(0xFFF5C84C),
                     size: 18,
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
                   "Bestselling fiction writer. Passionate about storytelling and emotional thrillers.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: Color(0xFFCFC8E8),
                     fontSize: 13,
+                    height: 1.4,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF6A11CB), Color(0xFF9D5CFF)],
-                  ),
+                  color: const Color(0xFFF5C84C),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: const [
                     BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    )
+                      color: Color(0x4DFFD76A),
+                      blurRadius: 18,
+                      offset: Offset(0, 6),
+                    ),
                   ],
                 ),
                 child: ElevatedButton(
@@ -142,7 +155,7 @@ class _ProfileHeader extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 36, vertical: 12),
+                        horizontal: 40, vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -151,7 +164,8 @@ class _ProfileHeader extends StatelessWidget {
                     "Follow",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Color(0xFF1F1533),
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
@@ -200,26 +214,27 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 100,
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
       ),
       child: Column(
         children: [
           Text(
             value,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color(0xFFF5C84C),
             ),
           ),
           const SizedBox(height: 6),
           Text(
             label,
             style: const TextStyle(
-              color: Colors.white70,
+              color: Color(0xFF9F96C8),
               fontSize: 12,
             ),
           ),
@@ -255,30 +270,29 @@ class _BooksGrid extends StatelessWidget {
         itemCount: books.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 18,
-          crossAxisSpacing: 18,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
           childAspectRatio: 0.65,
         ),
         itemBuilder: (context, index) {
           return Column(
             children: [
               Container(
-                height: 120,
+                height: 125,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF6A11CB), Color(0xFF9D5CFF)],
+                  color: const Color(0xFF251A3F),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFF3A2D5C)),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.menu_book_rounded,
+                    color: Color(0xFFF5C84C),
+                    size: 28,
                   ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      offset: Offset(0, 5),
-                    )
-                  ],
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
                 books[index],
                 style: const TextStyle(
@@ -312,8 +326,9 @@ class _SectionTitle extends StatelessWidget {
         title,
         style: const TextStyle(
           fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
           color: Colors.white,
+          letterSpacing: 0.6,
         ),
       ),
     );

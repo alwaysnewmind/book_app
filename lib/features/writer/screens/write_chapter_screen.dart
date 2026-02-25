@@ -21,13 +21,14 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF7B3FE4),
+      backgroundColor: const Color(0xFF1F1533),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF7B3FE4),
-              Color(0xFF9D5CFF),
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+              Color(0xFF140F26),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -37,42 +38,39 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
           child: Column(
             children: [
 
-              /// Top App Bar Style Header
+              /// Luxury Header
               Container(
-                height: 70,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF7B3FE4),
-                      Color(0xFF9D5CFF),
-                    ],
-                  ),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.arrow_back, color: Colors.white),
-                    SizedBox(width: 12),
+                height: 80,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: const [
+                    Icon(Icons.arrow_back, color: Color(0xFFF5C84C), size: 26),
+                    SizedBox(width: 14),
                     Text(
                       "Write Chapter",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              /// White Card Container
+              /// Main Card
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: Color(0xFF251A3F),
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(30),
+                      top: Radius.circular(28),
+                    ),
+                    border: Border(
+                      top: BorderSide(color: Color(0xFF3A2D5C), width: 1),
                     ),
                   ),
                   child: Column(
@@ -85,9 +83,10 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
                         maxLines: 1,
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 28),
 
                       _label("Chapter Content"),
+                      const SizedBox(height: 8),
                       Expanded(
                         child: _inputField(
                           controller: _chapterContentController,
@@ -97,7 +96,7 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 28),
 
                       _saveButton(context),
                     ],
@@ -115,13 +114,14 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
 
   Widget _label(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.black87,
+          color: Color(0xFFCFC8E8),
           fontSize: 14,
           fontWeight: FontWeight.w600,
+          letterSpacing: 0.4,
         ),
       ),
     );
@@ -133,24 +133,34 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
     int? maxLines,
     bool expands = false,
   }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      expands: expands,
-      style: const TextStyle(color: Colors.black87),
-      textAlignVertical: TextAlignVertical.top,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black38),
-        filled: true,
-        fillColor: const Color(0xFFF2F2F2),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
+      ),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        expands: expands,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 15,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
+        cursorColor: Color(0xFFF5C84C),
+        textAlignVertical: TextAlignVertical.top,
+        decoration: const InputDecoration(
+          hintText: "",
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 16,
+          ),
+        ).copyWith(
+          hintText: hint,
+          hintStyle: const TextStyle(
+            color: Color(0xFF9F96C8),
+          ),
         ),
       ),
     );
@@ -159,22 +169,18 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
   Widget _saveButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: 58,
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF6A11CB),
-              Color(0xFF9D5CFF),
-            ],
-          ),
+          color: const Color(0xFFF5C84C),
           borderRadius: BorderRadius.circular(30),
           boxShadow: const [
             BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10,
-              offset: Offset(0, 5),
-            )
+              color: Color(0x4DFFD76A), // 30% opacity glow
+              blurRadius: 18,
+              spreadRadius: 1,
+              offset: Offset(0, 6),
+            ),
           ],
         ),
         child: ElevatedButton(
@@ -188,7 +194,11 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("Chapter saved as draft"),
+                backgroundColor: Color(0xFF251A3F),
+                content: Text(
+                  "Chapter saved as draft",
+                  style: TextStyle(color: Color(0xFFCFC8E8)),
+                ),
               ),
             );
             Navigator.pop(context);
@@ -198,7 +208,8 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color(0xFF1F1533),
+              letterSpacing: 0.6,
             ),
           ),
         ),

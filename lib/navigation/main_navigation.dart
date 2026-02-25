@@ -22,7 +22,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final AppUser? user = auth.user;
+    final AppUser? user = auth.currentUser;
     final bool isGuest = auth.isGuest;
 
     final bool isWriter =
@@ -105,7 +105,7 @@ class _MainNavigationState extends State<MainNavigation> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withOpacity(0.2)
+              ? AppColors.primaryDark.withOpacity(0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
@@ -118,8 +118,8 @@ class _MainNavigationState extends State<MainNavigation> {
               child: Icon(
                 icon,
                 color: isSelected
-                    ? AppColors.primary
-                    : AppColors.textSecondary,
+                    ? AppColors.white
+                    : AppColors.premiumYellow,
                 size: 24,
               ),
             ),
@@ -127,8 +127,8 @@ class _MainNavigationState extends State<MainNavigation> {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: TextStyle(
-                  color: AppColors.primary,
+                style: const TextStyle(
+                  color: AppColors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),

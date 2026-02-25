@@ -16,9 +16,9 @@ class FeatureItem extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.primary),
+            border: Border.all(color: AppColors.white),
           ),
-          child: Icon(icon, color: AppColors.gold),
+          child: Icon(icon, color: AppColors.premiumYellow),
         ),
         const SizedBox(height: 8),
         Text(label, style: const TextStyle(fontSize: 12)),

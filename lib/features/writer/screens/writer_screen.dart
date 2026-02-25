@@ -2,30 +2,65 @@ import 'package:flutter/material.dart';
 import 'package:book_app/features/writer/widgets/writer_header.dart';
 import 'package:book_app/features/writer/widgets/writer_actions.dart';
 
-
-
-class WriterStats  extends StatelessWidget {
-  const WriterStats ({super.key});
+class WriterStats extends StatelessWidget {
+  const WriterStats({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF1F1533),
       appBar: AppBar(
-        title: const Text('Writer Dashboard'),
+        elevation: 0,
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          'Writer Dashboard',
+          style: TextStyle(
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Color(0xFFF5C84C), // Gold icons
+        ),
       ),
-      body: const SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              WriterHeader(),
-              SizedBox(height: 24),
-              WriterStats(),
-              SizedBox(height: 32),
-              WriterActions(),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+              Color(0xFF140F26),
             ],
+          ),
+        ),
+        child: const SafeArea(
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                /// HEADER SECTION
+                WriterHeader(),
+
+                SizedBox(height: 32),
+
+                /// STATS SECTION
+                WriterStats(),
+
+                SizedBox(height: 40),
+
+                /// ACTIONS SECTION
+                WriterActions(),
+
+                SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),

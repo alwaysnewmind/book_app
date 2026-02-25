@@ -7,30 +7,51 @@ class WriterAnalyticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E1A1A),
+      backgroundColor: const Color(0xFF1F1533),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1A1A),
+        backgroundColor: const Color(0xFF1F1533),
         elevation: 0,
-        title: const Text("Analytics"),
         centerTitle: true,
+        title: const Text(
+          "Analytics",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.6,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFFF5C84C)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            _EarningsCard(),
-            SizedBox(height: 24),
-            _StatsRow(),
-            SizedBox(height: 30),
-            _SectionTitle(title: "Monthly Growth"),
-            SizedBox(height: 14),
-            _GrowthChart(),
-            SizedBox(height: 30),
-            _SectionTitle(title: "Top Performing Books"),
-            SizedBox(height: 14),
-            _TopBooksList(),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+              Color(0xFF140F26),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              _EarningsCard(),
+              SizedBox(height: 28),
+              _StatsRow(),
+              SizedBox(height: 36),
+              _SectionTitle(title: "Monthly Growth"),
+              SizedBox(height: 16),
+              _GrowthChart(),
+              SizedBox(height: 36),
+              _SectionTitle(title: "Top Performing Books"),
+              SizedBox(height: 16),
+              _TopBooksList(),
+            ],
+          ),
         ),
       ),
     );
@@ -47,36 +68,47 @@ class _EarningsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF1E2E2E),
-            Color(0xFF162323),
-          ],
-        ),
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x4DFFD76A),
+            blurRadius: 20,
+            spreadRadius: 1,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
           Text(
             "Total Earnings",
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(
+              color: Color(0xFFCFC8E8),
+              fontSize: 14,
+            ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 10),
           Text(
             "₹ 48,250",
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: FontWeight.bold,
-              color: Colors.amber,
+              color: Color(0xFFF5C84C),
+              letterSpacing: 0.8,
             ),
           ),
-          SizedBox(height: 6),
+          SizedBox(height: 8),
           Text(
             "+12% from last month",
-            style: TextStyle(color: Colors.greenAccent),
+            style: TextStyle(
+              color: Color(0xFF9F96C8),
+              fontSize: 13,
+            ),
           ),
         ],
       ),
@@ -96,9 +128,9 @@ class _StatsRow extends StatelessWidget {
     return Row(
       children: const [
         Expanded(child: _StatCard(title: "Views", value: "12.4K")),
-        SizedBox(width: 12),
+        SizedBox(width: 14),
         Expanded(child: _StatCard(title: "Reads", value: "8.1K")),
-        SizedBox(width: 12),
+        SizedBox(width: 14),
         Expanded(child: _StatCard(title: "Subscribers", value: "1.2K")),
       ],
     );
@@ -114,10 +146,11 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF162323),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
       ),
       child: Column(
         children: [
@@ -126,14 +159,14 @@ class _StatCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color(0xFFF5C84C),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white60,
+              color: Color(0xFFCFC8E8),
               fontSize: 12,
             ),
           ),
@@ -144,7 +177,7 @@ class _StatCard extends StatelessWidget {
 }
 
 ////////////////////////////////////////////////////////////
-/// GROWTH CHART (Custom Painted)
+/// GROWTH CHART
 ////////////////////////////////////////////////////////////
 
 class _GrowthChart extends StatelessWidget {
@@ -153,11 +186,12 @@ class _GrowthChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160,
-      padding: const EdgeInsets.all(16),
+      height: 170,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF162323),
-        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
       ),
       child: CustomPaint(
         painter: _ChartPainter(),
@@ -171,7 +205,7 @@ class _ChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paintLine = Paint()
-      ..color = Colors.amber
+      ..color = const Color(0xFFF5C84C)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
@@ -180,7 +214,7 @@ class _ChartPainter extends CustomPainter {
 
     for (int i = 0; i < 6; i++) {
       final x = size.width / 5 * i;
-      final y = random.nextDouble() * size.height * 0.8 + 20;
+      final y = random.nextDouble() * size.height * 0.7 + 20;
 
       if (i == 0) {
         path.moveTo(x, y);
@@ -214,34 +248,46 @@ class _TopBooksList extends StatelessWidget {
     return Column(
       children: books.map((book) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(14),
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF162323),
-            borderRadius: BorderRadius.circular(14),
+            color: const Color(0xFF251A3F),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFF3A2D5C)),
           ),
           child: Row(
             children: [
               Container(
-                height: 50,
-                width: 40,
+                height: 54,
+                width: 42,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: const LinearGradient(
-                    colors: [Colors.deepPurple, Colors.purpleAccent],
-                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0xFF1F1533),
+                  border: Border.all(color: const Color(0xFF3A2D5C)),
+                ),
+                child: const Icon(
+                  Icons.menu_book_rounded,
+                  color: Color(0xFFF5C84C),
+                  size: 22,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   book["title"]!,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               Text(
                 book["reads"]!,
-                style: const TextStyle(color: Colors.white70),
+                style: const TextStyle(
+                  color: Color(0xFFCFC8E8),
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -265,9 +311,10 @@ class _SectionTitle extends StatelessWidget {
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
         color: Colors.white,
+        letterSpacing: 0.6,
       ),
     );
   }

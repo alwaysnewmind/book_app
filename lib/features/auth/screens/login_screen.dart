@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:book_app/navigation/app_shell.dart';
 import '../../../providers/auth_provider.dart';
-import '../widgets/auth_text_field.dart';
-import '../widgets/auth_button.dart';
+import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/features/auth/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,10 +19,9 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnim;
 
-  final TextEditingController _emailController =
-      TextEditingController();
-  final TextEditingController _passwordController =
-      TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -48,16 +48,50 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  /// ✅ SAFE NAVIGATION METHOD
   void _goToAppShell(AuthProvider authProvider) {
+
+    final user = authProvider.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User not available")),
+      );
+      return;
+    }
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => AppShell(
-          currentUser: authProvider.currentUser,
-          isGuest: authProvider.isGuest,
+        builder: (_) => const AppShell(
         ),
       ),
     );
+  }
+  /// Navigate to Signup Screen
+  void _goToSignUpScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SignupScreen(),
+      ),
+    );
+  }
+
+
+  Future<void> _handleLogin(AuthProvider authProvider) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final success = await authProvider.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (success && authProvider.currentUser != null) {
+      _goToAppShell(authProvider);
+    }
   }
 
   @override
@@ -65,179 +99,263 @@ class _LoginScreenState extends State<LoginScreen>
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF7F00FF),
-              Color(0xFFE100FF),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      body: Stack(
+        children: [
+
+          /// Floating Books
+          Positioned(
+            top: 100,
+            left: 20,
+            child: Image.asset(
+              "assets/books/Book1.png",
+              width: 50,
+            ).animate(onPlay: (c) => c.repeat())
+              .moveY(begin: -10, end: 10, duration: 3.seconds),
           ),
-        ),
-        child: FadeTransition(
-          opacity: _fadeAnim,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
 
-                const SizedBox(height: 60),
+          Positioned(
+            bottom: 200,
+            right: 30,
+            child: Image.asset(
+              "assets/books/Book2.png",
+              width: 60,
+            ).animate(onPlay: (c) => c.repeat())
+              .moveY(begin: 15, end: -15, duration: 4.seconds),
+          ),
 
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primaryDark,
+                  AppColors.secondaryDark,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    Icon(Icons.menu_book,
-                        color: Colors.white, size: 28),
-                    SizedBox(width: 8),
-                    Text(
-                      "Mythica",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+
+                    const SizedBox(height: 80),
+
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.menu_book,
+                            color: AppColors.premiumYellow,
+                            size: 30),
+                        SizedBox(width: 10),
+                        Text(
+                          "Mythica",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.lightText,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 50),
+
+                    Image.asset(
+                      "assets/image/abc.png",
+                      height: 180,
+                    ),
+
+                    const SizedBox(height: 50),
+
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 35),
+                      decoration: const BoxDecoration(
+                        color: AppColors.cardDark,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(40),
+                          topRight: Radius.circular(40),
+                        ),
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+
+                            _buildTextField(
+                              controller: _emailController,
+                              hint: "Email",
+                              icon: Icons.email,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            _buildTextField(
+                              controller: _passwordController,
+                              hint: "Password",
+                              icon: Icons.lock,
+                              isPassword: true,
+                            ),
+
+                            const SizedBox(height: 30),
+
+                            _gradientButton(
+                              authProvider.isLoading
+                                  ? "Please wait..."
+                                  : "LOGIN",
+                              () => _handleLogin(authProvider),
+                            ),
+
+                            const SizedBox(height: 30),
+                            Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    const Text(
+      "Don't have an account? ",
+      style: TextStyle(color: AppColors.lightText),
+    ),
+    GestureDetector(
+      onTap: _goToSignUpScreen,
+      child: const Text(
+        "Sign Up",
+        style: TextStyle(
+          color: AppColors.premiumYellow,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 20),
+
+
+                            /// Google
+                            _socialButton(
+                              "Login with Google",
+                              () async {
+                                await authProvider.signInWithGoogle();
+                                if (!mounted) return;
+
+                                if (authProvider.currentUser != null) {
+                                  _goToAppShell(authProvider);
+                                }
+                              },
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            /// Microsoft
+                            _socialButton(
+                              "Login with Outlook",
+                              () async {
+                                await authProvider.signInWithMicrosoft();
+                                if (!mounted) return;
+
+                                if (authProvider.currentUser != null) {
+                                  _goToAppShell(authProvider);
+                                }
+                              },
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            /// Guest
+                            _socialButton(
+                              "Continue as Guest",
+                              () async {
+                                await authProvider.continueAsGuest();
+                                if (!mounted) return;
+
+                                if (authProvider.currentUser != null) {
+                                  _goToAppShell(authProvider);
+                                }
+                              },
+                            ),
+
+                            const SizedBox(height: 30),
+
+                            const Text(
+                              "Read. Write. Connect. Earn.",
+                              style: TextStyle(
+                                color: AppColors.premiumYellow,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                const SizedBox(height: 30),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool isPassword = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword,
+      validator: (value) =>
+          value == null || value.isEmpty ? "Required" : null,
+      style: const TextStyle(color: AppColors.lightText),
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: AppColors.premiumYellow),
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: AppColors.secondaryDark,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide:
+              const BorderSide(color: AppColors.premiumYellow),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(
+              color: AppColors.premiumYellow,
+              width: 2),
+        ),
+      ),
+    );
+  }
 
-                Image.asset(
-                  "assets/image/abc.png",
-                  height: 180,
-                ),
-
-                const SizedBox(height: 30),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 30),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-
-                      AuthTextField(
-                        controller: _emailController,
-                        hint: "Email",
-                        icon: Icons.email,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      AuthTextField(
-                        controller: _passwordController,
-                        hint: "Password",
-                        icon: Icons.lock,
-                        isPassword: true,
-                      ),
-
-                      const SizedBox(height: 25),
-
-                      if (authProvider.error != null)
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: 12),
-                          child: Text(
-                            authProvider.error!,
-                            style: const TextStyle(
-                                color: Colors.red),
-                          ),
-                        ),
-
-                      AuthButton(
-                        text: authProvider.isLoading
-                            ? "Please wait..."
-                            : "LOGIN",
-                        onTap: authProvider.isLoading
-                            ? null
-                            : () async {
-
-                                final success =
-                                    await authProvider.login(
-                                  email:
-                                      _emailController.text.trim(),
-                                  password:
-                                      _passwordController.text.trim(),
-                                );
-                                  if (!mounted) return;
-                                if (success) {
-                                  _goToAppShell(authProvider);
-                                }
-                              },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                              "Don't have your account? "),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(
-                                  context, '/signup');
-                            },
-                            child: const Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                color: Color(0xFF7F00FF),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 25),
-
-                      _socialButton(
-                        text: "Demo Reader",
-                        onTap: () async {
-                          await authProvider
-                              .demoLoginReader();
-                          if (mounted) {
-                            _goToAppShell(authProvider);
-                          }
-                        },
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      _socialButton(
-                        text: "Demo Writer",
-                        onTap: () async {
-                          await authProvider
-                              .demoLoginWriter();
-                          if (mounted) {
-                            _goToAppShell(authProvider);
-                          }
-                        },
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      _socialButton(
-                        text: "Continue as Guest",
-                        onTap: () {
-                          authProvider.continueAsGuest();
-                          _goToAppShell(authProvider);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+  Widget _gradientButton(String text, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 200,
+        padding:
+            const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              AppColors.premiumYellow,
+              AppColors.premiumYellowDark,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
         ),
@@ -245,10 +363,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _socialButton({
-    required String text,
-    required VoidCallback onTap,
-  }) {
+  Widget _socialButton(String text, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -256,15 +371,17 @@ class _LoginScreenState extends State<LoginScreen>
         padding:
             const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: AppColors.secondaryDark,
           borderRadius:
               BorderRadius.circular(30),
+          border: Border.all(
+              color: AppColors.premiumYellowDark),
         ),
         child: Center(
           child: Text(
             text,
             style: const TextStyle(
-                fontWeight: FontWeight.w500),
+                color: AppColors.lightText),
           ),
         ),
       ),

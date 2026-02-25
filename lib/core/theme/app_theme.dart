@@ -6,28 +6,28 @@ import 'app_typography.dart';
 class AppTheme {
   AppTheme._();
 
-  // =========================
-  // 🌞 LIGHT THEME (Premium Purple UI)
-  // =========================
+  // =====================================================
+  // 🌙 PREMIUM DARK THEME (MATCHED WITH SCREENSHOT)
+  // =====================================================
 
-  static ThemeData lightTheme = ThemeData(
+  static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
+    brightness: Brightness.dark,
 
-    scaffoldBackgroundColor: const Color(0xFFF6F7FB),
+    scaffoldBackgroundColor: const Color(0xFF1C1B3A),
 
-    primaryColor: const Color(0xFF7B4DFF),
+    primaryColor: const Color(0xFFFFD600),
 
-    colorScheme: const ColorScheme.light(
-      primary: Color(0xFF7B4DFF),
-      secondary: Color(0xFF9F67FF),
-      surface: Colors.white,
-      background: Color(0xFFF6F7FB),
-      onPrimary: Colors.white,
-      onSurface: Color(0xFF1C1C1E),
+    colorScheme: const ColorScheme.dark(
+      primary: Color(0xFFFFD600), // Gold Accent
+      secondary: Color(0xFF2B3250), // Mid Purple
+      surface: Color(0xFF2F2B4D), // Card Color
+      background: Color(0xFF1C1B3A),
+      onPrimary: Colors.black,
+      onSurface: Colors.white,
     ),
 
-    dividerColor: const Color(0xFFE9E9F2),
+    dividerColor: const Color(0xFF3A3A5A),
 
     // =========================
     // 📝 TEXT THEME
@@ -35,155 +35,22 @@ class AppTheme {
 
     textTheme: TextTheme(
       displayLarge:
-          AppTypography.displayLarge.copyWith(color: const Color(0xFF1C1C1E)),
-      titleLarge:
-          AppTypography.titleLarge.copyWith(color: const Color(0xFF1C1C1E)),
-      titleMedium:
-          AppTypography.titleMedium.copyWith(color: const Color(0xFF2C2C2E)),
-      bodyLarge:
-          AppTypography.bodyLarge.copyWith(color: const Color(0xFF3A3A3C)),
-      bodyMedium:
-          AppTypography.bodyMedium.copyWith(color: const Color(0xFF6E6E73)),
-      labelSmall:
-          AppTypography.labelSmall.copyWith(color: const Color(0xFF8E8E93)),
-    ),
-
-    // =========================
-    // 📱 APP BAR (Gradient Ready)
-    // =========================
-
-    appBarTheme: AppBarTheme(
-      elevation: 0,
-      centerTitle: false,
-      backgroundColor: Colors.transparent,
-      iconTheme: const IconThemeData(color: Colors.white),
-      titleTextStyle: AppTypography.titleLarge.copyWith(
-        color: Colors.white,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
-
-    // =========================
-    // 🧾 CARD THEME (Soft Premium)
-    // =========================
-
-    cardTheme: CardThemeData(
-      color: Colors.white,
-      elevation: 0,
-      shadowColor: Colors.black.withOpacity(0.05),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-    ),
-
-    // =========================
-    // 🔘 ELEVATED BUTTON (Gradient Style)
-    // =========================
-
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
-        textStyle: AppTypography.bodyMedium.copyWith(
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.3,
-        ),
-      ),
-    ),
-
-    // =========================
-    // 🧊 INPUT FIELDS (Soft Glass Look)
-    // =========================
-
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      hintStyle: const TextStyle(
-        color: Color(0xFF9E9E9E),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
-        borderSide: const BorderSide(
-          color: Color(0xFF7B4DFF),
-          width: 1.2,
-        ),
-      ),
-    ),
-
-    // =========================
-    // 🧭 BOTTOM NAV BAR
-    // =========================
-
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Colors.white,
-      selectedItemColor: Color(0xFF7B4DFF),
-      unselectedItemColor: Color(0xFF9E9E9E),
-      type: BottomNavigationBarType.fixed,
-      elevation: 0,
-    ),
-
-    // =========================
-    // 🎨 ICON THEME
-    // =========================
-
-    iconTheme: const IconThemeData(
-      color: Color(0xFF2C2C2E),
-    ),
-
-    splashFactory: InkRipple.splashFactory,
-  );
-
-  // =========================
-  // 🌙 DARK THEME (Luxury Purple Dark)
-  // =========================
-
-  static ThemeData darkTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-
-    scaffoldBackgroundColor: const Color(0xFF121212),
-
-    primaryColor: const Color(0xFF9F67FF),
-
-    colorScheme: const ColorScheme.dark(
-      primary: Color(0xFF9F67FF),
-      secondary: Color(0xFF7B4DFF),
-      surface: Color(0xFF1E1E1E),
-      background: Color(0xFF121212),
-      onPrimary: Colors.white,
-      onSurface: Colors.white,
-    ),
-
-    dividerColor: const Color(0xFF2C2C2E),
-
-    textTheme: TextTheme(
-      displayLarge:
           AppTypography.displayLarge.copyWith(color: Colors.white),
       titleLarge:
           AppTypography.titleLarge.copyWith(color: Colors.white),
       titleMedium:
-          AppTypography.titleMedium.copyWith(color: Colors.white70),
+          AppTypography.titleMedium.copyWith(color: const Color(0xFFE2E2E5)),
       bodyLarge:
-          AppTypography.bodyLarge.copyWith(color: Colors.white70),
+          AppTypography.bodyLarge.copyWith(color: const Color(0xFFE2E2E5)),
       bodyMedium:
-          AppTypography.bodyMedium.copyWith(color: Colors.white60),
+          AppTypography.bodyMedium.copyWith(color: const Color(0xFFE2E2E5)),
       labelSmall:
-          AppTypography.labelSmall.copyWith(color: Colors.white54),
+          AppTypography.labelSmall.copyWith(color: Colors.white60),
     ),
+
+    // =========================
+    // 📱 APP BAR
+    // =========================
 
     appBarTheme: AppBarTheme(
       elevation: 0,
@@ -195,19 +62,28 @@ class AppTheme {
       ),
     ),
 
+    // =========================
+    // 🧾 CARD THEME
+    // =========================
+
     cardTheme: CardThemeData(
-      color: const Color(0xFF1E1E1E),
+      color: const Color(0xFF2F2B4D),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
     ),
 
+    // =========================
+    // 🔘 ELEVATED BUTTON (GOLD)
+    // =========================
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFFFD600),
+        foregroundColor: Colors.black,
         elevation: 0,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),
         ),
@@ -217,11 +93,16 @@ class AppTheme {
       ),
     ),
 
+    // =========================
+    // 🧊 INPUT FIELD
+    // =========================
+
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF1E1E1E),
+      fillColor: const Color(0xFF2B3250),
       contentPadding:
           const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      hintStyle: const TextStyle(color: Colors.white54),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(22),
         borderSide: BorderSide.none,
@@ -229,18 +110,28 @@ class AppTheme {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(22),
         borderSide: const BorderSide(
-          color: Color(0xFF9F67FF),
+          color: Color(0xFFFFD600),
           width: 1.2,
         ),
       ),
     ),
 
+    // =========================
+    // 🧭 BOTTOM NAV
+    // =========================
+
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color(0xFF1E1E1E),
-      selectedItemColor: Color(0xFF9F67FF),
+      backgroundColor: Color(0xFF2B3250),
+      selectedItemColor: Color(0xFFFFD600),
       unselectedItemColor: Colors.white54,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
     ),
+
+    iconTheme: const IconThemeData(
+      color: Colors.white,
+    ),
+
+    splashFactory: InkRipple.splashFactory,
   );
 }

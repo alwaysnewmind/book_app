@@ -9,26 +9,26 @@ class WriterHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: AppColors.cardDark,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderColor),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 34,
             backgroundImage: AssetImage('assets/profile/writer.png'),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'Mukesh Patel',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: AppColors.white,
                 ),
               ),
               SizedBox(height: 4),
@@ -36,7 +36,7 @@ class WriterHeader extends StatelessWidget {
                 'Fiction • Motivation',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: AppColors.lightText,
                 ),
               ),
             ],

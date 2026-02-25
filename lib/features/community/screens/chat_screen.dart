@@ -16,7 +16,7 @@ class ChatMessage {
   final String text;
   final bool isMe;
   final DateTime time;
-  final String status; // sent, seen
+  final String status;
   final String? replyTo;
 
   ChatMessage({
@@ -31,6 +31,23 @@ class ChatMessage {
 
 class _ChatScreenState extends State<ChatScreen>
     with SingleTickerProviderStateMixin {
+
+  // 🎨 LUXURY COLOR SYSTEM
+  static const Color bgPrimary = Color(0xFF1F1533);
+  static const Color bgSecondary = Color(0xFF2A1E47);
+  static const Color bgDeep = Color(0xFF140F26);
+
+  static const Color goldPrimary = Color(0xFFF5C84C);
+  static const Color goldDark = Color(0xFFE6B93E);
+  static const Color goldGlow = Color(0xFFFFD76A);
+
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFCFC8E8);
+  static const Color textMuted = Color(0xFF9F96C8);
+
+  static const Color cardFill = Color(0xFF251A3F);
+  static const Color cardBorder = Color(0xFF3A2D5C);
+
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -45,8 +62,9 @@ class _ChatScreenState extends State<ChatScreen>
   @override
   void initState() {
     super.initState();
+
     _recordController =
-        AnimationController(vsync: this, duration: Duration(seconds: 1))
+        AnimationController(vsync: this, duration: const Duration(seconds: 1))
           ..repeat(reverse: true);
 
     _scrollController.addListener(() {
@@ -71,21 +89,21 @@ class _ChatScreenState extends State<ChatScreen>
         id: "1",
         text: "Has anyone read Atomic Habits?",
         isMe: false,
-        time: DateTime.now().subtract(Duration(minutes: 5)),
+        time: DateTime.now().subtract(const Duration(minutes: 5)),
         status: "seen",
       ),
       ChatMessage(
         id: "2",
         text: "Yes! It's amazing 🔥",
         isMe: true,
-        time: DateTime.now().subtract(Duration(minutes: 4)),
+        time: DateTime.now().subtract(const Duration(minutes: 4)),
         status: "seen",
       ),
       ChatMessage(
         id: "3",
         text: "Any fantasy book recommendations?",
         isMe: false,
-        time: DateTime.now().subtract(Duration(minutes: 2)),
+        time: DateTime.now().subtract(const Duration(minutes: 2)),
         status: "sent",
       ),
     ];
@@ -113,10 +131,10 @@ class _ChatScreenState extends State<ChatScreen>
   }
 
   void _scrollToBottom() {
-    Future.delayed(Duration(milliseconds: 200), () {
+    Future.delayed(const Duration(milliseconds: 200), () {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent + 100,
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     });
@@ -126,13 +144,8 @@ class _ChatScreenState extends State<ChatScreen>
     return "${time.hour}:${time.minute.toString().padLeft(2, '0')}";
   }
 
-  void _startRecording() {
-    setState(() => isRecording = true);
-  }
-
-  void _stopRecording() {
-    setState(() => isRecording = false);
-  }
+  void _startRecording() => setState(() => isRecording = true);
+  void _stopRecording() => setState(() => isRecording = false);
 
   @override
   void dispose() {
@@ -144,14 +157,23 @@ class _ChatScreenState extends State<ChatScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF7B4DFF),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            SizedBox(height: 15),
-            Expanded(child: _buildGlassChat()),
-          ],
+      backgroundColor: bgPrimary,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [bgPrimary, bgSecondary, bgDeep],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 20),
+              Expanded(child: _buildChatContainer()),
+            ],
+          ),
         ),
       ),
     );
@@ -159,67 +181,83 @@ class _ChatScreenState extends State<ChatScreen>
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          Icon(Icons.arrow_back, color: Colors.white),
-          SizedBox(width: 15),
-          CircleAvatar(
-            backgroundColor: Colors.white,
-            child: Icon(Icons.menu_book, color: Color(0xFF7B4DFF)),
+          const Icon(Icons.arrow_back, color: textSecondary),
+          const SizedBox(width: 16),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: goldPrimary,
+              boxShadow: [
+                BoxShadow(
+                  color: goldGlow.withOpacity(0.3),
+                  blurRadius: 15,
+                )
+              ],
+            ),
+            child: const Icon(Icons.menu_book, color: bgPrimary),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.groupName,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold)),
-                Text("1,248 members • 342 online",
-                    style: TextStyle(color: Colors.white70, fontSize: 12))
+              children: const [
+                Text(
+                  "Writers Hub",
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "1,248 members • 342 online",
+                  style: TextStyle(
+                    color: textMuted,
+                    fontSize: 12,
+                  ),
+                )
               ],
             ),
           ),
-          Icon(Icons.call, color: Colors.white),
-          SizedBox(width: 15),
-          Icon(Icons.more_vert, color: Colors.white),
+          const Icon(Icons.call, color: goldPrimary),
+          const SizedBox(width: 16),
+          const Icon(Icons.more_vert, color: textSecondary),
         ],
       ),
     );
   }
 
-  Widget _buildGlassChat() {
+  Widget _buildChatContainer() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: EdgeInsets.all(20),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return _buildMessage(messages[index]);
-                    },
-                  ),
+        borderRadius: BorderRadius.circular(35),
+        child: Container(
+          decoration: BoxDecoration(
+            color: cardFill.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(35),
+            border: Border.all(color: cardBorder),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(20),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    return _buildMessage(messages[index]);
+                  },
                 ),
-                if (isTyping) _typingIndicator(),
-                if (showScrollButton) _scrollButton(),
-                _inputSection(),
-              ],
-            ),
+              ),
+              if (showScrollButton) _scrollButton(),
+              _inputSection(),
+            ],
           ),
         ),
       ),
@@ -228,68 +266,59 @@ class _ChatScreenState extends State<ChatScreen>
 
   Widget _buildMessage(ChatMessage message) {
     return GestureDetector(
-      onLongPress: () {
-        setState(() => replyingTo = message);
-      },
+      onLongPress: () => setState(() => replyingTo = message),
       child: Align(
         alignment:
             message.isMe ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
-          margin: EdgeInsets.symmetric(vertical: 6),
-          padding: EdgeInsets.all(12),
-          constraints: BoxConstraints(maxWidth: 280),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          constraints: const BoxConstraints(maxWidth: 280),
           decoration: BoxDecoration(
-            gradient: message.isMe
-                ? LinearGradient(
-                    colors: [Color(0xFF8F6BFF), Color(0xFF6A4DFF)])
+            color: message.isMe ? goldPrimary : cardFill,
+            borderRadius: BorderRadius.circular(22),
+            border: message.isMe
+                ? null
+                : Border.all(color: cardBorder),
+            boxShadow: message.isMe
+                ? [
+                    BoxShadow(
+                      color: goldGlow.withOpacity(0.3),
+                      blurRadius: 20,
+                    )
+                  ]
                 : null,
-            color: message.isMe ? null : Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(18),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (message.replyTo != null)
                 Container(
-                  padding: EdgeInsets.all(6),
-                  margin: EdgeInsets.only(bottom: 5),
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(8),
+                    color: bgPrimary.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     message.replyTo!,
-                    style: TextStyle(fontSize: 12),
+                    style: const TextStyle(
+                        fontSize: 12, color: textSecondary),
                   ),
                 ),
               Text(
                 message.text,
                 style: TextStyle(
-                    color:
-                        message.isMe ? Colors.white : Colors.black87),
+                  color: message.isMe ? bgPrimary : textSecondary,
+                ),
               ),
-              SizedBox(height: 4),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _formatTime(message.time),
-                    style: TextStyle(
-                        fontSize: 10,
-                        color: message.isMe
-                            ? Colors.white70
-                            : Colors.black54),
-                  ),
-                  SizedBox(width: 4),
-                  if (message.isMe)
-                    Icon(
-                      message.status == "seen"
-                          ? Icons.done_all
-                          : Icons.check,
-                      size: 14,
-                      color: Colors.white70,
-                    )
-                ],
+              const SizedBox(height: 6),
+              Text(
+                _formatTime(message.time),
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: textMuted,
+                ),
               )
             ],
           ),
@@ -298,98 +327,93 @@ class _ChatScreenState extends State<ChatScreen>
     );
   }
 
-  Widget _typingIndicator() {
-    return Padding(
-      padding: EdgeInsets.all(10),
-      child: Row(
-        children: [
-          CircularProgressIndicator(strokeWidth: 2),
-          SizedBox(width: 10),
-          Text("Someone is typing...")
-        ],
-      ),
-    );
-  }
-
   Widget _scrollButton() {
-    return FloatingActionButton(
-      mini: true,
-      backgroundColor: Color(0xFF7B4DFF),
-      onPressed: _scrollToBottom,
-      child: Icon(Icons.arrow_downward),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: FloatingActionButton(
+        mini: true,
+        backgroundColor: goldPrimary,
+        onPressed: _scrollToBottom,
+        child: const Icon(Icons.arrow_downward, color: bgPrimary),
+      ),
     );
   }
 
   Widget _inputSection() {
     return Padding(
-      padding: EdgeInsets.all(15),
-      child: Column(
+      padding: const EdgeInsets.all(16),
+      child: Row(
         children: [
-          if (replyingTo != null)
-            Container(
-              padding: EdgeInsets.all(8),
-              margin: EdgeInsets.only(bottom: 8),
+          GestureDetector(
+            onLongPressStart: (_) => _startRecording(),
+            onLongPressEnd: (_) => _stopRecording(),
+            child: AnimatedBuilder(
+              animation: _recordController,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: isRecording
+                      ? 1 + (_recordController.value * 0.2)
+                      : 1,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: goldPrimary,
+                      boxShadow: [
+                        BoxShadow(
+                          color: goldGlow.withOpacity(0.3),
+                          blurRadius: 15,
+                        )
+                      ],
+                    ),
+                    child:
+                        const Icon(Icons.mic, color: bgPrimary),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(12),
+                color: bgPrimary.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: cardBorder),
               ),
-              child: Row(
-                children: [
-                  Expanded(child: Text(replyingTo!.text)),
-                  GestureDetector(
-                    onTap: () => setState(() => replyingTo = null),
-                    child: Icon(Icons.close),
+              child: TextField(
+                controller: _controller,
+                style:
+                    const TextStyle(color: textSecondary),
+                decoration: const InputDecoration(
+                  hintText: "Type your message...",
+                  hintStyle:
+                      TextStyle(color: textMuted),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: sendMessage,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: goldPrimary,
+                boxShadow: [
+                  BoxShadow(
+                    color: goldGlow.withOpacity(0.3),
+                    blurRadius: 15,
                   )
                 ],
               ),
+              child:
+                  const Icon(Icons.send, color: bgPrimary),
             ),
-          Row(
-            children: [
-              GestureDetector(
-                onLongPressStart: (_) => _startRecording(),
-                onLongPressEnd: (_) => _stopRecording(),
-                child: AnimatedBuilder(
-                  animation: _recordController,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: isRecording
-                          ? 1 + (_recordController.value * 0.2)
-                          : 1,
-                      child: CircleAvatar(
-                        backgroundColor: isRecording
-                            ? Colors.red
-                            : Color(0xFF7B4DFF),
-                        child: Icon(Icons.mic, color: Colors.white),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                        hintText: "Write a message...",
-                        border: InputBorder.none),
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              GestureDetector(
-                onTap: sendMessage,
-                child: CircleAvatar(
-                  backgroundColor: Color(0xFF7B4DFF),
-                  child: Icon(Icons.send, color: Colors.white),
-                ),
-              )
-            ],
           ),
         ],
       ),

@@ -7,12 +7,12 @@ class EarnPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        backgroundColor: AppColors.card,
+        backgroundColor: AppColors.cardDark,
         title: const Text(
           "Earn Money",
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.white),
         ),
       ),
       body: Center(
@@ -33,7 +33,7 @@ class EarnPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: AppColors.white,
                 ),
               ),
               SizedBox(height: 12),
@@ -42,7 +42,7 @@ class EarnPage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: AppColors.lightText,
                 ),
               ),
             ],

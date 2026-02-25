@@ -59,10 +59,10 @@ class _TabItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.card,
+            color: selected ? AppColors.white : AppColors.cardDark,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: selected ? AppColors.primary : AppColors.border,
+              color: selected ? AppColors.white : AppColors.borderColor,
             ),
           ),
           child: Center(
@@ -70,7 +70,7 @@ class _TabItem extends StatelessWidget {
               title,
               style: TextStyle(
                 fontSize: 12,
-                color: selected ? Colors.white : AppColors.textPrimary,
+                color: selected ? Colors.white : AppColors.white,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),

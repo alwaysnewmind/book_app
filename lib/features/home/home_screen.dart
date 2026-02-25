@@ -1,3 +1,4 @@
+import 'package:book_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 // widgets
@@ -46,7 +47,7 @@ class HomeScreen extends StatelessWidget {
     final remaining = homeServices.skip(16).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Colors.transparent,
       drawer: const AppDrawer(),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
@@ -66,13 +67,13 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
+          gradient: RadialGradient(
+            center: Alignment.topCenter,
+            radius: 1.3,
             colors: [
-              Color (0xFF4A148C),
-              Color(0xFF4A148C),
+              Color(0xFF2E1B47),
+              Color(0xFF1C1B3A),
             ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
           ),
         ),
         child: SafeArea(
@@ -206,33 +207,44 @@ class HomeServiceTile extends StatelessWidget {
 
           /// OUTER RING
           Container(
-            height: 68,
-            width: 68,
+            height: 72,
+            width: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color.fromARGB(255, 22, 224, 224),
+                color: const Color(0xFFFFD86B),
                 width: 2.2,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFD86B).withOpacity(0.4),
+                  blurRadius: 18,
+                  spreadRadius: 1,
+            ),]
             ),
             child: Center(
               child: Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
+                height: 54,
+                width: 54,
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color.fromARGB(255, 178, 167, 197).withOpacity(0.12),
-                ),
+                  
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF3C2A5E),
+                      Color(0xFF2A2045),
+                    ],
+                  ),),
                 child: Icon(
                   service.icon,
                   size: 40,
-                  color: Colors. deepPurple,
+                  color: Color (0xFFFFD86B),
                 ),
               ),
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           Text(
             service.title,
@@ -240,8 +252,9 @@ class HomeServiceTile extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFFE2E2E5),
             ),
           ),
         ],
@@ -286,7 +299,7 @@ class RecommendedBooksSection extends StatelessWidget {
                     transitionDuration:
                         const Duration(milliseconds: 350),
                     pageBuilder: (_, __, ___) => Scaffold(
-                      backgroundColor: Colors.black,
+                      backgroundColor:const Color(0xFF1C1B3A),
                       body: Center(
                         child: Hero(
                           tag: image,

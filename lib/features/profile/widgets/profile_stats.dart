@@ -60,9 +60,9 @@ class _StatItem extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 6),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.card,
+            color: AppColors.cardDark,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppColors.borderColor),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.03),
@@ -78,7 +78,7 @@ class _StatItem extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: AppColors.white,
                 ),
               ),
               const SizedBox(height: 4),
@@ -86,7 +86,7 @@ class _StatItem extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 11,
-                  color: AppColors.textSecondary,
+                  color: AppColors.lightText,
                 ),
               ),
             ],

@@ -25,7 +25,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
         ChangeNotifierProvider(create: (_) => LibraryStore()),
         ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
           ],
 
           /// 🌗 Theme
-          theme: AppTheme.lightTheme,
+          theme: AppTheme.darkTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
 

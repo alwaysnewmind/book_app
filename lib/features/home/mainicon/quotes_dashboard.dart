@@ -58,98 +58,140 @@ class _QuotesDashboardState extends State<QuotesDashboard> {
         .toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xffF4EEFF),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      backgroundColor: const Color(0xFF1F1533),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 20),
 
-              /// TITLE
-              const Text(
-                "My Quotes",
-                style: TextStyle(
-                    fontSize: 26,
+                /// TITLE
+                const Text(
+                  "My Quotes",
+                  style: TextStyle(
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xff2E1A47)),
-              ),
+                    color: Color(0xFFFFFFFF),
+                    letterSpacing: 0.5,
+                  ),
+                ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 28),
 
-              /// CATEGORY TABS
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    final isSelected = selectedCategory == category;
+                /// CATEGORY TABS
+                SizedBox(
+                  height: 42,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      final isSelected =
+                          selectedCategory == category;
 
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedCategory = category;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.only(right: 10),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 8),
-                        decoration: BoxDecoration(
-                          gradient: isSelected
-                              ? const LinearGradient(
-                                  colors: [
-                                    Color(0xff8E2DE2),
-                                    Color(0xff4A00E0)
-                                  ],
-                                )
-                              : null,
-                          color:
-                              isSelected ? null : Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          category,
-                          style: TextStyle(
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedCategory = category;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration:
+                              const Duration(milliseconds: 250),
+                          margin:
+                              const EdgeInsets.only(right: 12),
+                          padding:
+                              const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 10),
+                          decoration: BoxDecoration(
                             color: isSelected
-                                ? Colors.white
-                                : Colors.black54,
-                            fontWeight: FontWeight.w600,
+                                ? const Color(0xFFF5C84C)
+                                : const Color(0xFF251A3F),
+                            borderRadius:
+                                BorderRadius.circular(30),
+                            border: Border.all(
+                                color:
+                                    const Color(0xFF3A2D5C)),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color:
+                                          const Color(0xFFFFD76A)
+                                              .withOpacity(0.3),
+                                      blurRadius: 14,
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          child: Text(
+                            category,
+                            style: TextStyle(
+                              color: isSelected
+                                  ? const Color(0xFF1F1533)
+                                  : const Color(0xFFCFC8E8),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 25),
 
-              /// QUOTES LIST
-              Expanded(
-                child: ListView.builder(
-                  itemCount: filteredQuotes.length,
-                  itemBuilder: (context, index) {
-                    final quote = filteredQuotes[index];
-                    return QuoteCard(quote: quote);
-                  },
+                /// QUOTES LIST
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredQuotes.length,
+                    itemBuilder: (context, index) {
+                      final quote = filteredQuotes[index];
+                      return QuoteCard(quote: quote);
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
 
       /// FLOATING BUTTON
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.purple,
-        onPressed: () {},
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color:
+                  const Color(0xFFFFD76A).withOpacity(0.3),
+              blurRadius: 18,
+              spreadRadius: 2,
+            )
+          ],
+        ),
+        child: FloatingActionButton(
+          backgroundColor: const Color(0xFFF5C84C),
+          onPressed: () {},
+          child: const Icon(
+            Icons.add,
+            color: Color(0xFF1F1533),
+          ),
+        ),
       ),
     );
   }
@@ -174,63 +216,82 @@ class QuoteModel {
 class QuoteCard extends StatelessWidget {
   final QuoteModel quote;
 
-  const QuoteCard({Key? key, required this.quote}) : super(key: key);
+  const QuoteCard({Key? key, required this.quote})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+            color: const Color(0xFF3A2D5C)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+            color:
+                const Color(0xFFFFD76A).withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
 
           Text(
             '"${quote.quote}"',
             style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                height: 1.4),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              height: 1.5,
+              color: Color(0xFFFFFFFF),
+            ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
 
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "- ${quote.author}",
                 style: const TextStyle(
-                    fontSize: 13, color: Colors.black54),
+                  fontSize: 13,
+                  color: Color(0xFF9F96C8),
+                ),
               ),
 
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xff8E2DE2),
-                      Color(0xff4A00E0)
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF5C84C),
+                  borderRadius:
+                      BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          const Color(0xFFFFD76A)
+                              .withOpacity(0.3),
+                      blurRadius: 10,
+                    )
+                  ],
                 ),
                 child: Text(
                   quote.tag,
                   style: const TextStyle(
-                      color: Colors.white, fontSize: 12),
+                    color: Color(0xFF1F1533),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               )
             ],

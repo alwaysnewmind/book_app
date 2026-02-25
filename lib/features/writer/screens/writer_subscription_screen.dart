@@ -6,26 +6,50 @@ class WriterSubscribersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E1A1A),
+      backgroundColor: const Color(0xFF1F1533),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1A1A),
         elevation: 0,
-        title: const Text("Subscribers"),
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          "Subscribers",
+          style: TextStyle(
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Color(0xFFF5C84C),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            _SubscriberHeroCard(),
-            SizedBox(height: 24),
-            _SubscriberStatsRow(),
-            SizedBox(height: 30),
-            _SectionTitle("Recent Subscribers"),
-            SizedBox(height: 14),
-            _SubscribersList(),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
+              Color(0xFF140F26),
+            ],
+          ),
+        ),
+        child: const SingleChildScrollView(
+          padding: EdgeInsets.all(20),
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SubscriberHeroCard(),
+              SizedBox(height: 28),
+              _SubscriberStatsRow(),
+              SizedBox(height: 34),
+              _SectionTitle("Recent Subscribers"),
+              SizedBox(height: 16),
+              _SubscribersList(),
+              SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
@@ -42,43 +66,45 @@ class _SubscriberHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF1E2E2E),
-            Color(0xFF162323),
-          ],
-        ),
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
         boxShadow: const [
           BoxShadow(
-            color: Colors.black26,
-            blurRadius: 14,
-            offset: Offset(0, 8),
-          ),
+            color: Color(0x4DFFD76A), // 30% gold glow
+            blurRadius: 20,
+            spreadRadius: 1,
+          )
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Text(
             "Total Subscribers",
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(
+              color: Color(0xFFCFC8E8),
+              fontSize: 14,
+            ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 12),
           Text(
             "1,284",
             style: TextStyle(
-              fontSize: 32,
+              fontSize: 34,
               fontWeight: FontWeight.bold,
-              color: Colors.amber,
+              color: Color(0xFFF5C84C),
             ),
           ),
-          SizedBox(height: 6),
+          SizedBox(height: 8),
           Text(
             "+18% growth this month",
-            style: TextStyle(color: Colors.greenAccent),
+            style: TextStyle(
+              color: Color(0xFF9F96C8),
+              fontSize: 13,
+            ),
           ),
         ],
       ),
@@ -95,15 +121,15 @@ class _SubscriberStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: const [
+    return const Row(
+      children: [
         Expanded(
           child: _SubscriberStatCard(
             title: "Free",
             value: "820",
           ),
         ),
-        SizedBox(width: 12),
+        SizedBox(width: 16),
         Expanded(
           child: _SubscriberStatCard(
             title: "Premium",
@@ -127,26 +153,27 @@ class _SubscriberStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF162323),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
       ),
       child: Column(
         children: [
           Text(
             value,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color(0xFFFFFFFF),
             ),
           ),
           const SizedBox(height: 6),
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white60,
+              color: Color(0xFF9F96C8),
               fontSize: 12,
             ),
           ),
@@ -166,62 +193,54 @@ class _SubscribersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subscribers = [
-      {
-        "name": "Amit Sharma",
-        "type": "Premium",
-        "date": "Today",
-      },
-      {
-        "name": "Neha Verma",
-        "type": "Free",
-        "date": "Yesterday",
-      },
-      {
-        "name": "Rahul Mehta",
-        "type": "Premium",
-        "date": "12 Apr",
-      },
-      {
-        "name": "Sneha Patel",
-        "type": "Free",
-        "date": "10 Apr",
-      },
+      {"name": "Amit Sharma", "type": "Premium", "date": "Today"},
+      {"name": "Neha Verma", "type": "Free", "date": "Yesterday"},
+      {"name": "Rahul Mehta", "type": "Premium", "date": "12 Apr"},
+      {"name": "Sneha Patel", "type": "Free", "date": "10 Apr"},
     ];
 
     return Column(
       children: subscribers.map((s) {
         final isPremium = s["type"] == "Premium";
+
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(14),
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF162323),
-            borderRadius: BorderRadius.circular(14),
+            color: const Color(0xFF251A3F),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFF3A2D5C)),
           ),
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor:
-                    isPremium ? Colors.amber : Colors.blueGrey,
+                radius: 22,
+                backgroundColor: const Color(0xFFF5C84C),
                 child: Text(
                   s["name"]![0],
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(
+                    color: Color(0xFF1F1533),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       s["name"]!,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                        color: Color(0xFFFFFFFF),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       s["date"]!,
                       style: const TextStyle(
-                        color: Colors.white54,
+                        color: Color(0xFF9F96C8),
                         fontSize: 12,
                       ),
                     ),
@@ -229,18 +248,21 @@ class _SubscribersList extends StatelessWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isPremium
-                      ? Colors.amber.withOpacity(0.15)
-                      : Colors.white10,
-                  borderRadius: BorderRadius.circular(10),
+                      ? const Color(0xFFF5C84C).withOpacity(0.15)
+                      : const Color(0xFF251A3F),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF3A2D5C),
+                  ),
                 ),
                 child: Text(
                   s["type"]!,
-                  style: TextStyle(
-                    color: isPremium ? Colors.amber : Colors.white70,
+                  style: const TextStyle(
+                    color: Color(0xFFCFC8E8),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -265,12 +287,12 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
+    return const Text(
+      "Recent Subscribers",
+      style: TextStyle(
+        fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
+        color: Color(0xFFFFFFFF),
       ),
     );
   }
