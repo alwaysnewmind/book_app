@@ -24,11 +24,6 @@ class BottomNav extends StatelessWidget {
           label: 'Home',
         ),
         NavigationDestination(
-          icon: Icon(Icons.edit_outlined),
-          selectedIcon: Icon(Icons.edit),
-          label: 'Writer',
-        ),
-        NavigationDestination(
           icon: Icon(Icons.library_books_outlined),
           selectedIcon: Icon(Icons.library_books),
           label: 'Library',

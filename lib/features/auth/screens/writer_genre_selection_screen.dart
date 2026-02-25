@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class WriterGenreSelectionScreen extends StatefulWidget {
   const WriterGenreSelectionScreen({Key? key}) : super(key: key);
@@ -35,7 +36,7 @@ class _WriterGenreSelectionScreenState
   }
 
   void _goToHome() {
-    Navigator.pushReplacementNamed(context, "/home");
+    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
   // 🎨 Exact Premium Colors (Image Match)

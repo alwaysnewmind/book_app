@@ -15,29 +15,13 @@ import 'widgets/sweet_banner.dart';
 import '../../shared/widgets/data/home_services.dart';
 
 // screens
-import '../library/screens/my_library_screen.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 ///////////////////////////////////////////////////////////////////////////////
 /// 🔥 HOME SCREEN
 ///////////////////////////////////////////////////////////////////////////////
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  Route _animatedRoute(Widget page) {
-    return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 350),
-      pageBuilder: (_, animation, __) => page,
-      transitionsBuilder: (_, animation, __, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: ScaleTransition(
-            scale: Tween(begin: 0.98, end: 1.0).animate(animation),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +40,7 @@ class HomeScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.library_books),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  _animatedRoute(const MyLibraryScreen()),
-                );
+                Navigator.pushNamed(context, AppRoutes.library);
               },
             ),
           ],

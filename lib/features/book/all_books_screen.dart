@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 // Detail screen
-import 'package:book_app/features/book/book_detail_screen.dart';
+import 'package:book_app/core/routes/app_router.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 // Dummy data
 import 'package:book_app/data/dummy_books.dart';
@@ -85,14 +86,13 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
 
                       return GestureDetector(
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushNamed(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => BookDetailScreen(
-                                imagePath: book.coverImage,
-                                title: book.title,
-                                isLocked: book.isPremium,
-                              ),
+                            AppRoutes.bookDetail,
+                            arguments: BookDetailArgs(
+                              imagePath: book.coverImage,
+                              title: book.title,
+                              isLocked: book.isPremium,
                             ),
                           );
                         },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class ReaderGenreSelectionScreen extends StatefulWidget {
   const ReaderGenreSelectionScreen({Key? key}) : super(key: key);
@@ -46,7 +47,7 @@ class _ReaderGenreSelectionScreenState
   static const Color chipBorder = Color(0xFF5C4A80);
 
   void _goToHome() {
-    Navigator.pushReplacementNamed(context, "/home");
+    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
   @override

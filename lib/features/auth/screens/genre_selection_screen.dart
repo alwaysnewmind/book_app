@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart';
-import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 import 'package:book_app/providers/auth_provider.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -28,21 +27,9 @@ class _RoleSelectionScreenState
     if (!mounted) return;
 
     if (role == "reader") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const ReaderGenreSelectionScreen(),
-        ),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.readerGenres);
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const WriterGenreSelectionScreen(),
-        ),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.writerGenres);
     }
   }
 

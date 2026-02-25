@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'config/app_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart';
+import 'core/routes/app_router.dart';
 
 /// Providers
 import 'providers/auth_provider.dart';
@@ -61,8 +62,8 @@ class MyApp extends StatelessWidget {
           /// 🏁 Initial Route
           initialRoute: AppRoutes.splash,
 
-          /// 🔥 CENTRAL ROUTES
-          routes: AppRoutes.routes,
+          /// 🔥 CENTRAL ROUTER
+          onGenerateRoute: AppRouter.onGenerateRoute,
         );
       
       },

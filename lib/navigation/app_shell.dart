@@ -2,24 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_app/features/home/home_screen.dart';
-import 'package:book_app/features/writer/screens/writer_dashboard.dart';
 import 'package:book_app/features/profile/profile_screen.dart';
 import 'package:book_app/features/library/screens/my_library_screen.dart';
-
 import 'package:book_app/providers/auth_provider.dart';
 import 'package:book_app/navigation/bottom_nav.dart';
 import 'package:book_app/models/user_model.dart';
 
 class AppShell extends StatefulWidget {
-  
-  const AppShell({super.key});
+  final int initialIndex;
+
+  const AppShell({super.key, this.initialIndex = 0});
 
   @override
   State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   void _onTabChanged(int index) {
     setState(() {
@@ -30,9 +35,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-
     final AppUser? user = authProvider.currentUser;
-    final bool isGuest = authProvider.isGuest;
 
     final bool isWriterMode =
         user?.currentMode == UserMode.writer ||
@@ -40,36 +43,19 @@ class _AppShellState extends State<AppShell> {
 
     final List<Widget> pages = [
       const HomeScreen(),
-
-      WriterDashboard(
-        currentUser: user,
-        isGuest: isGuest,
-        isWriterMode: isWriterMode,
-      ),
-
       const MyLibraryScreen(),
-
       ProfileScreen(
         isWriterMode: isWriterMode,
         onSwap: () async {
           if (user == null) return;
-
-          final newMode =
-              isWriterMode ? UserMode.reader : UserMode.writer;
-
-          final updatedUser =
-              user.copyWith(currentMode: newMode);
-
-          await authProvider.updateUser(updatedUser);
+          final newMode = isWriterMode ? UserMode.reader : UserMode.writer;
+          await authProvider.updateUser(user.copyWith(currentMode: newMode));
         },
       ),
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: _onTabChanged,

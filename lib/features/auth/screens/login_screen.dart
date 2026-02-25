@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:book_app/navigation/app_shell.dart';
 import '../../../providers/auth_provider.dart';
 import 'package:book_app/core/theme/app_colors.dart';
-import 'package:book_app/features/auth/screens/signup_screen.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -60,22 +59,11 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AppShell(
-        ),
-      ),
-    );
+    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
   /// Navigate to Signup Screen
   void _goToSignUpScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const SignupScreen(),
-      ),
-    );
+    Navigator.pushNamed(context, AppRoutes.signup);
   }
 
 

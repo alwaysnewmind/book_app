@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'widgets/library_books_grid.dart';
 
 // ROUTES
+import 'package:book_app/core/routes/app_router.dart';
 import 'package:book_app/core/routes/app_routes.dart';
 
 class LibraryScreen extends StatelessWidget {
@@ -88,6 +89,10 @@ class LibraryScreen extends StatelessWidget {
                               Navigator.pushNamed(
                                 context,
                                 AppRoutes.bookDetail,
+                                arguments: const BookDetailArgs(
+                                  imagePath: 'assets/books/Book1.png',
+                                  title: 'The Silent Reader',
+                                ),
                               );
                             },
                             child: const Text("Continue Reading"),
@@ -120,6 +125,10 @@ class LibraryScreen extends StatelessWidget {
                       Navigator.pushNamed(
                         context,
                         AppRoutes.bookDetail,
+                        arguments: BookDetailArgs(
+                          imagePath: 'assets/books/Book${index + 1}.png',
+                          title: 'Book ${index + 1}',
+                        ),
                       );
                     },
                     child: AnimatedScale(

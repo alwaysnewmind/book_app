@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/routes/app_routes.dart';
-import 'package:book_app/navigation/app_shell.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -80,12 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
 
       /// 5️⃣ Everything OK → Go to App
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const AppShell(), // ✅ FIXED
-        ),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (!mounted) return;
 

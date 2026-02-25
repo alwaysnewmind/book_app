@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_router.dart';
 import 'package:book_app/core/routes/app_routes.dart';
 
 class LibraryBooksGrid extends StatelessWidget {
@@ -28,6 +29,11 @@ class LibraryBooksGrid extends StatelessWidget {
             Navigator.pushNamed(
               context,
               AppRoutes.bookDetail,
+              arguments: BookDetailArgs(
+                imagePath: bookImage,
+                title: books[index],
+                isLocked: index % 4 == 0,
+              ),
             );
           },
         );

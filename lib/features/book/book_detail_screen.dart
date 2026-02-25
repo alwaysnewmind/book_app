@@ -1,6 +1,8 @@
-import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:book_app/core/routes/app_router.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 // Reader
 
@@ -205,11 +207,12 @@ class BookDetailScreen extends StatelessWidget {
                                                 .addBook(book);
                                           }
 
-                                          Navigator.push(
+                                          Navigator.pushNamed(
                                             context,
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  BookReaderScreen(book: book),
+                                            AppRoutes.reader,
+                                            arguments: ReaderArgs(
+                                              book: book,
+                                              isLocked: isLocked,
                                             ),
                                           );
                                         },

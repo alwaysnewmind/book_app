@@ -1,34 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:book_app/features/profile/edit_profile_screen.dart';
-import 'package:book_app/features/settings/screens/settings_screen.dart';
-import '../../library/screens/my_library_screen.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
-
-  Route _animatedRoute(Widget page) {
-    return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (_, animation, __) => page,
-      transitionsBuilder: (_, animation, __, child) {
-        final fade = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeInOut,
-        );
-
-        final slide = Tween<Offset>(
-          begin: const Offset(0.1, 0),
-          end: Offset.zero,
-        ).animate(fade);
-
-        return FadeTransition(
-          opacity: fade,
-          child: SlideTransition(position: slide, child: child),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +50,7 @@ class AppDrawer extends StatelessWidget {
                             title: "My Account",
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                _animatedRoute(const MyLibraryScreen()),
-                              );
+                              Navigator.pushNamed(context, AppRoutes.profile);
                             },
                           ),
                           _menuItem(
@@ -87,11 +59,7 @@ class AppDrawer extends StatelessWidget {
                             title: "Edit Profile",
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                _animatedRoute(
-                                    const EditProfileScreen()),
-                              );
+                              Navigator.pushNamed(context, AppRoutes.profile);
                             },
                           ),
                           _menuItem(
@@ -100,10 +68,7 @@ class AppDrawer extends StatelessWidget {
                             title: "My Subscription",
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                _animatedRoute(const MyLibraryScreen()),
-                              );
+                              Navigator.pushNamed(context, AppRoutes.subscription);
                             },
                           ),
                           _menuItem(
@@ -112,10 +77,7 @@ class AppDrawer extends StatelessWidget {
                             title: "My Library",
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                _animatedRoute(const MyLibraryScreen()),
-                              );
+                              Navigator.pushNamed(context, AppRoutes.library);
                             },
                           ),
                           _menuItem(
@@ -124,10 +86,7 @@ class AppDrawer extends StatelessWidget {
                             title: "Settings",
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                _animatedRoute(const SettingsScreen()),
-                              );
+                              Navigator.pushNamed(context, AppRoutes.settings);
                             },
                           ),
 
