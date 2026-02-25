@@ -1,5 +1,5 @@
+import 'package:book_app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'chat_screen.dart';
 
 class CommunityProfileScreen extends StatelessWidget {
   final String name;
@@ -200,7 +200,11 @@ class CommunityProfileScreen extends StatelessWidget {
               ),
               shadowColor: goldGlow.withOpacity(0.3),
             ),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Friend request sent')),
+              );
+            },
             child: const Text(
               "Add Friend",
               style:
@@ -221,12 +225,10 @@ class CommunityProfileScreen extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      ChatScreen(groupName: name),
-                ),
+                AppRoutes.chat,
+                arguments: {'title': name, 'isPrivateChat': true},
               );
             },
             child: const Text(

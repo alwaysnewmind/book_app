@@ -19,7 +19,12 @@ import '../../features/settings/language_selection_screen.dart';
 import '../../features/writer/screens/writer_earnings_screen.dart';
 
 /// 🔥 Community
-import '../../features/community/screens/community_home_screen.dart';
+import '../../features/community/screens/community_screen.dart';
+import '../../features/community/screens/create_group_screen.dart';
+import '../../features/community/screens/groups_screen.dart';
+import '../../features/community/screens/friends_screen.dart';
+import '../../features/community/screens/friend_requests_screen.dart';
+import '../../features/community/screens/chat_screen.dart';
 
 /// 🔥 Subscription
 import '../../features/subscription/reader_subscription_screen.dart';
@@ -64,6 +69,11 @@ class AppRoutes {
   static const audioBookDashboard = "/audio-book-dashboard";
   static const contentWritingDashboard = "/content-writing-dashboard";
   static const communityDashboard = "/community-dashboard";
+  static const groups = '/community-groups';
+  static const friends = '/community-friends';
+  static const friendRequests = '/community-friend-requests';
+  static const createGroup = '/community-create-group';
+  static const chat = '/community-chat';
   static const reviewDashboard = "/review-dashboard";
   static const categoryDashboard = "/category-dashboard";
   static const bookBattleDashboard = "/book-battle-dashboard";
@@ -100,7 +110,18 @@ class AppRoutes {
     offlineVault: (_) => const OfflineVault(),
     audioBookDashboard: (_) => const AudioBookDashboard(),
     contentWritingDashboard: (_) => const ContentWritingDashboard(),
-    communityDashboard: (_) => const CommunityHomeScreen(),
+    communityDashboard: (_) => const CommunityScreen(),
+    groups: (_) => const GroupsScreen(),
+    friends: (_) => const FriendsScreen(),
+    createGroup: (_) => const CreateGroupScreen(),
+    friendRequests: (_) => const FriendRequestsScreen(),
+    chat: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      return ChatScreen(
+        title: (args?['title'] as String?) ?? 'Chat',
+        isPrivateChat: (args?['isPrivateChat'] as bool?) ?? false,
+      );
+    },
     reviewDashboard: (_) => const ReviewDashboardScreen(),
     categoryDashboard: (_) => const CategoryDashboard(),
     bookBattleDashboard: (_) => const BookBattleDashboard(),

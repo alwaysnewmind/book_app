@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:book_app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
 class CommunityHomeScreen extends StatefulWidget {
@@ -237,7 +238,13 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
   /// MEMBER CARD
   Widget _memberCard(String name, String subtitle, bool online) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.chat,
+          arguments: {'title': name, 'isPrivateChat': true},
+        );
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 18),
         padding: const EdgeInsets.all(18),
@@ -303,7 +310,13 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.chat,
+                arguments: {'title': title, 'isPrivateChat': false},
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: goldPrimary,
               foregroundColor: bgPrimary,
@@ -325,7 +338,13 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
   /// FLOATING BUTTON
   Widget _buildDiscussionButton() {
     return FloatingActionButton.extended(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.chat,
+          arguments: {'title': 'Community Discussion', 'isPrivateChat': false},
+        );
+      },
       backgroundColor: goldPrimary,
       elevation: 0,
       icon: const Icon(Icons.chat_bubble, color: bgPrimary),

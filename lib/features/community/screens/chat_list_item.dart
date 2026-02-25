@@ -1,3 +1,4 @@
+import 'package:book_app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -77,10 +78,10 @@ class ChatListTile extends StatelessWidget {
       onTap: () {
         Navigator.pushNamed(
           context,
-          '/chatScreen',
+          AppRoutes.chat,
           arguments: {
-            'chatId': chatId,
-            'chatName': chatName,
+            'title': chatName,
+            'isPrivateChat': true,
           },
         );
       },
