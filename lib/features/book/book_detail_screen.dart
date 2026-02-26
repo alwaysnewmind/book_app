@@ -1,41 +1,27 @@
 import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
+import 'package:book_app/models/writer_book_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-// Reader
-
 // Library
 import 'package:book_app/features/library/models/library_store.dart';
 import 'package:book_app/features/library/models/library_book.dart';
 
-// Provider
-import 'package:book_app/providers/reader_provider.dart';
-
 class BookDetailScreen extends StatelessWidget {
-  final String imagePath;
-  final String title;
-  final bool isLocked;
+  final Book book;
 
   const BookDetailScreen({
     super.key,
-    required this.imagePath,
-    required this.title,
-    this.isLocked = false,
+    required this.book,
   });
 
   @override
   Widget build(BuildContext context) {
-    final readerProvider = Provider.of<ReaderProvider>(context);
-
     final existingBook = LibraryStore.instance.books
-            .where((b) => b.title == title)
+            .where((b) => b.title == book.title)
             .isNotEmpty
-        ? LibraryStore.instance.books.firstWhere((b) => b.title == title)
+        ? LibraryStore.instance.books.firstWhere((b) => b.title == book.title)
         : null;
 
     final hasStarted = existingBook != null;
-    final progress = hasStarted ? existingBook.progress : 0.0;
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
@@ -117,7 +103,7 @@ class BookDetailScreen extends StatelessWidget {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(20),
                             child: Image.asset(
-                              imagePath,
+                              book.coverImage,
                               height: 180,
                               width: 120,
                               fit: BoxFit.cover,
@@ -132,7 +118,7 @@ class BookDetailScreen extends StatelessWidget {
                               children: [
 
                                 Text(
-                                  title,
+                                  book.title,
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -154,9 +140,9 @@ class BookDetailScreen extends StatelessWidget {
 
                                 const SizedBox(height: 6),
 
-                                const Text(
-                                  "By E.K. Eleoin",
-                                  style: TextStyle(color: Colors.black54),
+                                Text(
+                                  "By ${book.author}",
+                                  style: const TextStyle(color: Colors.black54),
                                 ),
 
                                 const SizedBox(height: 6),
@@ -175,7 +161,7 @@ class BookDetailScreen extends StatelessWidget {
                                     Expanded(
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          if (isLocked) {
+                                          if (book.isPremium) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               const SnackBar(
@@ -186,30 +172,37 @@ class BookDetailScreen extends StatelessWidget {
                                             return;
                                           }
 
-                                          LibraryBook book;
+                                          LibraryBook readerBook;
 
                                           if (existingBook != null) {
-                                            book = existingBook;
+                                            readerBook = existingBook;
                                           } else {
-                                            book = LibraryBook(
-                                              id: title.hashCode.toString(),
-                                              title: title,
-                                              imagePath: imagePath,
-                                              chapters: [
-                                                "Chapter 1\n\nThis is chapter one content...",
-                                                "Chapter 2\n\nThis is chapter two content...",
-                                                "Chapter 3\n\nThis is chapter three content...",
-                                              ],
+                                            readerBook = LibraryBook(
+                                              id: book.id.isNotEmpty
+                                                  ? book.id
+                                                  : book.title.hashCode.toString(),
+                                              title: book.title,
+                                              imagePath: book.coverImage,
+                                              chapters: book.chapters.isNotEmpty
+                                                  ? book.chapters
+                                                  : [
+                                                      "Chapter 1\n\nThis is chapter one content...",
+                                                      "Chapter 2\n\nThis is chapter two content...",
+                                                      "Chapter 3\n\nThis is chapter three content...",
+                                                    ],
                                             );
                                             LibraryStore.instance
-                                                .addBook(book);
+                                                .addBook(readerBook);
                                           }
 
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (_) =>
-                                                  BookReaderScreen(book: book),
+                                                  BookReaderScreen(
+                                                    book: readerBook,
+                                                    isLocked: book.isPremium,
+                                                  ),
                                             ),
                                           );
                                         },
@@ -224,7 +217,7 @@ class BookDetailScreen extends StatelessWidget {
                                               vertical: 14),
                                         ),
                                         child: Text(
-                                          isLocked
+                                          book.isPremium
                                               ? "Subscribe"
                                               : hasStarted
                                                   ? "Continue"
@@ -238,9 +231,17 @@ class BookDetailScreen extends StatelessWidget {
 
                                     const SizedBox(width: 12),
 
-                                    _circleIcon(Icons.add),
+                                    _circleIcon(
+                                      context: context,
+                                      icon: Icons.add,
+                                      message: 'Added to library',
+                                    ),
                                     const SizedBox(width: 10),
-                                    _circleIcon(Icons.favorite_border),
+                                    _circleIcon(
+                                      context: context,
+                                      icon: Icons.favorite_border,
+                                      message: 'Added to favorites',
+                                    ),
                                   ],
                                 ),
                               ],
@@ -286,7 +287,7 @@ class BookDetailScreen extends StatelessWidget {
                                 borderRadius:
                                     BorderRadius.circular(14),
                                 child: Image.asset(
-                                  imagePath,
+                                  book.coverImage,
                                   width: 90,
                                   fit: BoxFit.cover,
                                 ),
@@ -307,11 +308,8 @@ class BookDetailScreen extends StatelessWidget {
 
                       const SizedBox(height: 12),
 
-                      const Text(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                        "Vestibulum at eros eget nunc tempor varius. "
-                        "Sed tristique magna sit amet purus gravida, "
-                        "ac fermentum sapien faucibus.",
+                      Text(
+                        book.description,
                         style: TextStyle(
                           color: Colors.black54,
                           height: 1.5,
@@ -330,8 +328,18 @@ class BookDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _circleIcon(IconData icon) {
-    return Container(
+  Widget _circleIcon({
+    required BuildContext context,
+    required IconData icon,
+    required String message,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      },
+      child: Container(
       height: 46,
       width: 46,
       decoration: BoxDecoration(
@@ -339,6 +347,7 @@ class BookDetailScreen extends StatelessWidget {
         border: Border.all(color: Colors.deepPurple),
       ),
       child: Icon(icon, color: Colors.deepPurple),
+    ),
     );
   }
 }
