@@ -1,150 +1,99 @@
-import 'dart:ui';
-import 'package:book_app/core/routes/app_routes.dart' show AppRoutes;
-import 'package:book_app/data/dummy_books.dart' show dummyBooks;
-import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
+import 'package:book_app/features/library/models/library_book.dart';
+import 'package:book_app/features/library/models/library_store.dart';
+import 'package:book_app/features/library/widgets/library_books_grid.dart';
+import 'package:book_app/features/library/widgets/library_tabs.dart';
+import 'package:book_app/features/reader/screens/pdf_reader_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/data/sample_books.dart';
 import 'package:provider/provider.dart';
 
-// reader
-
-// library
-import 'package:book_app/features/library/models/library_store.dart';
-import 'package:book_app/features/library/models/library_book.dart';
-
-// 🔥 dummy data
-import 'package:book_app/data/dummy_books.dart';
-
-class MyLibraryScreen extends StatelessWidget {
+class MyLibraryScreen extends StatefulWidget {
   const MyLibraryScreen({super.key});
 
-  Route _animatedRoute(Widget page) {
-    return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 400),
-      pageBuilder: (_, animation, __) => page,
-      transitionsBuilder: (_, animation, __, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween(
-              begin: const Offset(0, 0.05),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-    );
+  @override
+  State<MyLibraryScreen> createState() => _MyLibraryScreenState();
+}
+
+class _MyLibraryScreenState extends State<MyLibraryScreen> {
+  int _selectedTabIndex = 0;
+
+  List<LibraryBook> _filteredBooks(List<LibraryBook> books) {
+    switch (_selectedTabIndex) {
+      case 1:
+        return books.where((book) => book.favorite).toList();
+      case 2:
+        return books.where((book) => book.progress >= 1).toList();
+      default:
+        return books;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    /// 🔥 Get books from provider
-    List<LibraryBook> books =
-        context.watch<LibraryStore>().books;
+    final books = context.watch<LibraryStore>().books;
+    final filteredBooks = _filteredBooks(books);
+    final continueBooks = filteredBooks
+        .where((book) => book.progress > 0 && book.progress < 1)
+        .toList();
 
-    /// 🔥 If library empty → load dummy books
-    if (books.isEmpty) {
-      books = dummyBooks.cast<LibraryBook>();
-    }
-
-    /// Continue Reading Section
-    final continueBooks =
-        books.where((b) => b.progress > 0 && b.progress < 1).toList();
-
-    /// Featured Book
-    final featuredBook = books.first;
+    final featuredBook = filteredBooks.isNotEmpty
+        ? filteredBooks.first
+        : (books.isNotEmpty ? books.first : null);
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-
-          /// APP BAR
           const SliverAppBar(
             backgroundColor: Colors.black,
             pinned: true,
             elevation: 0,
             title: Text(
-              "My Library",
+              'My Library',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-
-          /// FEATURED BANNER
           SliverToBoxAdapter(
-            child: _featuredBanner(context, featuredBook),
+            child: LibraryTabs(
+              selectedIndex: _selectedTabIndex,
+              onTabSelected: (index) {
+                setState(() {
+                  _selectedTabIndex = index;
+                });
+              },
+            ),
           ),
-
-          /// CONTINUE READING
+          if (featuredBook != null)
+            SliverToBoxAdapter(
+              child: _featuredBanner(context, featuredBook),
+            ),
           if (continueBooks.isNotEmpty) ...[
-            SliverToBoxAdapter(
-              child: _sectionTitle("Continue Reading"),
-            ),
-            SliverToBoxAdapter(
-              child: _horizontalList(context, continueBooks),
-            ),
+            SliverToBoxAdapter(child: _sectionTitle('Continue Reading')),
+            SliverToBoxAdapter(child: _horizontalList(context, continueBooks)),
           ],
-
-          /// ALL BOOKS TITLE
-          SliverToBoxAdapter(
-            child: _sectionTitle("All Books"),
-          ),
-
-          /// 4x4 GRID
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final book = books[index];
-                  return _gridBookItem(context, book);
-                },
-                childCount: books.length > 16 ? 16 : books.length,
-              ),
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 14,
-                crossAxisSpacing: 14,
-                childAspectRatio: 0.65,
-              ),
-            ),
-          ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 30),
-          ),
-
-          /// MORE BOOKS (If >16)
-          if (books.length > 16) ...[
-            SliverToBoxAdapter(
-              child: _sectionTitle("More Books"),
-            ),
-            SliverToBoxAdapter(
-              child: _horizontalList(
-                context,
-                books.sublist(16),
-              ),
-            ),
-          ],
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 40),
+          SliverToBoxAdapter(child: _sectionTitle('All Books')),
+          SliverFillRemaining(
+            hasScrollBody: true,
+            child: filteredBooks.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No books found in this tab',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                : LibraryBooksGrid(books: filteredBooks),
           ),
         ],
       ),
     );
   }
 
-  /// 🔥 FEATURED BANNER
   Widget _featuredBanner(BuildContext context, LibraryBook book) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          _animatedRoute(BookReaderScreen(book: book,)),
+          MaterialPageRoute(builder: (_) => PdfReaderScreen(book: book)),
         );
       },
       child: Padding(
@@ -178,13 +127,26 @@ class MyLibraryScreen extends StatelessWidget {
                   end: Alignment.bottomCenter,
                 ),
               ),
-              child: Text(
-                book.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    book.author,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -193,7 +155,6 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  /// SECTION TITLE
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
@@ -208,39 +169,7 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  /// GRID BOOK ITEM
-  Widget _gridBookItem(BuildContext context, LibraryBook book) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          _animatedRoute(BookReaderScreen(book: book,)),
-        );
-      },
-      child: Hero(
-        tag: book.id,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            image: DecorationImage(
-              image: AssetImage(book.imagePath),
-              fit: BoxFit.cover,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.deepPurple.withOpacity(0.3),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// HORIZONTAL LIST
-  Widget _horizontalList(
-      BuildContext context, List<LibraryBook> books) {
+  Widget _horizontalList(BuildContext context, List<LibraryBook> books) {
     return SizedBox(
       height: 200,
       child: ListView.builder(
@@ -254,7 +183,7 @@ class MyLibraryScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                _animatedRoute(BookReaderScreen(book: book)),
+                MaterialPageRoute(builder: (_) => PdfReaderScreen(book: book)),
               );
             },
             child: Padding(
@@ -280,7 +209,6 @@ class MyLibraryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   if (book.progress > 0)
                     Positioned(
                       bottom: 0,
@@ -294,41 +222,6 @@ class MyLibraryScreen extends StatelessWidget {
                       ),
                     ),
                 ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-class FeaturedBooks extends StatelessWidget {
-  const FeaturedBooks({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: sampleBooks.length,
-        itemBuilder: (context, index) {
-          final book = sampleBooks[index];
-
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.bookDetail,
-                arguments: book,
-              );
-            },
-            child: Container(
-              width: 140,
-              margin: const EdgeInsets.only(right: 16),
-              color: Colors.grey.shade300,
-              child: Center(
-                child: Text(book.title),
               ),
             ),
           );

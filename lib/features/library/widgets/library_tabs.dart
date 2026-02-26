@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:book_app/core/theme/app_colors.dart';
+import 'package:flutter/material.dart';
 
-class LibraryTabs extends StatefulWidget {
-  const LibraryTabs({super.key});
+class LibraryTabs extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onTabSelected;
 
-  @override
-  State<LibraryTabs> createState() => _LibraryTabsState();
-}
+  const LibraryTabs({
+    super.key,
+    required this.selectedIndex,
+    required this.onTabSelected,
+  });
 
-class _LibraryTabsState extends State<LibraryTabs> {
-  int _selectedIndex = 0;
-
-  final List<String> _tabs = ['All', 'Reading', 'Saved', 'Downloaded'];
+  static const List<String> tabs = ['My Books', 'Favorites', 'Completed'];
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +19,11 @@ class _LibraryTabsState extends State<LibraryTabs> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: List.generate(
-          _tabs.length,
+          tabs.length,
           (index) => _TabItem(
-            title: _tabs[index],
-            selected: _selectedIndex == index,
-            onTap: () {
-              setState(() {
-                _selectedIndex = index;
-              });
-              // TODO: Filter library based on selected tab
-            },
+            title: tabs[index],
+            selected: selectedIndex == index,
+            onTap: () => onTabSelected(index),
           ),
         ),
       ),

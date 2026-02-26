@@ -1,13 +1,17 @@
+import 'package:book_app/features/library/models/library_book.dart';
+import 'package:book_app/features/reader/screens/pdf_reader_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/core/routes/app_routes.dart';
 
 class LibraryBooksGrid extends StatelessWidget {
-  const LibraryBooksGrid({super.key});
+  final List<LibraryBook> books;
+
+  const LibraryBooksGrid({
+    super.key,
+    required this.books,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final books = List.generate(12, (index) => 'Book ${index + 1}');
-
     return GridView.builder(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(12),
@@ -19,15 +23,17 @@ class LibraryBooksGrid extends StatelessWidget {
         childAspectRatio: 0.6,
       ),
       itemBuilder: (context, index) {
-        final bookImage = 'assets/books/Book${(index % 5) + 1}.png';
+        final book = books[index];
 
         return _BookTile(
-          imagePath: bookImage,
-          isPremium: index % 4 == 0,
+          imagePath: book.imagePath,
+          isPremium: false,
           onTap: () {
-            Navigator.pushNamed(
+            Navigator.push(
               context,
-              AppRoutes.bookDetail,
+              MaterialPageRoute(
+                builder: (_) => PdfReaderScreen(book: book),
+              ),
             );
           },
         );
@@ -36,9 +42,6 @@ class LibraryBooksGrid extends StatelessWidget {
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// 🔹 Reusable Book Tile with animation & premium overlay
-///////////////////////////////////////////////////////////////////////////////
 class _BookTile extends StatefulWidget {
   final String imagePath;
   final bool isPremium;
@@ -54,8 +57,7 @@ class _BookTile extends StatefulWidget {
   State<_BookTile> createState() => _BookTileState();
 }
 
-class _BookTileState extends State<_BookTile>
-    with SingleTickerProviderStateMixin {
+class _BookTileState extends State<_BookTile> with SingleTickerProviderStateMixin {
   double _scale = 1.0;
 
   void _onTapDown(_) => setState(() => _scale = 0.95);
@@ -96,15 +98,12 @@ class _BookTileState extends State<_BookTile>
                 ),
               ),
             ),
-
-            /// Premium lock overlay
             if (widget.isPremium)
               Positioned(
                 top: 6,
                 right: 6,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.amber,
                     borderRadius: BorderRadius.circular(8),

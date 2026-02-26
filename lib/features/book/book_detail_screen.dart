@@ -194,6 +194,8 @@ class BookDetailScreen extends StatelessWidget {
                                             book = LibraryBook(
                                               id: title.hashCode.toString(),
                                               title: title,
+                                              author: 'Unknown Author',
+                                              category: 'General',
                                               imagePath: imagePath,
                                               chapters: [
                                                 "Chapter 1\n\nThis is chapter one content...",
