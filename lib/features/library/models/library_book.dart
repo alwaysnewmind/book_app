@@ -4,10 +4,15 @@
 class LibraryBook {
   /// Unique book identifier
   final String id;
-  
 
   /// Book title
   final String title;
+
+  /// Book author
+  final String author;
+
+  /// Book category (e.g. Fiction, Self Growth)
+  final String category;
 
   /// Path to the book cover image asset
   final String imagePath;
@@ -31,6 +36,8 @@ class LibraryBook {
   const LibraryBook({
     required this.id,
     required this.title,
+    required this.author,
+    required this.category,
     required this.imagePath,
     this.progress = 0.0,
     this.downloaded = false,
@@ -39,34 +46,38 @@ class LibraryBook {
     this.lastReadChapter = 0,
   });
 
-  /// 🔹 Copy the book with updated fields
-  /// Useful for immutability patterns instead of modifying fields directly
   LibraryBook copyWith({
     String? id,
     String? title,
+    String? author,
+    String? category,
     String? imagePath,
     double? progress,
     bool? downloaded,
     bool? favorite,
     List<String>? chapters,
+    int? lastReadChapter,
   }) {
     return LibraryBook(
       id: id ?? this.id,
       title: title ?? this.title,
+      author: author ?? this.author,
+      category: category ?? this.category,
       imagePath: imagePath ?? this.imagePath,
       progress: progress ?? this.progress,
       downloaded: downloaded ?? this.downloaded,
       favorite: favorite ?? this.favorite,
       chapters: chapters ?? this.chapters,
-      lastReadChapter: lastReadChapter,
+      lastReadChapter: lastReadChapter ?? this.lastReadChapter,
     );
   }
 
-  /// 🔹 Convert LibraryBook to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'title': title,
+      'author': author,
+      'category': category,
       'imagePath': imagePath,
       'progress': progress,
       'downloaded': downloaded,
@@ -76,11 +87,12 @@ class LibraryBook {
     };
   }
 
-  /// 🔹 Create a LibraryBook instance from JSON
   factory LibraryBook.fromJson(Map<String, dynamic> json) {
     return LibraryBook(
       id: json['id'] as String,
       title: json['title'] as String,
+      author: json['author'] as String? ?? 'Unknown Author',
+      category: json['category'] as String? ?? 'General',
       imagePath: json['imagePath'] as String,
       progress: (json['progress'] ?? 0.0).toDouble(),
       downloaded: json['downloaded'] ?? false,
@@ -88,46 +100,5 @@ class LibraryBook {
       chapters: List<String>.from(json['chapters'] ?? []),
       lastReadChapter: json['lastReadChapter'] ?? 0,
     );
-  }
-
-  @override
-  String toString() {
-    return 'LibraryBook(id: $id, title: $title, progress: $progress, downloaded: $downloaded, favorite: $favorite, lastReadChapter: $lastReadChapter, chapters: $chapters)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is LibraryBook &&
-        other.id == id &&
-        other.title == title &&
-        other.imagePath == imagePath &&
-        other.progress == progress &&
-        other.downloaded == downloaded &&
-        other.favorite == favorite &&
-        other.lastReadChapter == lastReadChapter &&
-        _listEquals(other.chapters, chapters);
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^
-        title.hashCode ^
-        imagePath.hashCode ^
-        progress.hashCode ^
-        downloaded.hashCode ^
-        favorite.hashCode ^
-        lastReadChapter.hashCode ^
-        chapters.hashCode;
-  }
-
-  /// Utility to compare two lists of strings
-  bool _listEquals(List<String> a, List<String> b) {
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
   }
 }

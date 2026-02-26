@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'package:book_app/features/reader/controller/pdf_reader_controller.dart';
 import 'package:book_app/features/reader/controller/reader_controller.dart';
 import 'package:book_app/features/reader/data/dummy_reader_data.dart';
@@ -5,6 +6,14 @@ import 'package:flutter/material.dart';
 
 class PdfReaderScreen extends StatefulWidget {
   final ReaderBook book;
+=======
+import 'package:book_app/features/book/book_reader_screen.dart';
+import 'package:book_app/features/library/models/library_book.dart';
+import 'package:flutter/material.dart';
+
+class PdfReaderScreen extends StatelessWidget {
+  final LibraryBook book;
+>>>>>>> codex/complete-library-flow-functionality
 
   const PdfReaderScreen({
     super.key,
@@ -12,6 +21,7 @@ class PdfReaderScreen extends StatefulWidget {
   });
 
   @override
+<<<<<<< HEAD
   State<PdfReaderScreen> createState() => _PdfReaderScreenState();
 }
 
@@ -115,3 +125,9 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
     );
   }
 }
+=======
+  Widget build(BuildContext context) {
+    return BookReaderScreen(book: book);
+  }
+}
+>>>>>>> codex/complete-library-flow-functionality
