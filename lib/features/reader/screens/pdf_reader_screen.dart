@@ -1,158 +1,116 @@
+import 'package:book_app/features/reader/controller/pdf_reader_controller.dart';
+import 'package:book_app/features/reader/controller/reader_controller.dart';
+import 'package:book_app/features/reader/data/dummy_reader_data.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PdfReaderScreen extends StatefulWidget {
-  final String pdfUrl;
+  final ReaderBook book;
 
-  const PdfReaderScreen({Key? key, required this.pdfUrl}) : super(key: key);
+  const PdfReaderScreen({
+    super.key,
+    required this.book,
+  });
 
   @override
   State<PdfReaderScreen> createState() => _PdfReaderScreenState();
 }
 
 class _PdfReaderScreenState extends State<PdfReaderScreen> {
-  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
+  static const int _demoTotalPages = 100;
+
+  final PdfReaderController _pdfController = PdfReaderController();
+  final ReaderController _readerController = ReaderController();
+
+  @override
+  void initState() {
+    super.initState();
+    _pdfController.init(widget.book.id, _demoTotalPages);
+    _readerController.init();
+    _readerController.startReadingSession();
+  }
+
+  @override
+  void dispose() {
+    _readerController.stopReadingSession();
+    _pdfController.stopReadingTimer();
+    _pdfController.dispose();
+    _readerController.dispose();
+    super.dispose();
+  }
+
+  void _changePage(int nextPage) {
+    if (nextPage < 0 || nextPage > _demoTotalPages) {
+      return;
+    }
+
+    _pdfController.onPageChanged(nextPage);
+    _readerController.updateBookProgress(
+      widget.book.id,
+      nextPage,
+      _demoTotalPages,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1F1533),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF1F1533),
-              Color(0xFF2A1E47),
-              Color(0xFF140F26),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
+      appBar: AppBar(
+        title: Text(widget.book.title),
+      ),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: AnimatedBuilder(
+        animation: _pdfController,
+        builder: (context, _) {
+          final currentPage = _pdfController.currentPage;
+          final progressValue = _demoTotalPages == 0
+              ? 0.0
+              : currentPage / _demoTotalPages;
 
-              /// 🔝 Premium App Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF251A3F),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: const Color(0xFF3A2D5C),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-
-                      /// Back Button
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: const Color(0xFF3A2D5C)),
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Color(0xFFF5C84C),
-                            size: 18,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 16),
-
-                      /// Title
-                      const Expanded(
-                        child: Text(
-                          "PDF Reader",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-
-                      /// Bookmark Button
-                      GestureDetector(
-                        onTap: () {
-                          _pdfViewerKey.currentState
-                              ?.openBookmarkView();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5C84C),
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFFFD76A)
-                                    .withOpacity(0.3),
-                                blurRadius: 14,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.bookmark_border,
-                            color: Color(0xFF1F1533),
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.book.author,
+                  style: theme.textTheme.bodyMedium,
                 ),
-              ),
+                const SizedBox(height: 12),
 
-              const SizedBox(height: 10),
+                LinearProgressIndicator(value: progressValue),
 
-              /// 📄 PDF Viewer Card
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                const SizedBox(height: 8),
+                Text('Page $currentPage / $_demoTotalPages'),
+
+                const SizedBox(height: 16),
+
+                Expanded(
                   child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF251A3F),
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(
-                        color: const Color(0xFF3A2D5C),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-                      child: SfPdfViewer.network(
-                        widget.pdfUrl,
-                        key: _pdfViewerKey,
-                        canShowScrollHead: true,
-                        canShowScrollStatus: true,
-                      ),
-                    ),
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    child: Text('PDF: ${widget.book.pdfPath}'),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _changePage(currentPage - 1),
+                      child: const Text('Previous'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _changePage(currentPage + 1),
+                      child: const Text('Next'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -41,6 +41,10 @@ import '../../features/community/screens/chat_screen.dart';
 
 /// 🔥 Subscription
 import '../../features/subscription/reader_subscription_screen.dart';
+import '../../features/reader/screens/reader_dashboard_screen.dart';
+import '../../features/reader/screens/reader_screen.dart';
+import '../../features/reader/screens/pdf_reader_screen.dart';
+import '../../features/reader/data/dummy_reader_data.dart';
 
 /// 🔥 Home Dashboards
 import '../../features/home/mainicon/discover_dashboard.dart';
@@ -70,6 +74,8 @@ class AppRoutes {
   static const writerGenres = '/writergenres';
   static const profileUpload = '/profileupload';
   static const readerDashboard = '/readerdashboard';
+  static const readerScreen = '/readerscreen';
+  static const pdfReader = '/pdf-reader';
   static const writerDashboard = '/writerdashboard';
   static const createBook = '/writer/create-book';
   static const createBookEntry = '/writer/create-book-entry';
@@ -123,6 +129,15 @@ class AppRoutes {
 
     
     subscription: (_) => const ReaderSubscriptionScreen(),
+
+    /// Reader
+    readerDashboard: (_) => const ReaderDashboardScreen(),
+    readerScreen: (_) => const ReaderScreen(isLocked: false),
+    pdfReader: (context) {
+      final book = ModalRoute.of(context)?.settings.arguments as ReaderBook?;
+      final fallbackBook = DummyReaderData.continueReading.first;
+      return PdfReaderScreen(book: book ?? fallbackBook);
+    },
 
     /// Reading
     read: (_) => const AllBooksScreen(),
