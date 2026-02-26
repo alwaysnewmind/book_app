@@ -19,7 +19,7 @@ final List<HomeService> homeServices = [
   HomeService(
     title: "Reader Studio",
     icon: Icons.menu_book,
-    route: AppRoutes.read,
+    route: AppRoutes.readerDashboard,
   ),
   HomeService(
     title: "Discover",

@@ -1,96 +1,113 @@
-import 'package:book_app/features/reader/widgets/continue_reading_list.dart' show ContinueReadingSlider;
-import 'package:book_app/features/reader/data/dummy_reader_data.dart' show DummyReaderData, ReaderBook;
-import 'package:book_app/features/reader/widgets/reader_recommended_books_grid.dart' show RecommendedBooksGrid;
-import 'package:book_app/features/reader/widgets/reader_section.dart' show ReaderSectionTitle;
-import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/features/reader/controller/reader_controller.dart';
+import 'package:book_app/features/reader/data/dummy_reader_data.dart';
+import 'package:book_app/features/reader/screens/pdf_reader_screen.dart';
+import 'package:book_app/features/reader/screens/reader_screen.dart';
+import 'package:book_app/features/reader/widgets/continue_reading_list.dart';
+import 'package:book_app/features/reader/widgets/reader_analytics_widget.dart';
+import 'package:book_app/features/reader/widgets/reader_recommended_books_grid.dart';
+import 'package:book_app/features/reader/widgets/reader_section.dart';
 import 'package:flutter/material.dart';
 import '../widgets/reader_header.dart';
 import '../widgets/reader_stats_grid.dart';
 import 'package:book_app/features/reader/widgets/reading_task_section.dart';
 
-class ReaderDashboardScreen extends StatelessWidget {
+class ReaderDashboardScreen extends StatefulWidget {
   const ReaderDashboardScreen({super.key});
 
+  @override
+  State<ReaderDashboardScreen> createState() => _ReaderDashboardScreenState();
+}
+
+class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
   static const double _horizontalPadding = 16;
   static const double _sectionSpacing = 28;
 
-  void _openPdfReader(BuildContext context, ReaderBook book) {
-    Navigator.pushNamed(
+  final ReaderController _readerController = ReaderController();
+
+  @override
+  void initState() {
+    super.initState();
+    _readerController.init();
+  }
+
+  @override
+  void dispose() {
+    _readerController.dispose();
+    super.dispose();
+  }
+
+  void _openPdfReader(ReaderBook book) {
+    Navigator.push(
       context,
-      AppRoutes.pdfReader,
-      arguments: book,
+      MaterialPageRoute(
+        builder: (_) => PdfReaderScreen(book: book),
+      ),
     );
   }
 
-  void _openReaderScreen(BuildContext context) {
-    Navigator.pushNamed(
+  void _openAnalytics() {
+    Navigator.push(
       context,
-      AppRoutes.readerScreen,
-      arguments: false,
+      MaterialPageRoute(
+        builder: (_) => const ReaderScreen(isLocked: false),
+      ),
     );
+  }
+
+  void _openTask(ReadingTask task) {
+    final fallbackBook = DummyReaderData.continueReading.isNotEmpty
+        ? DummyReaderData.continueReading.first
+        : DummyReaderData.featuredBooks.first;
+    _openPdfReader(fallbackBook);
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
-              /// Header
-              ReaderHeader(),
-
-                const SizedBox(height: 28),
-
-              /// Stats
+              const ReaderHeader(),
+              const SizedBox(height: 28),
               Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: _horizontalPadding,
-                ),
-                child: ReaderStatsGrid(
-                  onTap: () => _openReaderScreen(context),
+                padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+                child: AnimatedBuilder(
+                  animation: _readerController,
+                  builder: (context, _) {
+                    return ReaderStatsGrid(
+                      controller: _readerController,
+                      onTap: _openAnalytics,
+                    );
+                  },
                 ),
               ),
-
-                const SizedBox(height: _sectionSpacing),
-
-              /// Continue Reading
-              ReaderSectionTitle(title: "Continue Reading"),
+              const SizedBox(height: _sectionSpacing),
+              ReaderAnalyticsWidget(onTap: _openAnalytics),
+              const SizedBox(height: _sectionSpacing),
+              const ReaderSectionTitle(title: 'Continue Reading'),
               ContinueReadingSlider(
                 books: DummyReaderData.continueReading,
-                onBookTap: (book) => _openPdfReader(context, book),
+                onBookTap: _openPdfReader,
               ),
-
-                const SizedBox(height: _sectionSpacing),
-
-              /// Featured Books
-              ReaderSectionTitle(title: "Featured Books"),
+              const SizedBox(height: _sectionSpacing),
+              const ReaderSectionTitle(title: 'Featured Books'),
               ContinueReadingSlider(
                 books: DummyReaderData.featuredBooks,
-                onBookTap: (book) => _openPdfReader(context, book),
+                onBookTap: _openPdfReader,
               ),
-
-                const SizedBox(height: _sectionSpacing),
-
-              /// Recommended
-              ReaderSectionTitle(title: "Recommended For You"),
-              RecommendedBooksGrid(
-                onBookTap: (book) => _openPdfReader(context, book),
-              ),
-
-              SizedBox(height: _sectionSpacing),
-
-              /// Reading Tasks
-              ReaderSectionTitle(title: "Reading Tasks"),
-              ReadingTaskSection(
-                onTaskTap: (_) => _openReaderScreen(context),
-              ),
-
-              SizedBox(height: 40),
+              const SizedBox(height: _sectionSpacing),
+              const ReaderSectionTitle(title: 'Recommended For You'),
+              RecommendedBooksGrid(onBookTap: _openPdfReader),
+              const SizedBox(height: _sectionSpacing),
+              const ReaderSectionTitle(title: 'Reading Tasks'),
+              ReadingTaskSection(onTaskTap: _openTask),
+              const SizedBox(height: 40),
             ],
           ),
         ),
