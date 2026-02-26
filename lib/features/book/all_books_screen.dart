@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/models/writer_book_model.dart';
 
 // Detail screen
 import 'package:book_app/features/book/book_detail_screen.dart';
@@ -15,6 +16,15 @@ class AllBooksScreen extends StatefulWidget {
 
 class _AllBooksScreenState extends State<AllBooksScreen> {
   String searchQuery = "";
+
+  void _openBookDetail(Book book) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BookDetailScreen(book: book),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,18 +94,7 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
                       final book = books[index];
 
                       return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BookDetailScreen(
-                                imagePath: book.coverImage,
-                                title: book.title,
-                                isLocked: book.isPremium,
-                              ),
-                            ),
-                          );
-                        },
+                        onTap: () => _openBookDetail(book),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
