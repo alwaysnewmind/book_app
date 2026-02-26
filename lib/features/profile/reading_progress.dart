@@ -3,13 +3,22 @@ class ReadingProgress {
   final int lastPage;
   final DateTime updatedAt;
 
-  ReadingProgress({
+  const ReadingProgress({
     required this.bookId,
     required this.lastPage,
-    DateTime? updatedAt,
-  }) : updatedAt = updatedAt ?? DateTime.now();
+    required this.updatedAt,
+  });
 
-  /// Convert to JSON for storage or API
+  factory ReadingProgress.initial({
+    required String bookId,
+  }) {
+    return ReadingProgress(
+      bookId: bookId,
+      lastPage: 0,
+      updatedAt: DateTime.now(),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'bookId': bookId,
@@ -18,21 +27,23 @@ class ReadingProgress {
     };
   }
 
-  /// Create object from JSON
   factory ReadingProgress.fromJson(Map<String, dynamic> json) {
     return ReadingProgress(
-      bookId: json['bookId'],
-      lastPage: json['lastPage'],
-      updatedAt: DateTime.parse(json['updatedAt']),
+      bookId: (json['bookId'] ?? '') as String,
+      lastPage: (json['lastPage'] ?? 0) as int,
+      updatedAt: DateTime.tryParse((json['updatedAt'] ?? '') as String) ??
+          DateTime.now(),
     );
   }
 
-  /// Copy with new lastPage (immutable pattern)
-  ReadingProgress copyWith({int? lastPage}) {
+  ReadingProgress copyWith({
+    int? lastPage,
+    DateTime? updatedAt,
+  }) {
     return ReadingProgress(
       bookId: bookId,
       lastPage: lastPage ?? this.lastPage,
-      updatedAt: DateTime.now(),
+      updatedAt: updatedAt ?? DateTime.now(),
     );
   }
 }

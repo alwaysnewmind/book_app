@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/features/home/mainicon/help_support.dart';
+import 'package:book_app/features/library/screens/my_library_screen.dart';
+
+import 'edit_profile_screen.dart';
+import 'subscription_screen.dart';
 
 import 'widgets/profile_header.dart';
-import 'widgets/profile_stats.dart';
 import 'widgets/profile_menu.dart';
+import 'widgets/profile_stats.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool isWriterMode;
@@ -65,7 +71,23 @@ class ProfileScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      child: const ProfileStats(),
+                      child: ProfileStats(
+                        onTap: (stat) {
+                          if (stat == 'books_read' || stat == 'saved') {
+                            _pushWithTransition(
+                              context,
+                              const MyLibraryScreen(),
+                            );
+                          }
+
+                          if (stat == 'following') {
+                            _pushWithTransition(
+                              context,
+                              const HelpSupportScreen(),
+                            );
+                          }
+                        },
+                      ),
                     ),
 
                     const SizedBox(height: 25),
@@ -84,7 +106,9 @@ class ProfileScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      child: const ProfileMenu(),
+                      child: ProfileMenu(
+                        onItemTap: (route) => _handleMenuTap(context, route),
+                      ),
                     ),
 
                     const SizedBox(height: 30),
@@ -127,8 +151,59 @@ class ProfileScreen extends StatelessWidget {
       /// ✏ Floating Edit Button
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
-        onPressed: () {},
+        onPressed: () {
+          _pushWithTransition(context, const EditProfileScreen());
+        },
         child: const Icon(Icons.edit),
+      ),
+    );
+  }
+
+  void _handleMenuTap(BuildContext context, String route) {
+    switch (route) {
+      case 'library':
+        _pushWithTransition(context, const MyLibraryScreen());
+        break;
+      case 'writer_dashboard':
+        Navigator.pushNamed(context, AppRoutes.writerDashboard);
+        break;
+      case 'settings':
+        Navigator.pushNamed(context, AppRoutes.settings);
+        break;
+      case 'help_support':
+        _pushWithTransition(context, const HelpSupportScreen());
+        break;
+      case 'subscription':
+        _pushWithTransition(context, const MySubscriptionScreen());
+        break;
+      case 'logout':
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Logout flow is not configured yet')),
+        );
+        break;
+    }
+  }
+
+  Future<void> _pushWithTransition(BuildContext context, Widget page) {
+    return Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        transitionDuration: const Duration(milliseconds: 320),
+        reverseTransitionDuration: const Duration(milliseconds: 260),
+        pageBuilder: (_, animation, __) => FadeTransition(
+          opacity: animation,
+          child: page,
+        ),
+        transitionsBuilder: (_, animation, __, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.08, 0),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+            ),
+            child: child,
+          );
+        },
       ),
     );
   }

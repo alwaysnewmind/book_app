@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -10,25 +9,27 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fade;
-  late Animation<Offset> _slide;
+  late final AnimationController _controller;
+  late final Animation<double> _fade;
+  late final Animation<Offset> _slide;
 
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController nameController =
-      TextEditingController(text: "Rahul Patel");
+      TextEditingController(text: 'Rahul Patel');
   final TextEditingController phoneController =
-      TextEditingController(text: "+91 9XXXXXXXXX");
+      TextEditingController(text: '+91 9XXXXXXXXX');
   final TextEditingController emailController =
-      TextEditingController(text: "rahul@email.com");
+      TextEditingController(text: 'rahul@email.com');
 
   @override
   void initState() {
     super.initState();
 
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
 
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
@@ -55,8 +56,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       backgroundColor: const Color(0xFFF4F5F7),
       body: Column(
         children: [
-
-          /// ================= HEADER =================
           Container(
             padding: const EdgeInsets.only(top: 60, bottom: 30),
             width: double.infinity,
@@ -75,19 +74,31 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             ),
             child: Column(
               children: [
-
-                const Text(
-                  "Edit Profile",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'Edit Profile',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 48),
+                    ],
                   ),
                 ),
-
-                const SizedBox(height: 25),
-
-                /// Avatar
+                const SizedBox(height: 18),
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: [
@@ -95,9 +106,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       radius: 45,
                       backgroundColor: Colors.white,
                       child: Text(
-                        nameController.text.isNotEmpty
-                            ? nameController.text[0]
-                            : "R",
+                        nameController.text.isNotEmpty ? nameController.text[0] : 'R',
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -111,9 +120,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                         color: Colors.white,
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.camera_alt,
-                            color: Color(0xFF6246EA)),
-                        onPressed: () {},
+                        icon: const Icon(Icons.camera_alt, color: Color(0xFF6246EA)),
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Avatar editor coming soon')),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -121,8 +133,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               ],
             ),
           ),
-
-          /// ================= FORM SECTION =================
           Expanded(
             child: FadeTransition(
               opacity: _fade,
@@ -132,8 +142,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-
-                      /// White Card Container
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
@@ -151,55 +159,57 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                           key: _formKey,
                           child: Column(
                             children: [
-
                               _buildTextField(
-                                  controller: nameController,
-                                  label: "Full Name",
-                                  icon: Icons.person),
-
+                                controller: nameController,
+                                label: 'Full Name',
+                                icon: Icons.person,
+                              ),
                               const SizedBox(height: 20),
-
                               _buildTextField(
-                                  controller: phoneController,
-                                  label: "Phone Number",
-                                  icon: Icons.phone),
-
+                                controller: phoneController,
+                                label: 'Phone Number',
+                                icon: Icons.phone,
+                              ),
                               const SizedBox(height: 20),
-
                               _buildTextField(
-                                  controller: emailController,
-                                  label: "Email Address",
-                                  icon: Icons.email),
-
+                                controller: emailController,
+                                label: 'Email Address',
+                                icon: Icons.email,
+                              ),
                               const SizedBox(height: 35),
-
-                              /// Save Button
                               SizedBox(
                                 width: double.infinity,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    backgroundColor: const Color(0xFF6246EA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              "Profile Updated Successfully"),
-                                        ),
-                                      );
-                                    }
+                                child: TweenAnimationBuilder<double>(
+                                  tween: Tween(begin: 0.98, end: 1),
+                                  duration: const Duration(milliseconds: 280),
+                                  curve: Curves.easeOut,
+                                  builder: (context, scale, child) {
+                                    return Transform.scale(scale: scale, child: child);
                                   },
-                                  child: const Text(
-                                    "Save Changes",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      backgroundColor: const Color(0xFF6246EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Profile Updated Successfully'),
+                                          ),
+                                        );
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Save Changes',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -208,7 +218,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 30),
                     ],
                   ),
@@ -229,8 +238,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     return TextFormField(
       controller: controller,
       style: const TextStyle(color: Colors.black87),
-      validator: (value) =>
-          value == null || value.isEmpty ? "Required field" : null,
+      validator: (value) => value == null || value.isEmpty ? 'Required field' : null,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: const Color(0xFF6246EA)),
         labelText: label,
