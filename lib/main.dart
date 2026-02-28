@@ -18,6 +18,7 @@ import 'providers/reader_provider.dart';
 import 'providers/app_settings_provider.dart';
 import 'providers/book_provider.dart';
 import 'providers/story_analyzer_provider.dart';
+import 'providers/favorites_provider.dart';
 import 'features/library/models/library_store.dart';
 
 void main() async {
@@ -63,6 +64,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => StoryAnalyzerProvider()),
         ChangeNotifierProvider(create: (_) => LibraryStore()),
         ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
       ],
       child: const MyApp(),
     ),
