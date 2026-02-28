@@ -1,69 +1,94 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
 
-class WriterAnalyticsScreen extends StatelessWidget {
+import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/providers/writer_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class WriterAnalyticsScreen extends StatefulWidget {
   const WriterAnalyticsScreen({super.key});
 
   @override
+  State<WriterAnalyticsScreen> createState() => _WriterAnalyticsScreenState();
+}
+
+class _WriterAnalyticsScreenState extends State<WriterAnalyticsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final auth = context.read<AuthProvider>();
+      context.read<WriterProvider>().loadWriterStudio(user: auth.currentUser, isGuest: auth.isGuest);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF1F1533),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1F1533),
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          "Analytics",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.6,
+    return Consumer<WriterProvider>(
+      builder: (context, writer, _) {
+        return Scaffold(
+          backgroundColor: const Color(0xFF1F1533),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF1F1533),
+            elevation: 0,
+            centerTitle: true,
+            title: const Text(
+              'Analytics',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
+              ),
+            ),
+            iconTheme: const IconThemeData(color: Color(0xFFF5C84C)),
           ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFFF5C84C)),
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF1F1533),
-              Color(0xFF2A1E47),
-              Color(0xFF140F26),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF1F1533),
+                  Color(0xFF2A1E47),
+                  Color(0xFF140F26),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _EarningsCard(totalEarnings: writer.totalEarnings),
+                  const SizedBox(height: 28),
+                  _StatsRow(
+                    totalViews: writer.totalViews,
+                    avgRating: writer.avgRating,
+                    followersCount: writer.followersCount,
+                  ),
+                  const SizedBox(height: 36),
+                  const _SectionTitle(title: 'Monthly Growth'),
+                  const SizedBox(height: 16),
+                  const _GrowthChart(),
+                  const SizedBox(height: 36),
+                  const _SectionTitle(title: 'Top Performing Books'),
+                  const SizedBox(height: 16),
+                  _TopBooksList(),
+                ],
+              ),
+            ),
           ),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              _EarningsCard(),
-              SizedBox(height: 28),
-              _StatsRow(),
-              SizedBox(height: 36),
-              _SectionTitle(title: "Monthly Growth"),
-              SizedBox(height: 16),
-              _GrowthChart(),
-              SizedBox(height: 36),
-              _SectionTitle(title: "Top Performing Books"),
-              SizedBox(height: 16),
-              _TopBooksList(),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
-////////////////////////////////////////////////////////////
-/// EARNINGS CARD
-////////////////////////////////////////////////////////////
-
 class _EarningsCard extends StatelessWidget {
-  const _EarningsCard();
+  const _EarningsCard({required this.totalEarnings});
+
+  final double totalEarnings;
 
   @override
   Widget build(BuildContext context) {
@@ -84,27 +109,27 @@ class _EarningsCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            "Total Earnings",
+        children: [
+          const Text(
+            'Total Earnings',
             style: TextStyle(
               color: Color(0xFFCFC8E8),
               fontSize: 14,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            "₹ 48,250",
-            style: TextStyle(
+            '₹ ${totalEarnings.toStringAsFixed(0)}',
+            style: const TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
               color: Color(0xFFF5C84C),
               letterSpacing: 0.8,
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            "+12% from last month",
+          const SizedBox(height: 8),
+          const Text(
+            'Live summary based on your published books',
             style: TextStyle(
               color: Color(0xFF9F96C8),
               fontSize: 13,
@@ -116,22 +141,22 @@ class _EarningsCard extends StatelessWidget {
   }
 }
 
-////////////////////////////////////////////////////////////
-/// STATS ROW
-////////////////////////////////////////////////////////////
-
 class _StatsRow extends StatelessWidget {
-  const _StatsRow();
+  const _StatsRow({required this.totalViews, required this.avgRating, required this.followersCount});
+
+  final int totalViews;
+  final double avgRating;
+  final int followersCount;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: const [
-        Expanded(child: _StatCard(title: "Views", value: "12.4K")),
-        SizedBox(width: 14),
-        Expanded(child: _StatCard(title: "Reads", value: "8.1K")),
-        SizedBox(width: 14),
-        Expanded(child: _StatCard(title: "Subscribers", value: "1.2K")),
+      children: [
+        Expanded(child: _StatCard(title: 'Views', value: totalViews.toString())),
+        const SizedBox(width: 14),
+        Expanded(child: _StatCard(title: 'Avg Rating', value: avgRating.toStringAsFixed(1))),
+        const SizedBox(width: 14),
+        Expanded(child: _StatCard(title: 'Followers', value: followersCount.toString())),
       ],
     );
   }
@@ -175,10 +200,6 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
-
-////////////////////////////////////////////////////////////
-/// GROWTH CHART
-////////////////////////////////////////////////////////////
 
 class _GrowthChart extends StatelessWidget {
   const _GrowthChart();
@@ -230,23 +251,26 @@ class _ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-////////////////////////////////////////////////////////////
-/// TOP BOOKS LIST
-////////////////////////////////////////////////////////////
-
 class _TopBooksList extends StatelessWidget {
-  const _TopBooksList();
-
   @override
   Widget build(BuildContext context) {
-    final books = [
-      {"title": "Dark Mind", "reads": "3.2K"},
-      {"title": "Silent Love", "reads": "2.8K"},
-      {"title": "Startup Fire", "reads": "2.1K"},
-    ];
+    final books = context
+        .watch<WriterProvider>()
+        .writerBooks
+        .toList()
+      ..sort((a, b) => b.viewsCount.compareTo(a.viewsCount));
+
+    final topBooks = books.take(3).toList();
+
+    if (topBooks.isEmpty) {
+      return const Text(
+        'No book analytics available yet.',
+        style: TextStyle(color: Color(0xFFCFC8E8)),
+      );
+    }
 
     return Column(
-      children: books.map((book) {
+      children: topBooks.map((book) {
         return Container(
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(16),
@@ -274,7 +298,7 @@ class _TopBooksList extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  book["title"]!,
+                  book.title,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -283,7 +307,7 @@ class _TopBooksList extends StatelessWidget {
                 ),
               ),
               Text(
-                book["reads"]!,
+                '${book.viewsCount} views',
                 style: const TextStyle(
                   color: Color(0xFFCFC8E8),
                   fontSize: 13,
@@ -296,10 +320,6 @@ class _TopBooksList extends StatelessWidget {
     );
   }
 }
-
-////////////////////////////////////////////////////////////
-/// SECTION TITLE
-////////////////////////////////////////////////////////////
 
 class _SectionTitle extends StatelessWidget {
   final String title;

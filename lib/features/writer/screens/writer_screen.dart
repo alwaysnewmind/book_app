@@ -1,9 +1,10 @@
+import 'package:book_app/features/writer/widgets/writer_stats.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app/features/writer/widgets/writer_header.dart';
 import 'package:book_app/features/writer/widgets/writer_actions.dart';
 
-class WriterStats extends StatelessWidget {
-  const WriterStats({super.key});
+class WriterScreen extends StatelessWidget {
+  const WriterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class WriterStats extends StatelessWidget {
           ),
         ),
         iconTheme: const IconThemeData(
-          color: Color(0xFFF5C84C), // Gold icons
+          color: Color(0xFFF5C84C),
         ),
       ),
       body: Container(
@@ -44,20 +45,11 @@ class WriterStats extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                /// HEADER SECTION
                 WriterHeader(),
-
                 SizedBox(height: 32),
-
-                /// STATS SECTION
-                WriterStats(),
-
+                WriterStatsRow(),
                 SizedBox(height: 40),
-
-                /// ACTIONS SECTION
                 WriterActions(),
-
                 SizedBox(height: 40),
               ],
             ),

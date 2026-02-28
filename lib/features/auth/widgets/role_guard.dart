@@ -1,7 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'package:book_app/config/app_config.dart';
 import 'package:book_app/features/home/home_screen.dart';
+import 'package:book_app/models/user_model.dart';
+import 'package:book_app/providers/auth_provider.dart';
 import 'package:book_app/services/role_service.dart';
 import 'package:book_app/shared/widgets/app_popup.dart';
 
@@ -19,8 +23,21 @@ class WriterAccessGuard extends StatefulWidget {
 
 class _WriterAccessGuardState extends State<WriterAccessGuard> {
   bool _redirected = false;
+  late Future<bool> _accessFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _accessFuture = _canAccessWriterFeatures();
+  }
 
   Future<bool> _canAccessWriterFeatures() async {
+    if (isDummyMode) {
+      final user = context.read<AuthProvider>().currentUser;
+      if (user == null) return false;
+      return user.role == UserRole.writer || user.role == UserRole.admin;
+    }
+
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return false;
 
@@ -31,7 +48,7 @@ class _WriterAccessGuardState extends State<WriterAccessGuard> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: _canAccessWriterFeatures(),
+      future: _accessFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(

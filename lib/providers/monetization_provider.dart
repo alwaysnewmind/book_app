@@ -51,7 +51,7 @@ class MonetizationProvider extends ChangeNotifier {
 
   Future<void> purchaseBook({required String buyerId, required String buyerName, required String bookId}) async {
     if (isDummyMode) {
-      _dummyBalance -= 149;
+      _dummyBalance = (_dummyBalance - 149).clamp(0, double.infinity).toDouble();
       _dummyTotalEarnings += 149;
       _dummyTransactions.insert(0, {'title': 'Book Sale - $bookId', 'amount': 149.0, 'isCredit': true});
       await _notificationProvider.createNotification(
