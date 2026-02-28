@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:book_app/navigation/app_shell.dart';
 import 'package:book_app/features/admin/admin_dashboard.dart';
+import 'package:book_app/features/home/home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../providers/auth_provider.dart';
 import 'package:book_app/core/theme/app_colors.dart';
 import 'package:book_app/features/auth/screens/signup_screen.dart';
@@ -24,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen>
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final RegExp _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -78,23 +81,53 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
 
-  Future<void> _handleLogin(AuthProvider authProvider) async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate() || _isLoading) return;
 
-    final success = await authProvider.login(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (!mounted) return;
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-    if (success && (authProvider.currentUser != null || authProvider.isAdmin)) {
-      _goToAppShell(authProvider);
-      return;
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      String message;
+      switch (e.code) {
+        case 'user-not-found':
+          message = 'User not found';
+          break;
+        case 'wrong-password':
+          message = 'Incorrect password';
+          break;
+        case 'invalid-email':
+          message = 'Invalid email format';
+          break;
+        case 'network-request-failed':
+          message = 'Check internet connection';
+          break;
+        default:
+          message = e.message ?? 'Login failed';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
-
-    final message = authProvider.error ?? 'Login failed';
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -207,10 +240,8 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: 30),
 
                             _gradientButton(
-                              authProvider.isLoading
-                                  ? "Please wait..."
-                                  : "LOGIN",
-                              () => _handleLogin(authProvider),
+                              _isLoading ? "Please wait..." : "LOGIN",
+                              _handleLogin,
                             ),
 
                             const SizedBox(height: 30),
@@ -345,10 +376,17 @@ const SizedBox(height: 20),
       obscureText: isPassword,
       validator: (value) {
         final text = value?.trim() ?? '';
-        if (text.isEmpty) return 'Required';
-        if (hint == 'Email' && !_emailRegex.hasMatch(text)) {
-          return 'Enter valid email';
+
+        if (hint == 'Email') {
+          if (text.isEmpty) return 'Email is required';
+          if (!_emailRegex.hasMatch(text)) return 'Enter valid email';
         }
+
+        if (hint == 'Password') {
+          if (text.isEmpty) return 'Password is required';
+          if (text.length < 6) return 'Minimum 6 characters required';
+        }
+
         return null;
       },
       style: const TextStyle(color: AppColors.lightText),
