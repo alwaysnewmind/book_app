@@ -4,7 +4,7 @@ import 'package:book_app/features/auth/screens/login_screen.dart';
 import 'package:book_app/features/auth/screens/splash_screen.dart';
 import 'package:book_app/features/home/home_screen.dart';
 import 'package:book_app/services/auth_service.dart';
-import 'package:book_app/services/user_service.dart';
+import 'package:book_app/services/role_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,25 +18,23 @@ enum _AuthDestination {
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
-  Future<_AuthDestination> _resolveAuthenticatedRoute(String uid) async {
-    final userService = UserService.instance;
-    final profile = await userService.fetchUserProfile(uid);
-
+  _AuthDestination _resolveRouteFromProfile(Map<String, dynamic>? profile) {
     if (profile == null) {
-      await AuthService.instance.logout();
       return _AuthDestination.login;
     }
 
-    if (userService.isAdmin(profile)) {
+    final role = profile['role']?.toString();
+    final isProfileCompleted = profile['profileCompleted'] == true;
+
+    if (role == 'admin') {
       return _AuthDestination.admin;
     }
 
-    final role = userService.roleOf(profile);
     if (role != 'reader' && role != 'writer') {
       return _AuthDestination.roleSelection;
     }
 
-    if (!userService.isProfileCompleted(profile)) {
+    if (!isProfileCompleted) {
       return _AuthDestination.roleSelection;
     }
 
@@ -57,8 +55,8 @@ class AuthWrapper extends StatelessWidget {
           return const LoginScreen();
         }
 
-        return FutureBuilder<_AuthDestination>(
-          future: _resolveAuthenticatedRoute(user.uid),
+        return StreamBuilder<Map<String, dynamic>?>(
+          stream: RoleService.instance.userProfileStream(user.uid),
           builder: (context, profileSnapshot) {
             if (profileSnapshot.connectionState == ConnectionState.waiting) {
               return const SplashScreen();
@@ -68,7 +66,8 @@ class AuthWrapper extends StatelessWidget {
               return const LoginScreen();
             }
 
-            switch (profileSnapshot.data) {
+            final destination = _resolveRouteFromProfile(profileSnapshot.data);
+            switch (destination) {
               case _AuthDestination.admin:
                 return const AdminDashboard();
               case _AuthDestination.roleSelection:

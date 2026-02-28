@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/services/story_service.dart';
 
 class CreateBookScreen extends StatefulWidget {
   const CreateBookScreen({super.key});
@@ -14,6 +17,7 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
   final _descController = TextEditingController();
 
   bool _isPremium = false;
+  bool _isSubmitting = false;
   String _selectedGenre = "Fiction";
 
   final List<String> _genres = [
@@ -31,6 +35,82 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
     _subtitleController.dispose();
     _descController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveStory() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please login again to continue.')),
+      );
+      return;
+    }
+
+    if (_titleController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Title is required')),
+      );
+      return;
+    }
+
+    if (_descController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Content is required')),
+      );
+      return;
+    }
+
+    if (_selectedGenre.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Genre is required')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      await StoryService.instance.createStory(
+        uid: uid,
+        title: _titleController.text,
+        description: _subtitleController.text,
+        content: _descController.text,
+        genre: _selectedGenre,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Book saved as draft")),
+      );
+      Navigator.pushNamed(context, AppRoutes.createBookEntry, arguments: {
+        'title': _titleController.text.trim(),
+        'subtitle': _subtitleController.text.trim(),
+        'description': _descController.text.trim(),
+        'genre': _selectedGenre,
+        'isPremium': _isPremium,
+      });
+    } on FirebaseException catch (e) {
+      if (!mounted) return;
+      final error = e.code == 'permission-denied'
+          ? 'Switch to Writer account to access this feature'
+          : e.code == 'network-request-failed'
+              ? 'Network request failed. Please try again.'
+              : (e.message ?? 'Failed to save story');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 
   @override
@@ -66,8 +146,6 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              /// ================= COVER PREVIEW =================
               Center(
                 child: Container(
                   height: 210,
@@ -78,8 +156,7 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                     border: Border.all(color: const Color(0xFF3A2D5C)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFFD76A)
-                            .withOpacity(0.08),
+                        color: const Color(0xFFFFD76A).withOpacity(0.08),
                         blurRadius: 40,
                         spreadRadius: 2,
                       )
@@ -94,28 +171,19 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 40),
-
-              /// ================= TITLE =================
               _label("BOOK TITLE"),
               _inputField(
                 controller: _titleController,
                 hint: "Enter book title",
               ),
-
               const SizedBox(height: 22),
-
-              /// ================= SUBTITLE =================
               _label("SUBTITLE"),
               _inputField(
                 controller: _subtitleController,
                 hint: "Optional subtitle",
               ),
-
               const SizedBox(height: 22),
-
-              /// ================= GENRE =================
               _label("GENRE"),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -147,20 +215,14 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                   },
                 ),
               ),
-
               const SizedBox(height: 22),
-
-              /// ================= DESCRIPTION =================
               _label("DESCRIPTION"),
               _inputField(
                 controller: _descController,
                 hint: "Write short description...",
                 maxLines: 4,
               ),
-
               const SizedBox(height: 26),
-
-              /// ================= PREMIUM TOGGLE =================
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
@@ -171,8 +233,7 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   activeColor: const Color(0xFFF5C84C),
-                  activeTrackColor:
-                      const Color(0xFFE6B93E).withOpacity(0.5),
+                  activeTrackColor: const Color(0xFFE6B93E).withOpacity(0.5),
                   value: _isPremium,
                   title: const Text(
                     "Mark as Premium Book",
@@ -188,51 +249,43 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                   },
                 ),
               ),
-
               const SizedBox(height: 42),
-
-              /// ================= SAVE BUTTON =================
               SizedBox(
                 width: double.infinity,
                 height: 60,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(28),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Book saved as draft"),
-                      ),
-                    );
-                    Navigator.pushNamed(context, AppRoutes.createBookEntry, arguments: {
-                      'title': _titleController.text.trim(),
-                      'subtitle': _subtitleController.text.trim(),
-                      'description': _descController.text.trim(),
-                      'genre': _selectedGenre,
-                      'isPremium': _isPremium,
-                    });
-                  },
+                  onTap: _isSubmitting ? null : _saveStory,
                   child: Ink(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF5C84C),
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFFD76A)
-                              .withOpacity(0.3),
+                          color: const Color(0xFFFFD76A).withOpacity(0.3),
                           blurRadius: 25,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Save & Continue",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F1533),
-                        ),
-                      ),
+                    child: Center(
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Color(0xFF1F1533),
+                              ),
+                            )
+                          : const Text(
+                              "Save & Continue",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1F1533),
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -244,7 +297,6 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
     );
   }
 
-  // ================= LABEL =================
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -260,7 +312,6 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
     );
   }
 
-  // ================= INPUT =================
   Widget _inputField({
     required TextEditingController controller,
     required String hint,
@@ -275,17 +326,14 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
         hintStyle: const TextStyle(color: Color(0xFF9F96C8)),
         filled: true,
         fillColor: const Color(0xFF251A3F),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide:
-              const BorderSide(color: Color(0xFF3A2D5C)),
+          borderSide: const BorderSide(color: Color(0xFF3A2D5C)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide:
-              const BorderSide(color: Color(0xFFF5C84C), width: 1.3),
+          borderSide: const BorderSide(color: Color(0xFFF5C84C), width: 1.2),
         ),
       ),
     );

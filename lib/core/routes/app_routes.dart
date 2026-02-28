@@ -15,6 +15,7 @@ import 'package:book_app/features/writer/screens/writer_subscription_screen.dart
 import 'package:book_app/navigation/app_shell.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/features/auth/widgets/role_guard.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -169,28 +170,28 @@ class AppRoutes {
     favoritesDashboard: (_) => const FavoritesDashboard(),
 
     /// Writer
-    earn: (_) => const WriterEarningsScreen(),
+    earn: (_) => const WriterAccessGuard(child: WriterEarningsScreen()),
     writerDashboard: (context) {
       final authProvider = context.read<AuthProvider>();
       final user = authProvider.currentUser;
-      final isWriterMode =
-          user?.currentMode == UserMode.writer ||
-          user?.currentMode == UserMode.author;
+      final isWriterMode = user?.role == UserRole.writer;
 
-      return WriterDashboard(
-        currentUser: user,
-        isGuest: authProvider.isGuest,
-        isWriterMode: isWriterMode,
+      return WriterAccessGuard(
+        child: WriterDashboard(
+          currentUser: user,
+          isGuest: authProvider.isGuest,
+          isWriterMode: isWriterMode,
+        ),
       );
     },
-    createBook: (_) => const CreateBookScreen(),
-    createBookEntry: (_) => const CreateBookPage(),
-    writeChapter: (_) => const WriteChapterScreen(),
-    manageBooks: (_) => const ManageBooksPage(),
-    writerAnalytics: (_) => const WriterAnalyticsScreen(),
-    writerProfile: (_) => const WriterProfileScreen(),
-    writerSubscription: (_) => const WriterSubscribersScreen(),
-    writerPublish: (_) => const WriterPublishPage(),
+    createBook: (_) => const WriterAccessGuard(child: CreateBookScreen()),
+    createBookEntry: (_) => const WriterAccessGuard(child: CreateBookPage()),
+    writeChapter: (_) => const WriterAccessGuard(child: WriteChapterScreen()),
+    manageBooks: (_) => const WriterAccessGuard(child: ManageBooksPage()),
+    writerAnalytics: (_) => const WriterAccessGuard(child: WriterAnalyticsScreen()),
+    writerProfile: (_) => const WriterAccessGuard(child: WriterProfileScreen()),
+    writerSubscription: (_) => const WriterAccessGuard(child: WriterSubscribersScreen()),
+    writerPublish: (_) => const WriterAccessGuard(child: WriterPublishPage()),
 
     /// Settings
     helpSupportDashboard: (_) => const HelpSupportScreen(),

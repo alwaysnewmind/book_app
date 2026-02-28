@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_app/features/home/home_screen.dart';
 import 'package:book_app/features/writer/screens/writer_dashboard.dart';
 import 'package:book_app/features/profile/profile_screen.dart';
 import 'package:book_app/features/library/screens/my_library_screen.dart';
+import 'package:book_app/features/auth/screens/auth_wrapper.dart';
+import 'package:book_app/features/auth/widgets/role_guard.dart';
 
 import 'package:book_app/providers/auth_provider.dart';
 import 'package:book_app/navigation/bottom_nav.dart';
 import 'package:book_app/models/user_model.dart';
+import 'package:book_app/services/role_service.dart';
 
 class AppShell extends StatefulWidget {
-  
   const AppShell({super.key});
 
   @override
@@ -27,53 +31,109 @@ class _AppShellState extends State<AppShell> {
     });
   }
 
+  Future<void> _showRoleSwitchDialog({
+    required BuildContext context,
+    required String uid,
+    required String currentRole,
+  }) async {
+    final nextRole = currentRole == 'writer' ? 'reader' : 'writer';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirm'),
+        content: const Text(
+          'Are you sure you want to switch account type?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Switch'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await RoleService.instance.switchRole(uid: uid, targetRole: nextRole);
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text('Account switched to $nextRole')),
+      );
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
+        (route) => false,
+      );
+    } on FirebaseException catch (e) {
+      final message = e.code == 'permission-denied'
+          ? 'You are not allowed to switch roles.'
+          : e.code == 'network-request-failed'
+              ? 'Network error. Please try again.'
+              : (e.message ?? 'Failed to switch role');
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Something went wrong. Please try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
     final AppUser? user = authProvider.currentUser;
     final bool isGuest = authProvider.isGuest;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
 
-    final bool isWriterMode =
-        user?.currentMode == UserMode.writer ||
-        user?.currentMode == UserMode.author;
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: uid == null ? null : RoleService.instance.userProfileStream(uid),
+      builder: (context, snapshot) {
+        final role = snapshot.data?['role']?.toString() ?? user?.role.name ?? 'reader';
+        final isWriterMode = role == 'writer' || role == 'admin';
 
-    final List<Widget> pages = [
-      const HomeScreen(),
+        final List<Widget> pages = [
+          const HomeScreen(),
+          WriterAccessGuard(
+            child: WriterDashboard(
+              currentUser: user,
+              isGuest: isGuest,
+              isWriterMode: isWriterMode,
+            ),
+          ),
+          const MyLibraryScreen(),
+          ProfileScreen(
+            isWriterMode: isWriterMode,
+            onSwap: () async {
+              if (uid == null) return;
+              await _showRoleSwitchDialog(
+                context: context,
+                uid: uid,
+                currentRole: role == 'admin' ? 'writer' : role,
+              );
+            },
+          ),
+        ];
 
-      WriterDashboard(
-        currentUser: user,
-        isGuest: isGuest,
-        isWriterMode: isWriterMode,
-      ),
-
-      const MyLibraryScreen(),
-
-      ProfileScreen(
-        isWriterMode: isWriterMode,
-        onSwap: () async {
-          if (user == null) return;
-
-          final newMode =
-              isWriterMode ? UserMode.reader : UserMode.writer;
-
-          final updatedUser =
-              user.copyWith(currentMode: newMode);
-
-          await authProvider.updateUser(updatedUser);
-        },
-      ),
-    ];
-
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
-      ),
-      bottomNavigationBar: BottomNav(
-        currentIndex: _currentIndex,
-        onTap: _onTabChanged,
-      ),
+        return Scaffold(
+          body: IndexedStack(
+            index: _currentIndex,
+            children: pages,
+          ),
+          bottomNavigationBar: BottomNav(
+            currentIndex: _currentIndex,
+            onTap: _onTabChanged,
+          ),
+        );
+      },
     );
   }
 }

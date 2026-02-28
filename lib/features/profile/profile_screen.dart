@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:book_app/core/routes/app_routes.dart';
 import 'package:book_app/features/home/mainicon/help_support.dart';
 import 'package:book_app/features/library/screens/my_library_screen.dart';
+import 'package:book_app/services/auth_service.dart';
 
 import 'edit_profile_screen.dart';
 import 'subscription_screen.dart';
@@ -131,8 +132,8 @@ class ProfileScreen extends StatelessWidget {
                             color: Colors.white),
                         label: Text(
                           isWriter
-                              ? "Switch to Reader Mode"
-                              : "Switch to Writer Mode",
+                              ? "Switch to Reader"
+                              : "Switch to Writer",
                           style:
                               const TextStyle(color: Colors.white),
                         ),
@@ -177,9 +178,7 @@ class ProfileScreen extends StatelessWidget {
         _pushWithTransition(context, const MySubscriptionScreen());
         break;
       case 'logout':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logout flow is not configured yet')),
-        );
+        AuthService.instance.logout();
         break;
     }
   }

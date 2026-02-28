@@ -1,4 +1,5 @@
 import 'package:book_app/core/theme/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 // widgets
@@ -14,6 +15,8 @@ import 'widgets/sweet_banner.dart';
 // data
 import '../../shared/widgets/data/home_services.dart';
 import 'package:book_app/services/auth_service.dart';
+import 'package:book_app/services/role_service.dart';
+import 'package:book_app/core/routes/app_routes.dart';
 
 // screens
 import '../library/screens/my_library_screen.dart';
@@ -42,12 +45,24 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ourServices = homeServices.take(4).toList();
-    final explore = homeServices.skip(4).take(4).toList();
-    final discoverMore = homeServices.skip(8).take(8).toList();
-    final remaining = homeServices.skip(16).toList();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
 
-    return Scaffold(
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: uid == null ? null : RoleService.instance.userProfileStream(uid),
+      builder: (context, snapshot) {
+        final role = snapshot.data?['role']?.toString();
+        final canAccessWriter = RoleService.instance.isWriterOrAdmin(role);
+
+        final visibleServices = homeServices
+            .where((service) => canAccessWriter || service.route != AppRoutes.writerDashboard)
+            .toList();
+
+        final ourServices = visibleServices.take(4).toList();
+        final explore = visibleServices.skip(4).take(4).toList();
+        final discoverMore = visibleServices.skip(8).take(8).toList();
+        final remaining = visibleServices.skip(16).toList();
+
+        return Scaffold(
       backgroundColor: Colors.transparent,
       drawer: const AppDrawer(),
       appBar: PreferredSize(
@@ -184,6 +199,8 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }
