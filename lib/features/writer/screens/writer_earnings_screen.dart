@@ -1,3 +1,4 @@
+import 'package:book_app/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -116,7 +117,7 @@ class _TotalEarningsCard extends StatelessWidget {
               return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                 stream: context.read<MonetizationProvider>().writerEarningsStream(uid),
                 builder: (context, snapshot) {
-                  final total = (snapshot.data?.data()?['totalEarnings'] as num?)?.toDouble() ?? 0;
+                  final total = isDummyMode ? context.read<MonetizationProvider>().dummyTotalEarnings : (snapshot.data?.data()?['totalEarnings'] as num?)?.toDouble() ?? 0;
                   return Text(
                     "₹ ${total.toStringAsFixed(0)}",
                     style: const TextStyle(
@@ -252,15 +253,11 @@ class _TransactionsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final transactions = [
-      {"title": "Book Sale - Soul Journey", "amount": "+ ₹199"},
-      {"title": "Book Sale - Inner Power", "amount": "+ ₹149"},
-      {"title": "Withdrawal", "amount": "- ₹1000"},
-    ];
+    final transactions = context.watch<MonetizationProvider>().transactions;
 
     return Column(
       children: transactions.map((tx) {
-        final isCredit = tx["amount"]!.contains("+");
+        final isCredit = tx['isCredit'] == true;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 14),
@@ -275,7 +272,7 @@ class _TransactionsList extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  tx["title"]!,
+                  tx['title'].toString(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -283,7 +280,7 @@ class _TransactionsList extends StatelessWidget {
                 ),
               ),
               Text(
-                tx["amount"]!,
+                '${isCredit ? '+' : '-'} ₹${(tx['amount'] as num).toStringAsFixed(0)}',
                 style: TextStyle(
                   color: isCredit
                       ? const Color(0xFFF5C84C)

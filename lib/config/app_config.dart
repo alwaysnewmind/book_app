@@ -1,3 +1,5 @@
+const bool isDummyMode = true;
+
 enum AppEnvironment { dev, prod }
 
 class AppConfig {

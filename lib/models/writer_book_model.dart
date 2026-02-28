@@ -1,16 +1,22 @@
 class Book {
-
-  /// 🔑 Unique ID (future database use)
+  /// 🔑 Unique ID
   final String id;
-
   final String title;
   final String author;
   final String coverImage;
   final String summary;
 
+  /// Backend ready fields
+  final String authorId;
+  final String authorName;
   final double rating;
+  final int reviewCount;
   final bool isPaid;
   final bool isPremium;
+  final double price;
+  final double totalEarnings;
+  final String genre;
+  final int viewsCount;
 
   /// Reader Compatibility
   final List<String> chapters;
@@ -19,44 +25,53 @@ class Book {
   int totalReads;
   int likes;
 
-  /// 🕒 Timestamps (future safe)
   final DateTime createdAt;
   final DateTime updatedAt;
-
-  /// ✍ Writer activation (optional)
   final DateTime? writerActivatedAt;
 
   Book({
-    this.id = '', // default empty (old code safe)
+    required this.id,
     required this.title,
     required this.author,
     required this.coverImage,
     required this.summary,
+    this.authorId = '',
+    this.authorName = '',
     this.rating = 0.0,
+    this.reviewCount = 0,
     this.isPaid = false,
     this.isPremium = false,
+    this.price = 0,
+    this.totalEarnings = 0,
+    this.genre = 'General',
+    this.viewsCount = 0,
     this.chapters = const [],
     this.totalReads = 0,
     this.likes = 0,
     DateTime? createdAt,
     DateTime? updatedAt,
-    this.writerActivatedAt, // ✅ now connected
+    this.writerActivatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
-  /// Description alias (if needed)
   String get description => summary;
 
-  /// 🛠 Safe update method (VERY useful)
   Book copyWith({
     String? id,
     String? title,
     String? author,
     String? coverImage,
     String? summary,
+    String? authorId,
+    String? authorName,
     double? rating,
+    int? reviewCount,
     bool? isPaid,
     bool? isPremium,
+    double? price,
+    double? totalEarnings,
+    String? genre,
+    int? viewsCount,
     List<String>? chapters,
     int? totalReads,
     int? likes,
@@ -70,9 +85,16 @@ class Book {
       author: author ?? this.author,
       coverImage: coverImage ?? this.coverImage,
       summary: summary ?? this.summary,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
       rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
       isPaid: isPaid ?? this.isPaid,
       isPremium: isPremium ?? this.isPremium,
+      price: price ?? this.price,
+      totalEarnings: totalEarnings ?? this.totalEarnings,
+      genre: genre ?? this.genre,
+      viewsCount: viewsCount ?? this.viewsCount,
       chapters: chapters ?? this.chapters,
       totalReads: totalReads ?? this.totalReads,
       likes: likes ?? this.likes,

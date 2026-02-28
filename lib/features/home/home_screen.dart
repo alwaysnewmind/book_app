@@ -17,6 +17,8 @@ import '../../shared/widgets/data/home_services.dart';
 import 'package:book_app/services/auth_service.dart';
 import 'package:book_app/services/role_service.dart';
 import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/providers/notification_provider.dart';
+import 'package:provider/provider.dart';
 
 // screens
 import '../library/screens/my_library_screen.dart';
@@ -78,6 +80,28 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
+            if (uid != null)
+              Consumer<NotificationProvider>(
+                builder: (context, notifications, _) {
+                  if (notifications.notificationsForUser(uid).isEmpty) {
+                    notifications.loadNotifications(uid);
+                  }
+                  final unread = notifications.unreadCount(uid);
+                  return Stack(children: [
+                    IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+                    if (unread > 0)
+                      Positioned(
+                        right: 10,
+                        top: 10,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                          child: Text('$unread', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                        ),
+                      ),
+                  ]);
+                },
+              ),
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {

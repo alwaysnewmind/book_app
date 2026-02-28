@@ -150,7 +150,7 @@ class AppRoutes {
     premiumDashboard: (_) => const PremiumDashboard(),
     offlineVault: (_) => const OfflineVault(),
     audioBookDashboard: (_) => const AudioBookDashboard(),
-    contentWritingDashboard: (_) => const ContentWritingDashboard(),
+    contentWritingDashboard: (_) => const WriterAccessGuard(child: ContentWritingDashboard()),
     communityDashboard: (_) => const CommunityScreen(),
     groups: (_) => const GroupsScreen(),
     friends: (_) => const FriendsScreen(),
