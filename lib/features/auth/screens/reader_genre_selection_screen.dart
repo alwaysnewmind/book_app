@@ -1,4 +1,7 @@
+import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ReaderGenreSelectionScreen extends StatefulWidget {
   const ReaderGenreSelectionScreen({Key? key}) : super(key: key);
@@ -45,8 +48,11 @@ class _ReaderGenreSelectionScreenState
   static const Color subtitleColor = Color(0xFFB8AFCF);
   static const Color chipBorder = Color(0xFF5C4A80);
 
-  void _goToHome() {
-    Navigator.pushReplacementNamed(context, "/home");
+  Future<void> _goToHome() async {
+    final authProvider = context.read<AuthProvider>();
+    await authProvider.saveGenres(selectedGenres.toList());
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, AppRoutes.profileUpload);
   }
 
   @override

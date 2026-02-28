@@ -1,8 +1,11 @@
 import 'package:book_app/core/routes/app_routes.dart';
 import 'package:book_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:book_app/providers/auth_provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -28,6 +31,16 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _obscureConfirmPassword = true;
 
   String? _selectedGender;
+  final RegExp _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+
+  @override
+  void initState() {
+    super.initState();
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser?.email != null) {
+      _emailController.text = currentUser!.email!;
+    }
+  }
 
   Future<void> _selectDate() async {
     DateTime? picked = await showDatePicker(
@@ -43,57 +56,95 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _signup() async {
-  if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
-  setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
-  try {
-    UserCredential userCredential =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+    try {
+      final authProvider = context.read<AuthProvider>();
+      final currentUser = FirebaseAuth.instance.currentUser;
 
-    print("USER CREATED: ${userCredential.user?.uid}");
+      if (currentUser != null && authProvider.requiresProfileCompletion) {
+        final completed = await authProvider.completeProfile(
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          phone: _phoneController.text.trim(),
+        );
 
-    if (!mounted) return;
+        if (!mounted) return;
 
-    // Success Snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Account created successfully")),
-    );
+        if (!completed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(authProvider.error ?? 'Unable to complete profile')),
+          );
+          return;
+        }
 
-    // Navigate after successful signup
-    Navigator.pushReplacementNamed(
-      context,
-      AppRoutes.genreSelection,
-    );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile completed successfully')),
+        );
 
-  } on FirebaseAuthException catch (e) {
-    print("ERROR CODE: ${e.code}");
-    print("ERROR MESSAGE: ${e.message}");
+        Navigator.pushReplacementNamed(context, AppRoutes.genreSelection);
+        return;
+      }
 
-    if (!mounted) return;
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.message ?? "Signup failed")),
-    );
+      final uid = userCredential.user?.uid;
+      if (uid == null) {
+        throw Exception('Signup failed. Missing user id.');
+      }
 
-  } catch (e) {
-    print("GENERAL ERROR: $e");
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'uid': uid,
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'role': null,
+        'genres': <String>[],
+        'photoUrl': null,
+        'profileCompleted': true,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'currentMode': 'reader',
+        'hasCompletedOnboarding': false,
+        'selectedGenres': <String>[],
+        'favoriteGenres': <String>[],
+      }, SetOptions(merge: true));
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Something went wrong")),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account created successfully')),
+      );
 
-  } finally {
-    if (mounted) {
-      setState(() => _isLoading = false);
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.genreSelection,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Signup failed')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
-}
 
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
@@ -195,8 +246,11 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: const TextStyle(color: AppColors.white),
                           decoration:
                               _inputDecoration("Email", Icons.email),
-                          validator: (v) =>
-                              v!.contains("@") ? null : "Enter valid email",
+                          validator: (v) {
+                              final value = v?.trim() ?? '';
+                              if (value.isEmpty) return 'Email is required';
+                              return _emailRegex.hasMatch(value) ? null : 'Enter valid email';
+                            },
                         ),
 
                         const SizedBox(height: 16),
@@ -207,8 +261,11 @@ class _SignupScreenState extends State<SignupScreen> {
                           decoration:
                               _inputDecoration("Phone", Icons.phone),
                           keyboardType: TextInputType.phone,
-                          validator: (v) =>
-                              v!.length < 10 ? "Enter valid phone" : null,
+                          validator: (v) {
+                              final value = v?.trim() ?? '';
+                              if (value.isEmpty) return 'Phone is required';
+                              return value.length < 10 ? 'Enter valid phone' : null;
+                            },
                         ),
 
                         const SizedBox(height: 16),
@@ -231,8 +288,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           onChanged: (value) {
                             setState(() => _selectedGender = value);
                           },
-                          validator: (v) =>
-                              v == null ? "Select gender" : null,
+                          validator: (v) => null,
                         ),
 
                         const SizedBox(height: 16),
@@ -244,8 +300,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           decoration:
                               _inputDecoration("Date of Birth", Icons.calendar_today),
                           onTap: _selectDate,
-                          validator: (v) =>
-                              v!.isEmpty ? "Select date of birth" : null,
+                          validator: (v) => null,
                         ),
 
                         const SizedBox(height: 16),
@@ -255,8 +310,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: const TextStyle(color: AppColors.white),
                           decoration:
                               _inputDecoration("City", Icons.location_city),
-                          validator: (v) =>
-                              v!.isEmpty ? "Enter city" : null,
+                          validator: (v) => null,
                         ),
 
                         const SizedBox(height: 16),

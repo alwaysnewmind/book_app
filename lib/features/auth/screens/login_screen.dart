@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:book_app/navigation/app_shell.dart';
+import 'package:book_app/features/admin/admin_dashboard.dart';
 import '../../../providers/auth_provider.dart';
 import 'package:book_app/core/theme/app_colors.dart';
 import 'package:book_app/features/auth/screens/signup_screen.dart';
@@ -22,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final RegExp _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   @override
   void initState() {
@@ -50,12 +52,10 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// ✅ SAFE NAVIGATION METHOD
   void _goToAppShell(AuthProvider authProvider) {
-
-    final user = authProvider.currentUser;
-
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User not available")),
+    if (authProvider.isAdmin) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AdminDashboard()),
       );
       return;
     }
@@ -63,8 +63,7 @@ class _LoginScreenState extends State<LoginScreen>
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => const AppShell(
-        ),
+        builder: (_) => const AppShell(),
       ),
     );
   }
@@ -89,9 +88,13 @@ class _LoginScreenState extends State<LoginScreen>
 
     if (!mounted) return;
 
-    if (success && authProvider.currentUser != null) {
+    if (success && (authProvider.currentUser != null || authProvider.isAdmin)) {
       _goToAppShell(authProvider);
+      return;
     }
+
+    final message = authProvider.error ?? 'Login failed';
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -238,8 +241,23 @@ const SizedBox(height: 20),
                             _socialButton(
                               "Login with Google",
                               () async {
-                                await authProvider.signInWithGoogle();
+                                final success = await authProvider.signInWithGoogle();
                                 if (!mounted) return;
+
+                                if (!success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(authProvider.error ?? 'Google sign-in failed')),
+                                  );
+                                  return;
+                                }
+
+                                if (authProvider.requiresProfileCompletion) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const SignupScreen()),
+                                  );
+                                  return;
+                                }
 
                                 if (authProvider.currentUser != null) {
                                   _goToAppShell(authProvider);
@@ -253,8 +271,23 @@ const SizedBox(height: 20),
                             _socialButton(
                               "Login with Outlook",
                               () async {
-                                await authProvider.signInWithMicrosoft();
+                                final success = await authProvider.signInWithMicrosoft();
                                 if (!mounted) return;
+
+                                if (!success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(authProvider.error ?? 'Microsoft sign-in failed')),
+                                  );
+                                  return;
+                                }
+
+                                if (authProvider.requiresProfileCompletion) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const SignupScreen()),
+                                  );
+                                  return;
+                                }
 
                                 if (authProvider.currentUser != null) {
                                   _goToAppShell(authProvider);
@@ -310,8 +343,14 @@ const SizedBox(height: 20),
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
-      validator: (value) =>
-          value == null || value.isEmpty ? "Required" : null,
+      validator: (value) {
+        final text = value?.trim() ?? '';
+        if (text.isEmpty) return 'Required';
+        if (hint == 'Email' && !_emailRegex.hasMatch(text)) {
+          return 'Enter valid email';
+        }
+        return null;
+      },
       style: const TextStyle(color: AppColors.lightText),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: AppColors.premiumYellow),

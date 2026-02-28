@@ -1,4 +1,7 @@
+import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class WriterGenreSelectionScreen extends StatefulWidget {
   const WriterGenreSelectionScreen({Key? key}) : super(key: key);
@@ -34,8 +37,11 @@ class _WriterGenreSelectionScreenState
     });
   }
 
-  void _goToHome() {
-    Navigator.pushReplacementNamed(context, "/home");
+  Future<void> _goToHome() async {
+    final authProvider = context.read<AuthProvider>();
+    await authProvider.saveGenres(selectedGenres.toList());
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, AppRoutes.profileUpload);
   }
 
   // 🎨 Exact Premium Colors (Image Match)

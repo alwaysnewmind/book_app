@@ -1,5 +1,6 @@
 import 'package:book_app/features/auth/screens/genre_selection_screen.dart';
 import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart' show ReaderGenreSelectionScreen;
+import 'package:book_app/features/auth/screens/profile_upload_screen.dart';
 import 'package:book_app/features/auth/screens/signup_screen.dart';
 import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dart' show WriterGenreSelectionScreen;
 import 'package:book_app/features/writer/create_book_entry_page.dart';
@@ -124,6 +125,7 @@ class AppRoutes {
     genreSelection: (_) => const RoleSelectionScreen(), // 👈 ADD
     readerGenres: (_) => const ReaderGenreSelectionScreen(),
     writerGenres: (_) => const WriterGenreSelectionScreen(),
+    profileUpload: (_) => const ProfileUploadScreen(),
     home: (_) => const AppShell(),
     appShell: (_) => const AppShell(),
 

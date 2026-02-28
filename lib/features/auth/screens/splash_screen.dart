@@ -1,9 +1,10 @@
-import 'package:book_app/models/user_model.dart';
+import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/features/auth/screens/signup_screen.dart';
+import 'package:book_app/navigation/app_shell.dart';
+import 'package:book_app/providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../core/routes/app_routes.dart';
-import 'package:book_app/navigation/app_shell.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,84 +17,58 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initialize();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
   }
 
   Future<void> _initialize() async {
-    try {
-      await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
 
-      if (!mounted) return;
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      return;
+    }
 
-      final authProvider = context.read<AuthProvider>();
+    final authProvider = context.read<AuthProvider>();
+    await authProvider.initialize();
+    if (!mounted) return;
 
-      await authProvider.initialize(); // ✅ use initialize()
-
-      if (!mounted) return;
-
-      /// 1️⃣ Not Logged In
-      if (!authProvider.isLoggedIn) {
-        Navigator.pushReplacementNamed(
-          context,
-          AppRoutes.login,
-        );
-        return;
-      }
-
-      final user = authProvider.currentUser;
-
-      /// 2️⃣ Safety Check
-      if (user == null) {
-        Navigator.pushReplacementNamed(
-          context,
-          AppRoutes.login,
-        );
-        return;
-      }
-
-      /// 3️⃣ Role NOT selected
-      if (user.role == null) {
-        Navigator.pushReplacementNamed(
-          context,
-          AppRoutes.genreSelection,
-        );
-        return;
-      }
-
-      /// 4️⃣ Onboarding NOT completed
-      if (authProvider.needsOnboarding) {
-        if (user.role == UserRole.reader) {
-          Navigator.pushReplacementNamed(
-            context,
-            AppRoutes.readerGenres,
-          );
-        } else {
-          Navigator.pushReplacementNamed(
-            context,
-            AppRoutes.writerGenres,
-          );
-        }
-        return;
-      }
-
-      /// 5️⃣ Everything OK → Go to App
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const AppShell(), // ✅ FIXED
+    if (authProvider.requiresProfileCompletion) {
+      final shouldComplete = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) => AlertDialog(
+          title: const Text('Complete Profile'),
+          content: const Text(
+              'Please complete your profile to continue using all features.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Later'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Continue'),
+            ),
+          ],
         ),
       );
-    } catch (e) {
-      if (!mounted) return;
 
-      Navigator.pushReplacementNamed(
-        context,
-        AppRoutes.login,
-      );
+      if (shouldComplete == true && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const SignupScreen()),
+        );
+        return;
+      }
     }
+
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const AppShell()),
+    );
   }
 
   @override
@@ -120,13 +95,13 @@ class _SplashScreenState extends State<SplashScreen> {
                 width: 120,
                 height: 120,
                 child: Image(
-                  image: AssetImage("assets/image/Mythica.png"),
+                  image: AssetImage('assets/image/Mythica.png'),
                   fit: BoxFit.contain,
                 ),
               ),
               SizedBox(height: 16),
               Text(
-                "Mythica",
+                'Mythica',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
