@@ -1,11 +1,9 @@
-import 'package:book_app/core/routes/app_routes.dart';
 import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/features/auth/screens/genre_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:book_app/providers/auth_provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -61,35 +59,7 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final authProvider = context.read<AuthProvider>();
-      final currentUser = FirebaseAuth.instance.currentUser;
-
-      if (currentUser != null && authProvider.requiresProfileCompletion) {
-        final completed = await authProvider.completeProfile(
-          name: _nameController.text.trim(),
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-          phone: _phoneController.text.trim(),
-        );
-
-        if (!mounted) return;
-
-        if (!completed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(authProvider.error ?? 'Unable to complete profile')),
-          );
-          return;
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile completed successfully')),
-        );
-
-        Navigator.pushReplacementNamed(context, AppRoutes.genreSelection);
-        return;
-      }
-
-      UserCredential userCredential =
+      final UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -101,49 +71,59 @@ class _SignupScreenState extends State<SignupScreen> {
       }
 
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        'uid': uid,
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
-        'phone': _phoneController.text.trim(),
         'role': null,
         'genres': <String>[],
-        'photoUrl': null,
-        'profileCompleted': true,
+        'photoUrl': '',
+        'profileCompleted': false,
         'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'currentMode': 'reader',
-        'hasCompletedOnboarding': false,
-        'selectedGenres': <String>[],
-        'favoriteGenres': <String>[],
-      }, SetOptions(merge: true));
+      });
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created successfully')),
-      );
+      _showMessage('Account created successfully');
 
-      Navigator.pushReplacementNamed(
+      Navigator.pushReplacement(
         context,
-        AppRoutes.genreSelection,
+        MaterialPageRoute(
+          builder: (_) => const RoleSelectionScreen(),
+        ),
       );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Signup failed')),
-      );
+      _showMessage(_firebaseErrorMessage(e));
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      _showMessage(e.toString());
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  String _firebaseErrorMessage(FirebaseAuthException exception) {
+    switch (exception.code) {
+      case 'email-already-in-use':
+        return 'Email already registered';
+      case 'invalid-email':
+        return 'Invalid email format';
+      case 'weak-password':
+        return 'Password too weak';
+      case 'network-request-failed':
+        return 'Check internet connection';
+      default:
+        return exception.message ?? 'Signup failed';
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   InputDecoration _inputDecoration(String label, IconData icon) {
@@ -235,8 +215,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: const TextStyle(color: AppColors.white),
                           decoration:
                               _inputDecoration("Full Name", Icons.person),
-                          validator: (v) =>
-                              v!.isEmpty ? "Enter your name" : null,
+                          validator: (v) {
+                            final value = v?.trim() ?? '';
+                            return value.isEmpty ? "Enter your name" : null;
+                          },
                         ),
 
                         const SizedBox(height: 16),
@@ -261,11 +243,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           decoration:
                               _inputDecoration("Phone", Icons.phone),
                           keyboardType: TextInputType.phone,
-                          validator: (v) {
-                              final value = v?.trim() ?? '';
-                              if (value.isEmpty) return 'Phone is required';
-                              return value.length < 10 ? 'Enter valid phone' : null;
-                            },
+                          validator: (v) => null,
                         ),
 
                         const SizedBox(height: 16),
@@ -334,8 +312,12 @@ class _SignupScreenState extends State<SignupScreen> {
                                   _obscurePassword = !_obscurePassword),
                             ),
                           ),
-                          validator: (v) =>
-                              v!.length < 6 ? "Min 6 characters" : null,
+                          validator: (v) {
+                            final value = v?.trim() ?? '';
+                            if (value.isEmpty) return 'Password is required';
+                            if (value.length < 6) return 'Min 6 characters';
+                            return null;
+                          },
                         ),
 
                         const SizedBox(height: 16),
