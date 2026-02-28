@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart';
 import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dart';
 import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/services/user_service.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -48,10 +48,7 @@ class _RoleSelectionScreenState
 
     try {
       final authProvider = context.read<AuthProvider>();
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .update({'role': selectedRole});
+      await UserService.instance.updateRole(uid: uid, role: selectedRole!);
       await authProvider.setUserRole(selectedRole!);
 
       if (!mounted) return;
@@ -73,11 +70,6 @@ class _RoleSelectionScreenState
           ),
         );
       }
-    } on FirebaseException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Failed to update role.')),
-      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

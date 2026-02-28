@@ -1,22 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:book_app/services/user_service.dart';
 import '../../models/user_model.dart';
 
 class AuthService {
   AuthService._();
   static final AuthService instance = AuthService._();
 
-  static const String adminEmail = 'admin@bookapp.com';
-  static const String adminPassword = 'Admin@123';
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final UserService _userService = UserService.instance;
 
   CollectionReference<Map<String, dynamic>> get _usersCollection =>
       _firestore.collection('users');
 
   User? get currentFirebaseUser => _auth.currentUser;
+  Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   Future<AppUser> signUp({
     required String email,
@@ -37,17 +37,13 @@ class AuthService {
       throw Exception('User creation failed');
     }
 
-    await firebaseUser.sendEmailVerification();
-
-    return _createUser(
-      firebaseUser,
+    await _userService.createSignupProfile(
+      uid: firebaseUser.uid,
       name: name,
-      city: city,
-      phone: phone,
-      gender: gender,
-      dob: dob,
-      profileCompleted: true,
+      email: email.trim(),
     );
+
+    return _getOrCreateUser(firebaseUser);
   }
 
   Future<AppUser> login({
@@ -62,6 +58,15 @@ class AuthService {
     final firebaseUser = credential.user;
     if (firebaseUser == null) {
       throw Exception('Login failed');
+    }
+
+    final exists = await _userService.userExists(firebaseUser.uid);
+    if (!exists) {
+      await _auth.signOut();
+      throw FirebaseAuthException(
+        code: 'user-profile-not-found',
+        message: 'User profile missing. Please contact support.',
+      );
     }
 
     return _getOrCreateUser(firebaseUser);
@@ -109,12 +114,7 @@ class AuthService {
       return (user: AppUser.fromMap(doc.data()!), isFirstTime: false);
     }
 
-    final user = await _createUser(
-      firebaseUser,
-      name: firebaseUser.displayName,
-      phone: firebaseUser.phoneNumber,
-      profileCompleted: false,
-    );
+    final user = await _createUser(firebaseUser, profileCompleted: false);
 
     return (user: user, isFirstTime: true);
   }
@@ -166,6 +166,7 @@ class AuthService {
   Future<void> setUserGenres(String uid, List<String> genres) async {
     await _usersCollection.doc(uid).set({
       'genres': genres,
+      'profileCompleted': true,
       'selectedGenres': genres,
       'hasCompletedOnboarding': true,
       'updatedAt': FieldValue.serverTimestamp(),
@@ -241,9 +242,12 @@ class AuthService {
       updatedAt: now,
     );
 
+    final role = profileCompleted ? 'reader' : null;
+
     await _usersCollection.doc(firebaseUser.uid).set({
       ...user.toMap(),
       'profileCompleted': profileCompleted,
+      'role': role,
       'genres': const <String>[],
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),

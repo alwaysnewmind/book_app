@@ -37,6 +37,8 @@ class AuthProvider extends ChangeNotifier {
       if (user != null) {
         _requiresProfileCompletion =
             !(await _authService.isProfileCompleted(user.uid));
+        final doc = await _authService.getUserDocument(user.uid);
+        _isAdmin = doc?['role'] == 'admin';
       }
 
       _error = null;
@@ -139,15 +141,6 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      if (email.trim().toLowerCase() == AuthService.adminEmail &&
-          password == AuthService.adminPassword) {
-        _isAdmin = true;
-        _isGuest = false;
-        _error = null;
-        _setLoading(false);
-        return true;
-      }
-
       final user = await _authService.login(
         email: email,
         password: password,
@@ -155,7 +148,8 @@ class AuthProvider extends ChangeNotifier {
 
       _user = user;
       _isGuest = false;
-      _isAdmin = false;
+      final doc = await _authService.getUserDocument(user.uid);
+      _isAdmin = doc?['role'] == 'admin';
       _requiresProfileCompletion =
           !(await _authService.isProfileCompleted(user.uid));
       _error = null;
@@ -176,7 +170,8 @@ class AuthProvider extends ChangeNotifier {
       final result = await _authService.signInWithGoogle();
       _user = result.user;
       _isGuest = false;
-      _isAdmin = false;
+      final doc = await _authService.getUserDocument(result.user.uid);
+      _isAdmin = doc?['role'] == 'admin';
       _requiresProfileCompletion =
           result.isFirstTime || !(await _authService.isProfileCompleted(result.user.uid));
       _error = null;
@@ -196,7 +191,8 @@ class AuthProvider extends ChangeNotifier {
       final result = await _authService.signInWithMicrosoft();
       _user = result.user;
       _isGuest = false;
-      _isAdmin = false;
+      final doc = await _authService.getUserDocument(result.user.uid);
+      _isAdmin = doc?['role'] == 'admin';
       _requiresProfileCompletion =
           result.isFirstTime || !(await _authService.isProfileCompleted(result.user.uid));
       _error = null;
@@ -285,6 +281,8 @@ class AuthProvider extends ChangeNotifier {
           return 'Too many attempts. Please try again later';
         case 'aborted-by-user':
           return e.message ?? 'Sign in cancelled';
+        case 'user-profile-not-found':
+          return e.message ?? 'User profile missing';
         default:
           return e.message ?? 'Authentication failed';
       }

@@ -3,7 +3,8 @@ import 'package:book_app/features/auth/screens/genre_selection_screen.dart';
 import 'package:book_app/features/auth/screens/login_screen.dart';
 import 'package:book_app/features/auth/screens/splash_screen.dart';
 import 'package:book_app/features/home/home_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:book_app/services/auth_service.dart';
+import 'package:book_app/services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,23 +19,24 @@ class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   Future<_AuthDestination> _resolveAuthenticatedRoute(String uid) async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
+    final userService = UserService.instance;
+    final profile = await userService.fetchUserProfile(uid);
 
-    if (!snapshot.exists) {
-      await FirebaseAuth.instance.signOut();
+    if (profile == null) {
+      await AuthService.instance.logout();
       return _AuthDestination.login;
     }
 
-    final data = snapshot.data() ?? <String, dynamic>{};
-
-    if (data['role'] == 'admin') {
+    if (userService.isAdmin(profile)) {
       return _AuthDestination.admin;
     }
 
-    if (data['profileCompleted'] == false) {
+    final role = userService.roleOf(profile);
+    if (role != 'reader' && role != 'writer') {
+      return _AuthDestination.roleSelection;
+    }
+
+    if (!userService.isProfileCompleted(profile)) {
       return _AuthDestination.roleSelection;
     }
 
@@ -44,7 +46,7 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: AuthService.instance.authStateChanges(),
       builder: (context, authSnapshot) {
         if (authSnapshot.connectionState == ConnectionState.waiting) {
           return const SplashScreen();

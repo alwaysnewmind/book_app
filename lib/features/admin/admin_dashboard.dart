@@ -1,40 +1,67 @@
+import 'package:book_app/features/auth/screens/auth_wrapper.dart';
+import 'package:book_app/services/auth_service.dart';
+import 'package:book_app/services/user_service.dart';
 import 'package:flutter/material.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
 
+  Future<bool> _isAdmin() async {
+    final user = AuthService.instance.currentFirebaseUser;
+    if (user == null) return false;
+    final data = await UserService.instance.fetchUserProfile(user.uid);
+    return UserService.instance.isAdmin(data);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
-        elevation: 0,
-        title: const Text(
-          "Admin Dashboard",
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            _KpiGrid(),
-            SizedBox(height: 28),
-            _RevenueOverviewCard(),
-            SizedBox(height: 28),
-            _SystemStatusCard(),
-          ],
-        ),
-      ),
+    return FutureBuilder<bool>(
+      future: _isAdmin(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
+        if (snapshot.data != true) {
+          return const AuthWrapper();
+        }
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF0F172A),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF0F172A),
+            elevation: 0,
+            title: const Text(
+              "Admin Dashboard",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  await AuthService.instance.logout();
+                },
+                icon: const Icon(Icons.logout),
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                _KpiGrid(),
+                SizedBox(height: 28),
+                _RevenueOverviewCard(),
+                SizedBox(height: 28),
+                _SystemStatusCard(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
-
-//
-// 📊 KPI GRID
-//
 
 class _KpiGrid extends StatelessWidget {
   const _KpiGrid();
@@ -100,10 +127,6 @@ class _KpiCard extends StatelessWidget {
   }
 }
 
-//
-// 💰 REVENUE OVERVIEW
-//
-
 class _RevenueOverviewCard extends StatelessWidget {
   const _RevenueOverviewCard();
 
@@ -151,10 +174,6 @@ class _RevenueOverviewCard extends StatelessWidget {
     );
   }
 }
-
-//
-// ⚙️ SYSTEM STATUS
-//
 
 class _SystemStatusCard extends StatelessWidget {
   const _SystemStatusCard();

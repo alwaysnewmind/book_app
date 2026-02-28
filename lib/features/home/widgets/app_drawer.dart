@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:book_app/features/profile/edit_profile_screen.dart';
 import 'package:book_app/features/settings/screens/settings_screen.dart';
 import '../../library/screens/my_library_screen.dart';
+import 'package:book_app/services/auth_service.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -262,9 +263,9 @@ class AppDrawer extends StatelessWidget {
             child: const Text("Cancel"),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              // TODO: Add Firebase logout logic
+              await AuthService.instance.logout();
             },
             child: const Text(
               "Logout",

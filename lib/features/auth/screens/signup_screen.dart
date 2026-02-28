@@ -1,5 +1,4 @@
 import 'package:book_app/core/theme/app_colors.dart';
-import 'package:book_app/features/auth/screens/genre_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -83,13 +82,6 @@ class _SignupScreenState extends State<SignupScreen> {
       if (!mounted) return;
 
       _showMessage('Account created successfully');
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const RoleSelectionScreen(),
-        ),
-      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 

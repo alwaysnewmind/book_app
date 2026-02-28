@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:book_app/navigation/app_shell.dart';
-import 'package:book_app/features/admin/admin_dashboard.dart';
-import 'package:book_app/features/home/home_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../../providers/auth_provider.dart';
 import 'package:book_app/core/theme/app_colors.dart';
 import 'package:book_app/features/auth/screens/signup_screen.dart';
@@ -54,15 +51,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   /// ✅ SAFE NAVIGATION METHOD
-  void _goToAppShell(AuthProvider authProvider) {
-    if (authProvider.isAdmin) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const AdminDashboard()),
-      );
-      return;
-    }
-
+  void _goToAppShell() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -88,45 +77,22 @@ class _LoginScreenState extends State<LoginScreen>
       _isLoading = true;
     });
 
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+    final success = await context.read<AuthProvider>().login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
 
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
+    if (!mounted) return;
 
-      String message;
-      switch (e.code) {
-        case 'user-not-found':
-          message = 'User not found';
-          break;
-        case 'wrong-password':
-          message = 'Incorrect password';
-          break;
-        case 'invalid-email':
-          message = 'Invalid email format';
-          break;
-        case 'network-request-failed':
-          message = 'Check internet connection';
-          break;
-        default:
-          message = e.message ?? 'Login failed';
-      }
+    if (!success) {
+      final error = context.read<AuthProvider>().error ?? 'Login failed';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+    }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -283,15 +249,9 @@ const SizedBox(height: 20),
                                 }
 
                                 if (authProvider.requiresProfileCompletion) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const SignupScreen()),
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please complete your profile setup.')),
                                   );
-                                  return;
-                                }
-
-                                if (authProvider.currentUser != null) {
-                                  _goToAppShell(authProvider);
                                 }
                               },
                             ),
@@ -313,15 +273,9 @@ const SizedBox(height: 20),
                                 }
 
                                 if (authProvider.requiresProfileCompletion) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const SignupScreen()),
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please complete your profile setup.')),
                                   );
-                                  return;
-                                }
-
-                                if (authProvider.currentUser != null) {
-                                  _goToAppShell(authProvider);
                                 }
                               },
                             ),
@@ -336,7 +290,7 @@ const SizedBox(height: 20),
                                 if (!mounted) return;
 
                                 if (authProvider.currentUser != null) {
-                                  _goToAppShell(authProvider);
+                                  _goToAppShell();
                                 }
                               },
                             ),

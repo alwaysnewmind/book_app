@@ -13,6 +13,7 @@ import 'widgets/sweet_banner.dart';
 
 // data
 import '../../shared/widgets/data/home_services.dart';
+import 'package:book_app/services/auth_service.dart';
 
 // screens
 import '../library/screens/my_library_screen.dart';
@@ -60,6 +61,12 @@ class HomeScreen extends StatelessWidget {
                   context,
                   _animatedRoute(const MyLibraryScreen()),
                 );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await AuthService.instance.logout();
               },
             ),
           ],

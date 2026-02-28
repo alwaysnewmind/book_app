@@ -1,8 +1,9 @@
-import 'package:book_app/core/routes/app_routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:book_app/services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart';
+import 'package:book_app/features/auth/screens/auth_wrapper.dart';
 
 class WriterGenreSelectionScreen extends StatefulWidget {
   const WriterGenreSelectionScreen({Key? key}) : super(key: key);
@@ -94,16 +95,16 @@ class _WriterGenreSelectionScreenState
     });
 
     try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .update({
-        'genres': selectedGenres.toList(),
-        'profileCompleted': true,
-      });
+      await UserService.instance.completeGenres(
+        uid: uid,
+        genres: selectedGenres.toList(),
+      );
 
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, AppRoutes.profileUpload);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
+      );
     } on FirebaseException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
