@@ -1,12 +1,27 @@
 import 'package:book_app/config/app_config.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
 import 'package:book_app/providers/auth_provider.dart';
 import 'package:book_app/providers/monetization_provider.dart';
+import 'package:book_app/providers/writer_provider.dart';
+import 'package:provider/provider.dart';
 
-class WriterEarningsScreen extends StatelessWidget {
+class WriterEarningsScreen extends StatefulWidget {
   const WriterEarningsScreen({super.key});
+
+  @override
+  State<WriterEarningsScreen> createState() => _WriterEarningsScreenState();
+}
+
+class _WriterEarningsScreenState extends State<WriterEarningsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final auth = context.read<AuthProvider>();
+      context.read<WriterProvider>().loadWriterStudio(user: auth.currentUser, isGuest: auth.isGuest);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +57,9 @@ class WriterEarningsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _TotalEarningsCard(),
+              const _TotalEarningsCard(),
               const SizedBox(height: 26),
-              _StatsRow(),
+              const _StatsRow(),
               const SizedBox(height: 36),
               const Text(
                 "Recent Transactions",
@@ -100,12 +115,15 @@ class _TotalEarningsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Consumer<AuthProvider>(
-            builder: (context, auth, _) {
-              final uid = auth.currentUser?.uid;
-              if (uid == null) {
+          Consumer2<WriterProvider, AuthProvider>(
+            builder: (context, writer, auth, _) {
+              final total = isDummyMode
+                  ? context.read<MonetizationProvider>().dummyTotalEarnings
+                  : writer.totalEarnings;
+              final safeTotal = total < 0 ? 0.0 : total;
+              if (auth.currentUser == null) {
                 return const Text(
-                  "₹ 0",
+                  '₹ 0',
                   style: TextStyle(
                     color: Color(0xFFF5C84C),
                     fontSize: 30,
@@ -114,20 +132,15 @@ class _TotalEarningsCard extends StatelessWidget {
                   ),
                 );
               }
-              return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                stream: context.read<MonetizationProvider>().writerEarningsStream(uid),
-                builder: (context, snapshot) {
-                  final total = isDummyMode ? context.read<MonetizationProvider>().dummyTotalEarnings : (snapshot.data?.data()?['totalEarnings'] as num?)?.toDouble() ?? 0;
-                  return Text(
-                    "₹ ${total.toStringAsFixed(0)}",
-                    style: const TextStyle(
-                      color: Color(0xFFF5C84C),
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
-                    ),
-                  );
-                },
+
+              return Text(
+                '₹ ${safeTotal.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  color: Color(0xFFF5C84C),
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
+                ),
               );
             },
           ),
@@ -182,19 +195,32 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final writer = context.watch<WriterProvider>();
+    final monetization = context.watch<MonetizationProvider>();
+
+    final thisMonth = isDummyMode
+        ? monetization.transactions
+            .where((tx) => tx['isCredit'] == true)
+            .fold<double>(0, (sum, tx) => sum + ((tx['amount'] as num?)?.toDouble() ?? 0))
+        : writer.writerBooks
+            .where((book) => book.isPaid)
+            .fold<double>(0, (sum, book) => sum + (book.totalEarnings * 0.25));
+
+    final totalSales = writer.writerBooks.where((book) => book.isPaid).length;
+
     return Row(
-      children: const [
+      children: [
         Expanded(
           child: _StatCard(
-            title: "This Month",
-            value: "₹ 3,200",
+            title: 'This Month',
+            value: '₹ ${thisMonth.toStringAsFixed(0)}',
           ),
         ),
-        SizedBox(width: 18),
+        const SizedBox(width: 18),
         Expanded(
           child: _StatCard(
-            title: "Total Sales",
-            value: "186",
+            title: 'Total Sales',
+            value: totalSales.toString(),
           ),
         ),
       ],

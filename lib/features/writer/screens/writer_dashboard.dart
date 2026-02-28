@@ -1,9 +1,12 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'package:book_app/core/monetization/access_rules.dart';
-import 'package:book_app/data/dummy_books.dart';
-import 'package:book_app/features/book/book_detail_screen.dart';
+
 import 'package:book_app/core/routes/app_routes.dart';
+import 'package:book_app/features/book/book_detail_screen.dart';
+import 'package:book_app/providers/writer_provider.dart';
+import 'package:book_app/shared/widgets/app_popup.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:book_app/models/user_model.dart';
 
 class WriterDashboard extends StatefulWidget {
@@ -18,280 +21,283 @@ class WriterDashboard extends StatefulWidget {
     required this.isWriterMode,
   });
 
-
   @override
   State<WriterDashboard> createState() => _WriterDashboardState();
 }
 
 class _WriterDashboardState extends State<WriterDashboard> {
-
   int selectedIndex = 0;
+  bool _errorShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<WriterProvider>().loadWriterStudio(
+            user: widget.currentUser,
+            isGuest: widget.isGuest,
+          );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     if (!widget.isWriterMode) {
       return const Scaffold(
         body: Center(
-          child: Text("Switch to Writer Mode from Profile"),
+          child: Text('Switch to Writer account from Profile to access this feature'),
         ),
       );
     }
 
-    final premiumAccess = AccessRules.canAccess(
-      user: widget.currentUser,
-      isGuest: widget.isGuest,
-      contentType: ContentType.writerOnly,
-    );
+    return Consumer<WriterProvider>(
+      builder: (context, writer, _) {
+        final error = writer.error;
+        if (error != null && !_errorShown) {
+          _errorShown = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            showAppPopup(
+              context: context,
+              title: 'Something went wrong',
+              message: error,
+              buttonText: 'OK',
+            );
+          });
+        }
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
+        final books = writer.writerBooks;
+        final hasBooks = books.isNotEmpty;
 
-          /// 🌌 BACKGROUND GRADIENT
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF1F153B),
-                  Color(0xFF261A43),
-                  Color(0xFF322254),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF1F153B),
+                      Color(0xFF261A43),
+                      Color(0xFF322254),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
               ),
-            ),
-          ),
-
-          /// 📜 MAIN SCROLLABLE CONTENT
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  const SizedBox(height: 20),
-
-                  /// HEADER
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Writer Dashboard",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: Colors.white24,
-                        child: Icon(Icons.person, color: Colors.white),
-                      )
-                    ],
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  /// STATS
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: StatCard(
-                          icon: Icons.menu_book,
-                          title: "Total Books",
-                          value: "12",
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: StatCard(
-                          icon: Icons.attach_money,
-                          title: "Earnings",
-                          value: "₹25,000",
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  /// ACTION BUTTONS
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ActionButton(
-                        icon: Icons.add,
-                        label: "Create",
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.createBook, arguments: const {'source': 'dashboard'});
-                        },
-                      ),
-                      ActionButton(
-                        icon: Icons.menu_book,
-                        label: "Manage",
-                        highlighted: true,
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.manageBooks);
-                        },
-                      ),
-                      ActionButton(
-                        icon: Icons.attach_money,
-                        label: "Earnings",
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.earn);
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ActionButton(
-                        icon: Icons.analytics,
-                        label: "Analytics",
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.writerAnalytics);
-                        },
-                      ),
-                      ActionButton(
-                        icon: Icons.person,
-                        label: "Profile",
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.writerProfile);
-                        },
-                      ),
-                      ActionButton(
-                        icon: Icons.subscriptions,
-                        label: "Subscription",
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.writerSubscription);
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Row(
-                    children: [
-                      ActionButton(
-                        icon: Icons.publish,
-                        label: "Publish",
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.writerPublish);
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  const Text(
-                    "Recent Books",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// BOOK CAROUSEL
-                  SizedBox(
-                    height: 240,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: dummyBooks.length,
-                      itemBuilder: (context, index) {
-                        final book = dummyBooks[index];
-                        final isSelected = index == selectedIndex;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedIndex = index;
-                            });
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BookDetailScreen(
-                                  imagePath: book.coverImage,
-                                  title: book.title,
-                                  isLocked: book.isPremium,
+              SafeArea(
+                child: writer.isLoading && !writer.isLoaded
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 20),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Writer Dashboard',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                CircleAvatar(
+                                  radius: 22,
+                                  backgroundColor: Colors.white24,
+                                  child: Icon(Icons.person, color: Colors.white),
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: StatCard(
+                                    icon: Icons.menu_book,
+                                    title: 'Total Books',
+                                    value: writer.totalBooks.toString(),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: StatCard(
+                                    icon: Icons.attach_money,
+                                    title: 'Earnings',
+                                    value: '₹${writer.totalEarnings.toStringAsFixed(0)}',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ActionButton(
+                                  icon: Icons.add,
+                                  label: 'Create',
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.createBook, arguments: const {'source': 'dashboard'});
+                                  },
+                                ),
+                                ActionButton(
+                                  icon: Icons.menu_book,
+                                  label: 'Manage',
+                                  highlighted: true,
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.manageBooks);
+                                  },
+                                ),
+                                ActionButton(
+                                  icon: Icons.attach_money,
+                                  label: 'Earnings',
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.earn);
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ActionButton(
+                                  icon: Icons.analytics,
+                                  label: 'Analytics',
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.writerAnalytics);
+                                  },
+                                ),
+                                ActionButton(
+                                  icon: Icons.person,
+                                  label: 'Profile',
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.writerProfile);
+                                  },
+                                ),
+                                ActionButton(
+                                  icon: Icons.subscriptions,
+                                  label: 'Subscription',
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.writerSubscription);
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                ActionButton(
+                                  icon: Icons.publish,
+                                  label: 'Publish',
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.writerPublish);
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 40),
+                            const Text(
+                              'Recent Books',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            if (!hasBooks)
+                              Container(
+                                height: 140,
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  'No books published yet.',
+                                  style: TextStyle(color: Colors.white70),
+                                ),
+                              )
+                            else
+                              SizedBox(
+                                height: 240,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: books.length,
+                                  itemBuilder: (context, index) {
+                                    final book = books[index];
+                                    final isSelected = index == selectedIndex;
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedIndex = index;
+                                        });
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => BookDetailScreen(
+                                              imagePath: book.coverImage,
+                                              title: book.title,
+                                              isLocked: book.isPremium,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: BookCard(
+                                        image: book.coverImage,
+                                        isSelected: isSelected,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                            );
-                          },
-                          child: BookCard(
-                            image: book.coverImage,
-                            isSelected: isSelected,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  /// FLOATING PILL BUTTON (inside scroll)
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.createBook, arguments: const {'source': 'dashboard'});
-                    },
-                    child: Container(
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white.withOpacity(0.1),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Color(0xFFF7C405),
-                            child: Icon(Icons.add, color: Colors.black),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            "Create New Book",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(height: 40),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(context, AppRoutes.createBook, arguments: const {'source': 'dashboard'});
+                              },
+                              child: Container(
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: Colors.white.withOpacity(0.1),
+                                  border: Border.all(color: Colors.white24),
+                                ),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: Color(0xFFF7C405),
+                                      child: Icon(Icons.add, color: Colors.black),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Create New Book',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
-                          )
-                        ],
+                            const SizedBox(height: 60),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 60),
-                ],
               ),
-            ),
+            ],
           ),
-
-     //     if (!premiumAccess) const _PremiumOverlay(),
-        
-        ],
-      ),
+        );
+      },
     );
   }
 }
-
-////////////////////////////////////////////////////////////
-/// GLASS STAT CARD
-////////////////////////////////////////////////////////////
 
 class StatCard extends StatelessWidget {
   final IconData icon;
@@ -321,14 +327,11 @@ class StatCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: Color(0xFFF7C405)),
+              Icon(icon, color: const Color(0xFFF7C405)),
               const SizedBox(height: 12),
               Text(
                 value,
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               Text(
                 title,
@@ -341,10 +344,6 @@ class StatCard extends StatelessWidget {
     );
   }
 }
-
-////////////////////////////////////////////////////////////
-/// ACTION BUTTON
-////////////////////////////////////////////////////////////
 
 class ActionButton extends StatelessWidget {
   final IconData icon;
@@ -370,9 +369,7 @@ class ActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: highlighted
-              ? const Color(0xFFF7C405).withOpacity(0.15)
-              : Colors.white.withOpacity(0.08),
+          color: highlighted ? const Color(0xFFF7C405).withOpacity(0.15) : Colors.white.withOpacity(0.08),
           boxShadow: highlighted
               ? [
                   BoxShadow(
@@ -384,18 +381,13 @@ class ActionButton extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon,
-                color: highlighted
-                    ? const Color(0xFFF7C405)
-                    : Colors.white),
+            Icon(icon, color: highlighted ? const Color(0xFFF7C405) : Colors.white),
             const SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: highlighted
-                    ? const Color(0xFFF7C405)
-                    : Colors.white,
+                color: highlighted ? const Color(0xFFF7C405) : Colors.white,
               ),
             ),
           ],
@@ -404,10 +396,6 @@ class ActionButton extends StatelessWidget {
     );
   }
 }
-
-////////////////////////////////////////////////////////////
-/// BOOK CARD
-////////////////////////////////////////////////////////////
 
 class BookCard extends StatelessWidget {
   final String image;
@@ -443,40 +431,3 @@ class BookCard extends StatelessWidget {
     );
   }
 }
-
- /// PREMIUM OVERLAY  
-//class _PremiumOverlay 
-//extends StatelessWidget 
-//{ const _PremiumOverlay(); 
-//@override 
-//Widget build(BuildContext context) 
-//{ return Positioned.fill( child: BackdropFilter( 
- // filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6), 
-  //child: Container( color: Colors.black.withOpacity(0.4), 
-//child: Center( child: Container( padding: const EdgeInsets.all(24), 
-//margin: const EdgeInsets.symmetric(horizontal: 30), 
-//decoration: BoxDecoration( color: Colors.white, borderRadius: BorderRadius.circular(20), ), 
-//child: Column( mainAxisSize: MainAxisSize.min, 
-//children: [ const Icon( Icons.lock, size: 50, color: Color(0xFF7B2FF7), ), 
-//const SizedBox(height: 20), const Text( "Writer Subscription Required", textAlign: 
-//TextAlign.center, style: 
-//TextStyle( fontSize: 18, fontWeight: FontWeight.bold, ), ), 
-//const SizedBox(height: 10), const Text( "Upgrade to premium to access all writer features.", 
-//textAlign: TextAlign.center, ), const SizedBox(height: 20), ElevatedButton( style: 
-//ElevatedButton.styleFrom( backgroundColor: const Color(0xFF7B2FF7), 
-//shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(12), ), ), 
-//onPressed: () { 
-// Navigate to subscription screen 
-//Navigator.pushNamed(context, "/writer-subscription"); }, 
-//child: const Text("Upgrade Now"), 
-//) 
-//], 
-//),
-// ), 
- //), 
- //), 
- //),
- // );
-  // }
-  //  }
-    
