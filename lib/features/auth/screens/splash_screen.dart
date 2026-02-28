@@ -1,37 +1,7 @@
-import 'package:book_app/features/auth/screens/login_screen.dart';
-import 'package:book_app/features/home/home_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
-  }
-
-  Future<void> _initialize() async {
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
-
-    final firebaseUser = FirebaseAuth.instance.currentUser;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => firebaseUser != null
-            ? const HomeScreen()
-            : const LoginScreen(),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

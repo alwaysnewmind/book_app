@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'config/app_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart';
+import 'features/auth/screens/auth_wrapper.dart';
 
 /// Providers
 import 'providers/auth_provider.dart';
@@ -58,8 +59,7 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
 
-          /// 🏁 Initial Route
-          initialRoute: AppRoutes.splash,
+          home: const AuthWrapper(),
 
           /// 🔥 CENTRAL ROUTES
           routes: AppRoutes.routes,
