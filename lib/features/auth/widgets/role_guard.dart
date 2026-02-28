@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:book_app/features/home/home_screen.dart';
 import 'package:book_app/services/role_service.dart';
+import 'package:book_app/shared/widgets/app_popup.dart';
 
 class WriterAccessGuard extends StatefulWidget {
   const WriterAccessGuard({
@@ -43,12 +44,11 @@ class _WriterAccessGuardState extends State<WriterAccessGuard> {
             _redirected = true;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Switch to Writer account to access this feature',
-                  ),
-                ),
+              showAppPopup(
+                context: context,
+                title: 'Access denied',
+                message: 'Switch to Writer account from Profile to access this feature',
+                buttonText: 'OK',
               );
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const HomeScreen()),

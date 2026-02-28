@@ -10,6 +10,10 @@ import 'features/auth/screens/auth_wrapper.dart';
 
 /// Providers
 import 'providers/auth_provider.dart';
+import 'providers/notification_provider.dart';
+import 'providers/comment_provider.dart';
+import 'providers/follow_provider.dart';
+import 'providers/monetization_provider.dart';
 import 'providers/reader_provider.dart';
 import 'providers/app_settings_provider.dart';
 import 'features/library/models/library_store.dart';
@@ -27,6 +31,31 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProxyProvider<NotificationProvider, CommentProvider>(
+          create: (context) => CommentProvider(
+            notificationProvider: context.read<NotificationProvider>(),
+          ),
+          update: (context, notifications, previous) => CommentProvider(
+            notificationProvider: notifications,
+          ),
+        ),
+        ChangeNotifierProxyProvider<NotificationProvider, FollowProvider>(
+          create: (context) => FollowProvider(
+            notificationProvider: context.read<NotificationProvider>(),
+          ),
+          update: (context, notifications, previous) => FollowProvider(
+            notificationProvider: notifications,
+          ),
+        ),
+        ChangeNotifierProxyProvider<NotificationProvider, MonetizationProvider>(
+          create: (context) => MonetizationProvider(
+            notificationProvider: context.read<NotificationProvider>(),
+          ),
+          update: (context, notifications, previous) => MonetizationProvider(
+            notificationProvider: notifications,
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
         ChangeNotifierProvider(create: (_) => LibraryStore()),
         ChangeNotifierProvider(create: (_) => AppSettingsProvider()),

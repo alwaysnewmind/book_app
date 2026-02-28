@@ -14,6 +14,7 @@ import 'package:book_app/providers/auth_provider.dart';
 import 'package:book_app/navigation/bottom_nav.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/services/role_service.dart';
+import 'package:book_app/shared/widgets/app_popup.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -64,9 +65,13 @@ class _AppShellState extends State<AppShell> {
 
     try {
       await RoleService.instance.switchRole(uid: uid, targetRole: nextRole);
+      await context.read<AuthProvider>().refreshSession();
       if (!context.mounted) return;
-      messenger.showSnackBar(
-        SnackBar(content: Text('Account switched to $nextRole')),
+      await showAppPopup(
+        context: context,
+        title: 'Role updated',
+        message: 'Your account is now switched to $nextRole.',
+        buttonText: 'Continue',
       );
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const AuthWrapper()),

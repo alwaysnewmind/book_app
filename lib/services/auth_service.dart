@@ -142,7 +142,7 @@ class AuthService {
       'name': name,
       'email': email,
       'phone': phone,
-      'role': null,
+      'role': 'reader',
       'genres': <String>[],
       'photoUrl': null,
       'profileCompleted': true,
@@ -152,6 +152,12 @@ class AuthService {
       'hasCompletedOnboarding': false,
       'selectedGenres': <String>[],
       'favoriteGenres': <String>[],
+      'followersCount': 0,
+      'followingCount': 0,
+      'totalEarnings': 0,
+      'availableBalance': 0,
+      'premiumActivatedAt': null,
+      'premiumExpiry': null,
     }, SetOptions(merge: true));
   }
 
@@ -235,6 +241,12 @@ class AuthService {
       subscriptionExpiry: null,
       writerTrialStart: null,
       isWriterPremium: false,
+      premiumActivatedAt: null,
+      premiumExpiry: null,
+      followersCount: 0,
+      followingCount: 0,
+      totalEarnings: 0,
+      availableBalance: 0,
       hasCompletedOnboarding: false,
       selectedGenres: const [],
       favoriteGenres: const [],
@@ -242,7 +254,7 @@ class AuthService {
       updatedAt: now,
     );
 
-    final role = profileCompleted ? 'reader' : null;
+    final role = 'reader';
 
     await _usersCollection.doc(firebaseUser.uid).set({
       ...user.toMap(),

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/providers/monetization_provider.dart';
 
 class WriterEarningsScreen extends StatelessWidget {
   const WriterEarningsScreen({super.key});
@@ -36,12 +40,12 @@ class WriterEarningsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(22),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               _TotalEarningsCard(),
-              SizedBox(height: 26),
+              const SizedBox(height: 26),
               _StatsRow(),
-              SizedBox(height: 36),
-              Text(
+              const SizedBox(height: 36),
+              const Text(
                 "Recent Transactions",
                 style: TextStyle(
                   color: Colors.white,
@@ -50,8 +54,8 @@ class WriterEarningsScreen extends StatelessWidget {
                   letterSpacing: 0.6,
                 ),
               ),
-              SizedBox(height: 16),
-              _TransactionsList(),
+              const SizedBox(height: 16),
+              const _TransactionsList(),
             ],
           ),
         ),
@@ -95,14 +99,36 @@ class _TotalEarningsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            "₹ 12,450",
-            style: TextStyle(
-              color: Color(0xFFF5C84C),
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.8,
-            ),
+          Consumer<AuthProvider>(
+            builder: (context, auth, _) {
+              final uid = auth.currentUser?.uid;
+              if (uid == null) {
+                return const Text(
+                  "₹ 0",
+                  style: TextStyle(
+                    color: Color(0xFFF5C84C),
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                );
+              }
+              return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: context.read<MonetizationProvider>().writerEarningsStream(uid),
+                builder: (context, snapshot) {
+                  final total = (snapshot.data?.data()?['totalEarnings'] as num?)?.toDouble() ?? 0;
+                  return Text(
+                    "₹ ${total.toStringAsFixed(0)}",
+                    style: const TextStyle(
+                      color: Color(0xFFF5C84C),
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                    ),
+                  );
+                },
+              );
+            },
           ),
           const SizedBox(height: 22),
           SizedBox(

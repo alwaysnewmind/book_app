@@ -51,14 +51,33 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> setUserRole(String role) async {
     _selectedUserRole = role;
-    if (_user != null) {
+    if (_user == null) return;
+
+    try {
       await _authService.setUserRole(_user!.uid, role);
-      _user = _user!.copyWith(
-        role: role == 'writer' ? UserRole.writer : UserRole.reader,
-        currentMode: role == 'writer' ? UserMode.writer : UserMode.reader,
-      );
+      await refreshSession();
+      _error = null;
+    } catch (e) {
+      _error = 'Unable to switch role right now. Please try again.';
     }
+
     notifyListeners();
+  }
+
+
+  Future<void> refreshSession() async {
+    try {
+      final freshUser = await _authService.getCurrentUser();
+      _user = freshUser;
+      _isGuest = freshUser == null;
+      if (freshUser != null) {
+        final doc = await _authService.getUserDocument(freshUser.uid);
+        _isAdmin = doc?['role'] == 'admin';
+      }
+      _error = null;
+    } catch (_) {
+      _error = 'Unable to refresh session. Please reopen the app.';
+    }
   }
 
   Future<void> saveGenres(List<String> genres) async {
@@ -110,6 +129,13 @@ class AuthProvider extends ChangeNotifier {
     required String password,
     required String name,
   }) async {
+    final validEmail = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email.trim());
+    if (!validEmail || name.trim().isEmpty) {
+      _error = 'Please enter valid required details.';
+      notifyListeners();
+      return false;
+    }
+
     _setLoading(true);
 
     try {
@@ -138,6 +164,13 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
+    final validEmail = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email.trim());
+    if (!validEmail || password.trim().isEmpty) {
+      _error = 'Enter valid email and password.';
+      notifyListeners();
+      return false;
+    }
+
     _setLoading(true);
 
     try {

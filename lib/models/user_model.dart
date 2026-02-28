@@ -23,6 +23,8 @@ class AppUser {
   // Reader Subscription
   final bool isPremium;
   final DateTime? subscriptionExpiry;
+  final DateTime? premiumActivatedAt;
+  final DateTime? premiumExpiry;
 
   // Writer Access
   final DateTime? writerTrialStart;
@@ -37,6 +39,12 @@ class AppUser {
   // Metadata
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  // Social + monetization
+  final int followersCount;
+  final int followingCount;
+  final double totalEarnings;
+  final double availableBalance;
 
   const AppUser({
     required this.uid,
@@ -56,10 +64,16 @@ class AppUser {
     this.profileImageUrl,
     this.isPremium = false,
     this.subscriptionExpiry,
+    this.premiumActivatedAt,
+    this.premiumExpiry,
     this.writerTrialStart,
     this.isWriterPremium = false,
     this.dob,
     required this.hasActiveSubscription,
+    this.followersCount = 0,
+    this.followingCount = 0,
+    this.totalEarnings = 0,
+    this.availableBalance = 0,
   
   });
 
@@ -107,6 +121,8 @@ class AppUser {
 
       isPremium: map['isPremium'] as bool? ?? false,
       subscriptionExpiry: _parseDate(map['subscriptionExpiry']),
+      premiumActivatedAt: _parseDate(map['premiumActivatedAt']),
+      premiumExpiry: _parseDate(map['premiumExpiry']),
       writerTrialStart: _parseDate(map['writerTrialStart']),
       isWriterPremium: map['isWriterPremium'] as bool? ?? false,
       hasCompletedOnboarding:
@@ -120,6 +136,10 @@ class AppUser {
 
       createdAt: _parseDate(map['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDate(map['updatedAt']) ?? DateTime.now(),
+      followersCount: (map['followersCount'] as num?)?.toInt() ?? 0,
+      followingCount: (map['followingCount'] as num?)?.toInt() ?? 0,
+      totalEarnings: (map['totalEarnings'] as num?)?.toDouble() ?? 0,
+      availableBalance: (map['availableBalance'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -144,6 +164,12 @@ class AppUser {
       'subscriptionExpiry': subscriptionExpiry != null
           ? Timestamp.fromDate(subscriptionExpiry!)
           : null,
+      'premiumActivatedAt': premiumActivatedAt != null
+          ? Timestamp.fromDate(premiumActivatedAt!)
+          : null,
+      'premiumExpiry': premiumExpiry != null
+          ? Timestamp.fromDate(premiumExpiry!)
+          : null,
       'writerTrialStart': writerTrialStart != null
           ? Timestamp.fromDate(writerTrialStart!)
           : null,
@@ -153,6 +179,10 @@ class AppUser {
       'favoriteGenres': favoriteGenres,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
+      'followersCount': followersCount,
+      'followingCount': followingCount,
+      'totalEarnings': totalEarnings,
+      'availableBalance': availableBalance,
     };
   }
 
@@ -172,11 +202,17 @@ class AppUser {
     UserMode? currentMode,
     bool? isPremium,
     DateTime? subscriptionExpiry,
+    DateTime? premiumActivatedAt,
+    DateTime? premiumExpiry,
     DateTime? writerTrialStart,
     bool? isWriterPremium,
     bool? hasCompletedOnboarding,
     List<String>? selectedGenres,
     List<String>? favoriteGenres,
+    int? followersCount,
+    int? followingCount,
+    double? totalEarnings,
+    double? availableBalance,
   }) {
     return AppUser(
       uid: uid,
@@ -192,6 +228,8 @@ class AppUser {
       currentMode: currentMode ?? this.currentMode,
       isPremium: isPremium ?? this.isPremium,
       subscriptionExpiry: subscriptionExpiry ?? this.subscriptionExpiry,
+      premiumActivatedAt: premiumActivatedAt ?? this.premiumActivatedAt,
+      premiumExpiry: premiumExpiry ?? this.premiumExpiry,
       writerTrialStart: writerTrialStart ?? this.writerTrialStart,
       isWriterPremium: isWriterPremium ?? this.isWriterPremium,
       hasCompletedOnboarding:
@@ -200,7 +238,11 @@ class AppUser {
       favoriteGenres: favoriteGenres ?? this.favoriteGenres,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
-      hasActiveSubscription: false, 
+      hasActiveSubscription: hasActiveSubscription,
+      followersCount: followersCount ?? this.followersCount,
+      followingCount: followingCount ?? this.followingCount,
+      totalEarnings: totalEarnings ?? this.totalEarnings,
+      availableBalance: availableBalance ?? this.availableBalance,
     );
   }
 }

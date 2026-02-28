@@ -45,13 +45,23 @@ class UserService {
     required String email,
   }) async {
     await _users.doc(uid).set({
+      'uid': uid,
       'name': name,
       'email': email,
-      'role': null,
+      'role': 'reader',
+      'currentMode': 'reader',
+      'isPremium': false,
+      'followersCount': 0,
+      'followingCount': 0,
+      'totalEarnings': 0,
+      'availableBalance': 0,
+      'premiumActivatedAt': null,
+      'premiumExpiry': null,
       'genres': <String>[],
       'photoUrl': '',
       'profileCompleted': false,
       'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
 
