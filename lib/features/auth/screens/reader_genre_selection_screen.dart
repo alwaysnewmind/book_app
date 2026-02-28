@@ -36,10 +36,8 @@ class _ReaderGenreSelectionScreenState
   // 🎨 Exact Design Colors (From Image)
   static const Color bgDark = Color(0xFF1F1533);
   static const Color bgTop = Color(0xFF2E1B47);
-  static const Color cardColor = Color(0xFF24163A);
 
   static const Color yellow = Color(0xFFFFD86B);
-  static const Color yellowDark = Color(0xFFF6C453);
 
   static const Color white = Colors.white;
   static const Color subtitleColor = Color(0xFFB8AFCF);
@@ -73,10 +71,10 @@ class _ReaderGenreSelectionScreenState
                 const SizedBox(height: 20),
 
                 /// 🔥 Top Header
-                Row(
+                const Row(
                   mainAxisAlignment:
                       MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Row(
                       children: [
                         Icon(Icons.menu_book,

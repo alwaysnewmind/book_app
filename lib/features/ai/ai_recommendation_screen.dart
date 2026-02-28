@@ -81,9 +81,7 @@ class AIRecommendationScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => BookDetailScreen(
-                              imagePath: book.coverImage,
-                              title: book.title,
-                              isLocked: book.isPremium,
+                              book: book,
                             ),
                           ),
                         );

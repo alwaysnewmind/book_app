@@ -1,22 +1,235 @@
 import 'package:flutter/material.dart';
 
-class ContentWritingDashboard extends StatelessWidget {
+class ContentWritingDashboard extends StatefulWidget {
   const ContentWritingDashboard({Key? key}) : super(key: key);
+
+  @override
+  State<ContentWritingDashboard> createState() =>
+      _ContentWritingDashboardState();
+}
+
+class _ContentWritingDashboardState extends State<ContentWritingDashboard> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+
+  String selectedCategory = "Short Story";
+
+  final List<String> categories = [
+    "Short Story",
+    "Unique Notes",
+    "Quotes",
+    "Social Media Content",
+    "Web Series Script",
+    "Movie Story",
+    "Kids Story",
+  ];
+
+  void _openWriterSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1F1533),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF1F1533),
+                Color(0xFF2A1E47),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 20,
+              right: 20,
+              top: 30,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  const Text(
+                    "Create New Content",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFFFFFF),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+
+                  _luxuryInput(
+                    child: DropdownButtonFormField<String>(
+                      dropdownColor: const Color(0xFF251A3F),
+                      value: selectedCategory,
+                      style: const TextStyle(color: Color(0xFFCFC8E8)),
+                      items: categories
+                          .map((e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCategory = value!;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: "Select Category",
+                        labelStyle: TextStyle(color: Color(0xFF9F96C8)),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _luxuryInput(
+                    child: TextField(
+                      controller: _titleController,
+                      style:
+                          const TextStyle(color: Color(0xFFFFFFFF)),
+                      decoration: const InputDecoration(
+                        labelText: "Title",
+                        labelStyle:
+                            TextStyle(color: Color(0xFF9F96C8)),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _luxuryInput(
+                    child: TextField(
+                      controller: _contentController,
+                      maxLines: 8,
+                      style:
+                          const TextStyle(color: Color(0xFFCFC8E8)),
+                      decoration: const InputDecoration(
+                        labelText: "Write your content here...",
+                        labelStyle:
+                            TextStyle(color: Color(0xFF9F96C8)),
+                        border: InputBorder.none,
+                        alignLabelWithHint: true,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor:
+                                const Color(0xFFCFC8E8),
+                            side: const BorderSide(
+                                color: Color(0xFF3A2D5C)),
+                            backgroundColor:
+                                const Color(0xFF251A3F),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(18),
+                            ),
+                          ),
+                          child: const Text("Save as Draft"),
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                              const SnackBar(
+                                backgroundColor:
+                                    Color(0xFF251A3F),
+                                content: Text(
+                                  "Content Published Successfully!",
+                                  style: TextStyle(
+                                      color:
+                                          Color(0xFFCFC8E8)),
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color(0xFFF5C84C),
+                            foregroundColor:
+                                const Color(0xFF1F1533),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(18),
+                            ),
+                            elevation: 0,
+                          ).copyWith(
+                            shadowColor:
+                                MaterialStateProperty.all(
+                              const Color(0xFFFFD76A)
+                                  .withOpacity(0.3),
+                            ),
+                          ),
+                          child: const Text(
+                            "Publish",
+                            style:
+                                TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _luxuryInput({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: const Color(0xFF251A3F),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF3A2D5C)),
+      ),
+      child: child,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      backgroundColor: const Color(0xffF3EEFF),
+      backgroundColor: const Color(0xFF1F1533),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
             colors: [
-              Color(0xffE9E4FF),
-              Color(0xffD6CCFF),
+              Color(0xFF1F1533),
+              Color(0xFF2A1E47),
             ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: SafeArea(
@@ -27,156 +240,84 @@ class ContentWritingDashboard extends StatelessWidget {
               children: [
 
                 /// Greeting
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
                         Text(
                           "Good Evening, Aryan",
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
+                            color: Color(0xFFFFFFFF),
                           ),
                         ),
                         SizedBox(height: 4),
                         Text(
                           "Ready to continue your story?",
-                          style: TextStyle(color: Colors.black54),
+                          style: TextStyle(
+                              color: Color(0xFF9F96C8)),
                         )
                       ],
                     ),
-                    const CircleAvatar(
-                      backgroundColor: Colors.deepPurple,
-                      child: Icon(Icons.person, color: Colors.white),
+                    CircleAvatar(
+                      backgroundColor: Color(0xFF251A3F),
+                      child: Icon(Icons.person,
+                          color: Color(0xFFF5C84C)),
                     )
                   ],
                 ),
 
                 const SizedBox(height: 30),
 
-                /// Quick Stats
                 const Text(
-                  "Quick Stats",
+                  "Quick Content Creation",
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple),
+                      color: Color(0xFFFFFFFF)),
                 ),
                 const SizedBox(height: 15),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    StatCard(title: "Total Books", value: "5"),
-                    StatCard(title: "Drafts", value: "3"),
-                    StatCard(title: "Words Written", value: "25,430"),
-                    StatCard(title: "Readers", value: "1,245"),
-                  ],
-                ),
-
-                const SizedBox(height: 30),
-
-                /// Continue Writing
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
+                    color: const Color(0xFF251A3F),
+                    borderRadius: BorderRadius.circular(24),
+                    border:
+                        Border.all(color: Color(0xFF3A2D5C)),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Continue Writing",
+                        "Write short stories, quotes, scripts, movie plots, kids stories & social media content.",
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple),
+                            color: Color(0xFFCFC8E8)),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Container(
-                            height: 80,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              image: const DecorationImage(
-                                image: AssetImage("assets/Book1.jpg"),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        onPressed: _openWriterSheet,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xFFF5C84C),
+                          foregroundColor:
+                              const Color(0xFF1F1533),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(20),
                           ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "The Midnight Library",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 6),
-                                const Text(
-                                  "Chapter 5: The Crossroads",
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black54),
-                                ),
-                                const SizedBox(height: 10),
-                                LinearProgressIndicator(
-                                  value: 0.6,
-                                  color: Colors.deepPurple,
-                                  backgroundColor:
-                                      Colors.deepPurple.shade100,
-                                )
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            child: const Text("Continue"),
-                          )
-                        ],
+                        ),
+                        child: const Text("Start Writing"),
                       )
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 30),
-
-                /// Your Books
-                const Text(
-                  "Your Books",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple),
-                ),
-                const SizedBox(height: 15),
-
-                Row(
-                  children: const [
-                    Expanded(child: BookCard(title: "Project Hail Mary")),
-                    SizedBox(width: 15),
-                    Expanded(child: AnalyticsCard()),
-                  ],
-                ),
-
-                const SizedBox(height: 15),
-
-                const BookCard(title: "The Vanishing Half"),
 
                 const SizedBox(height: 100),
               ],
@@ -185,127 +326,27 @@ class ContentWritingDashboard extends StatelessWidget {
         ),
       ),
 
-      /// Floating Button
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepPurple,
-        onPressed: () {},
+        backgroundColor: const Color(0xFFF5C84C),
+        foregroundColor: const Color(0xFF1F1533),
+        onPressed: _openWriterSheet,
         child: const Icon(Icons.add),
       ),
 
-      /// Bottom Navigation
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.grey,
+        backgroundColor: const Color(0xFF251A3F),
+        selectedItemColor: const Color(0xFFF5C84C),
+        unselectedItemColor: const Color(0xFF9F96C8),
         currentIndex: 0,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: "Books"),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: "Analytics"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-      ),
-    );
-  }
-}
-
-/// STAT CARD
-class StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-
-  const StatCard({required this.title, required this.value, Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 75,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        children: [
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple)),
-          const SizedBox(height: 5),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 10),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-/// BOOK CARD
-class BookCard extends StatelessWidget {
-  final String title;
-
-  const BookCard({required this.title, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 70,
-            width: 50,
-            decoration: BoxDecoration(
-              color: Colors.deepPurple.shade100,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// ANALYTICS CARD
-class AnalyticsCard extends StatelessWidget {
-  const AnalyticsCard({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 120,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            "Analytics Preview",
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple),
-          ),
-          SizedBox(height: 10),
-          Text("Views: 15.5K"),
-          Text("Likes: 350"),
-          Text("Comments: 350"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard), label: "Dashboard"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.book), label: "Books"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.analytics), label: "Analytics"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );

@@ -13,7 +13,7 @@ dependencies:
 
   # UI & Icons
   cupertino_icons: ^1.0.6
-  google_fonts: ^5.0.0
+  google_fonts: ^6.1.0
   shimmer: ^3.0.0
   flutter_animate: ^4.5.0
 
@@ -40,12 +40,14 @@ dependencies:
   # Swipe feature
   flutter_slidable: ^3.0.1
 
+  # PDF Viewer (REPLACEMENT – STABLE)
+  pdfx: ^2.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
-  syncfusion_flutter_pdfviewer: ^24.2.0
-  
+
 flutter:
   uses-material-design: true
 

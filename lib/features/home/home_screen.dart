@@ -1,4 +1,5 @@
 import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/features/home/widgets/featured_books.dart' show FeaturedBooks;
 import 'package:flutter/material.dart';
 
 // widgets

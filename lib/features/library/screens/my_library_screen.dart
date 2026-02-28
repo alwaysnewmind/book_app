@@ -1,22 +1,31 @@
-import 'dart:ui';
 import 'package:book_app/core/routes/app_routes.dart' show AppRoutes;
 import 'package:book_app/data/dummy_books.dart' show dummyBooks;
 import 'package:book_app/features/book/book_reader_screen.dart' show BookReaderScreen;
 import 'package:flutter/material.dart';
 import 'package:book_app/data/sample_books.dart';
 import 'package:provider/provider.dart';
-
-// reader
-
-// library
 import 'package:book_app/features/library/models/library_store.dart';
 import 'package:book_app/features/library/models/library_book.dart';
-
-// 🔥 dummy data
 import 'package:book_app/data/dummy_books.dart';
 
 class MyLibraryScreen extends StatelessWidget {
   const MyLibraryScreen({super.key});
+
+  // 🎨 Luxury Color System
+  static const Color bgTop = Color(0xFF1F1533);
+  static const Color bgMid = Color(0xFF2A1E47);
+  static const Color bgBottom = Color(0xFF140F26);
+
+  static const Color gold = Color(0xFFF5C84C);
+  static const Color goldDark = Color(0xFFE6B93E);
+  static const Color goldGlow = Color(0xFFFFD76A);
+
+  static const Color textPrimary = Colors.white;
+  static const Color textSecondary = Color(0xFFCFC8E8);
+  static const Color textMuted = Color(0xFF9F96C8);
+
+  static const Color cardFill = Color(0xFF251A3F);
+  static const Color borderInactive = Color(0xFF3A2D5C);
 
   Route _animatedRoute(Widget page) {
     return PageRouteBuilder(
@@ -39,101 +48,89 @@ class MyLibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// 🔥 Get books from provider
-    List<LibraryBook> books =
-        context.watch<LibraryStore>().books;
+    List<LibraryBook> books = context.watch<LibraryStore>().books;
 
-    /// 🔥 If library empty → load dummy books
     if (books.isEmpty) {
       books = dummyBooks.cast<LibraryBook>();
     }
 
-    /// Continue Reading Section
     final continueBooks =
         books.where((b) => b.progress > 0 && b.progress < 1).toList();
 
-    /// Featured Book
     final featuredBook = books.first;
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-
-          /// APP BAR
-          const SliverAppBar(
-            backgroundColor: Colors.black,
-            pinned: true,
-            elevation: 0,
-            title: Text(
-              "My Library",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [bgTop, bgMid, bgBottom],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
+        ),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
 
-          /// FEATURED BANNER
-          SliverToBoxAdapter(
-            child: _featuredBanner(context, featuredBook),
-          ),
-
-          /// CONTINUE READING
-          if (continueBooks.isNotEmpty) ...[
-            SliverToBoxAdapter(
-              child: _sectionTitle("Continue Reading"),
+            /// 🔥 APP BAR
+            const SliverAppBar(
+              backgroundColor: bgTop,
+              pinned: true,
+              elevation: 0,
+              title: Text(
+                "My Library",
+                style: TextStyle(
+                  color: textPrimary,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              centerTitle: false,
             ),
+
+            /// FEATURED
             SliverToBoxAdapter(
-              child: _horizontalList(context, continueBooks),
+              child: _featuredBanner(context, featuredBook),
+            ),
+
+            if (continueBooks.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: _sectionTitle("Continue Reading"),
+              ),
+              SliverToBoxAdapter(
+                child: _horizontalList(context, continueBooks),
+              ),
+            ],
+
+            SliverToBoxAdapter(
+              child: _sectionTitle("All Books"),
+            ),
+
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final book = books[index];
+                    return _gridBookItem(context, book);
+                  },
+                  childCount: books.length > 16 ? 16 : books.length,
+                ),
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 18,
+                  crossAxisSpacing: 18,
+                  childAspectRatio: 0.65,
+                ),
+              ),
+            ),
+
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 40),
             ),
           ],
-
-          /// ALL BOOKS TITLE
-          SliverToBoxAdapter(
-            child: _sectionTitle("All Books"),
-          ),
-
-          /// 4x4 GRID
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final book = books[index];
-                  return _gridBookItem(context, book);
-                },
-                childCount: books.length > 16 ? 16 : books.length,
-              ),
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 14,
-                crossAxisSpacing: 14,
-                childAspectRatio: 0.65,
-              ),
-            ),
-          ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 30),
-          ),
-
-          /// MORE BOOKS (If >16)
-          if (books.length > 16) ...[
-            SliverToBoxAdapter(
-              child: _sectionTitle("More Books"),
-            ),
-            SliverToBoxAdapter(
-              child: _horizontalList(
-                context,
-                books.sublist(16),
-              ),
-            ),
-          ],
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 40),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -144,36 +141,40 @@ class MyLibraryScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          _animatedRoute(BookReaderScreen(book: book,)),
+          _animatedRoute(BookReaderScreen(book: book)),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Hero(
           tag: book.id,
           child: Container(
             height: 260,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(28),
               image: DecorationImage(
                 image: AssetImage(book.imagePath),
                 fit: BoxFit.cover,
               ),
+              border: Border.all(color: borderInactive),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.deepPurple.withOpacity(0.4),
-                  blurRadius: 18,
+                  color: goldGlow.withOpacity(0.3),
+                  blurRadius: 25,
                   spreadRadius: 2,
                 ),
               ],
             ),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(22),
               alignment: Alignment.bottomLeft,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                gradient: const LinearGradient(
-                  colors: [Colors.transparent, Colors.black87],
+                borderRadius: BorderRadius.circular(28),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    bgBottom.withOpacity(0.95),
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -181,7 +182,7 @@ class MyLibraryScreen extends StatelessWidget {
               child: Text(
                 book.title,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: textPrimary,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -193,14 +194,13 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  /// SECTION TITLE
   Widget _sectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
       child: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
@@ -208,28 +208,28 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  /// GRID BOOK ITEM
   Widget _gridBookItem(BuildContext context, LibraryBook book) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          _animatedRoute(BookReaderScreen(book: book,)),
+          _animatedRoute(BookReaderScreen(book: book)),
         );
       },
       child: Hero(
         tag: book.id,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(20),
             image: DecorationImage(
               image: AssetImage(book.imagePath),
               fit: BoxFit.cover,
             ),
+            border: Border.all(color: borderInactive),
             boxShadow: [
               BoxShadow(
-                color: Colors.deepPurple.withOpacity(0.3),
-                blurRadius: 8,
+                color: goldGlow.withOpacity(0.25),
+                blurRadius: 12,
               ),
             ],
           ),
@@ -238,14 +238,13 @@ class MyLibraryScreen extends StatelessWidget {
     );
   }
 
-  /// HORIZONTAL LIST
   Widget _horizontalList(
       BuildContext context, List<LibraryBook> books) {
     return SizedBox(
-      height: 200,
+      height: 210,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 18),
         itemCount: books.length,
         itemBuilder: (context, index) {
           final book = books[index];
@@ -258,23 +257,24 @@ class MyLibraryScreen extends StatelessWidget {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: const EdgeInsets.only(right: 16),
               child: Stack(
                 children: [
                   Hero(
                     tag: book.id,
                     child: Container(
-                      width: 130,
+                      width: 135,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(22),
                         image: DecorationImage(
                           image: AssetImage(book.imagePath),
                           fit: BoxFit.cover,
                         ),
+                        border: Border.all(color: borderInactive),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.deepPurple.withOpacity(0.3),
-                            blurRadius: 8,
+                            color: goldGlow.withOpacity(0.25),
+                            blurRadius: 14,
                           ),
                         ],
                       ),
@@ -286,49 +286,19 @@ class MyLibraryScreen extends StatelessWidget {
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      child: LinearProgressIndicator(
-                        value: book.progress,
-                        minHeight: 4,
-                        backgroundColor: Colors.white24,
-                        color: Colors.deepPurpleAccent,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(22)),
+                        child: LinearProgressIndicator(
+                          value: book.progress,
+                          minHeight: 6,
+                          backgroundColor: borderInactive,
+                          valueColor:
+                              const AlwaysStoppedAnimation<Color>(gold),
+                        ),
                       ),
                     ),
                 ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-class FeaturedBooks extends StatelessWidget {
-  const FeaturedBooks({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: sampleBooks.length,
-        itemBuilder: (context, index) {
-          final book = sampleBooks[index];
-
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.bookDetail,
-                arguments: book,
-              );
-            },
-            child: Container(
-              width: 140,
-              margin: const EdgeInsets.only(right: 16),
-              color: Colors.grey.shade300,
-              child: Center(
-                child: Text(book.title),
               ),
             ),
           );

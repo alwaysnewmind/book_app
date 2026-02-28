@@ -7,32 +7,50 @@ import 'config/app_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart';
 
-/// Providers
+/// 🔥 Providers
 import 'providers/auth_provider.dart';
 import 'providers/reader_provider.dart';
 import 'providers/app_settings_provider.dart';
 import 'features/library/models/library_store.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  /// 🔧 App Environment
   AppConfig.initialize(AppEnvironment.dev);
 
+  /// 🔥 Firebase init (must before runApp)
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(
-    MultiProvider(
+  runApp(const AppRoot());
+}
+
+/// 🔥 ROOT WIDGET (Providers separated – best practice)
+class AppRoot extends StatelessWidget {
+  const AppRoot({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
-        ChangeNotifierProvider(create: (_) => ReaderProvider()),
-        ChangeNotifierProvider(create: (_) => LibraryStore()),
-        ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProvider<ReaderProvider>(
+          create: (_) => ReaderProvider(),
+        ),
+        ChangeNotifierProvider<LibraryStore>(
+          create: (_) => LibraryStore(),
+        ),
+        ChangeNotifierProvider<AppSettingsProvider>(
+          create: (_) => AppSettingsProvider(),
+        ),
       ],
       child: const MyApp(),
-    ),
-  );
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -41,7 +59,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppSettingsProvider>(
-      builder: (context, settings, child) {
+      builder: (_, settings, __) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
 
@@ -58,15 +76,12 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
 
-          /// 🏁 Initial Route
+          /// 🏁 Routing
           initialRoute: AppRoutes.splash,
-
-          /// 🔥 CENTRAL ROUTES
           routes: AppRoutes.routes,
+          onGenerateRoute: AppRoutes.onGenerateRoute, // ✅ REQUIRED
         );
-      
       },
     );
   }
-  
 }

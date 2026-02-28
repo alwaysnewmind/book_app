@@ -40,11 +40,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       actions: actions ??
           [
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
+            const Padding(
+              padding: EdgeInsets.only(right: 12),
               child: CircleAvatar(
                 backgroundColor: Colors.white,
-                child: const Icon(Icons.person, color: Colors.black87),
+                child: Icon(Icons.person, color: Colors.black87),
               ),
             ),
           ],

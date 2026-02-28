@@ -12,10 +12,10 @@ class ReaderSubscriptionScreen extends StatelessWidget {
         elevation: 0,
         title: const Text("Reader Plans"),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: const SingleChildScrollView(
+        padding: EdgeInsets.all(20),
         child: Column(
-          children: const [
+          children: [
             _ReaderPlanCard(
               title: "Free Reader",
               price: "₹0",
