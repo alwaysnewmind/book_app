@@ -1,17 +1,20 @@
-import 'package:book_app/features/reader/data/dummy_reader_data.dart';
+import 'package:book_app/features/reader/models/reader_book_model.dart';
 import 'package:flutter/material.dart';
 
 class RecommendedBooksGrid extends StatelessWidget {
-  final ValueChanged<ReaderBook> onBookTap;
+  final List<ReaderBookModel> books;
+  final ValueChanged<ReaderBookModel> onBookTap;
+  final ValueChanged<ReaderBookModel>? onBookLongPress;
 
   const RecommendedBooksGrid({
     super.key,
+    required this.books,
     required this.onBookTap,
+    this.onBookLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
-    final books = DummyReaderData.recommendedBooks;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
@@ -32,6 +35,7 @@ class RecommendedBooksGrid extends StatelessWidget {
           return InkWell(
             borderRadius: BorderRadius.circular(18),
             onTap: () => onBookTap(book),
+            onLongPress: onBookLongPress == null ? null : () => onBookLongPress!(book),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
@@ -53,7 +57,7 @@ class RecommendedBooksGrid extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                       child: Image.asset(
-                        book.cover,
+                        book.coverUrl,
                         width: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(color: Colors.grey[300]),
@@ -77,7 +81,7 @@ class RecommendedBooksGrid extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          book.author,
+                          book.authorName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -86,14 +90,17 @@ class RecommendedBooksGrid extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        if (book.isPremium)
-                          Row(
-                            children: [
-                              const Icon(Icons.monetization_on, size: 14, color: Colors.amber),
-                              const SizedBox(width: 4),
-                              Text('${book.price} Coins', style: const TextStyle(fontSize: 12)),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            Icon(
+                              book.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                              size: 14,
+                              color: Colors.amber,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(book.genre, style: const TextStyle(fontSize: 12)),
+                          ],
+                        ),
                       ],
                     ),
                   ),

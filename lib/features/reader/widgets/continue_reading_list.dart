@@ -1,14 +1,16 @@
-import 'package:book_app/features/reader/data/dummy_reader_data.dart';
+import 'package:book_app/features/reader/models/reader_book_model.dart';
 import 'package:flutter/material.dart';
 
 class ContinueReadingSlider extends StatelessWidget {
-  final List<ReaderBook> books;
-  final ValueChanged<ReaderBook> onBookTap;
+  final List<ReaderBookModel> books;
+  final ValueChanged<ReaderBookModel> onBookTap;
+  final ValueChanged<ReaderBookModel>? onBookLongPress;
 
   const ContinueReadingSlider({
     super.key,
     required this.books,
     required this.onBookTap,
+    this.onBookLongPress,
   });
 
   @override
@@ -23,6 +25,7 @@ class ContinueReadingSlider extends StatelessWidget {
           final book = books[index];
           return InkWell(
             onTap: () => onBookTap(book),
+            onLongPress: onBookLongPress == null ? null : () => onBookLongPress!(book),
             borderRadius: BorderRadius.circular(20),
             child: Container(
               width: 140,
@@ -38,7 +41,7 @@ class ContinueReadingSlider extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                       child: Image.asset(
-                        book.cover,
+                        book.coverUrl,
                         width: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(color: Colors.grey[300]),
@@ -58,7 +61,7 @@ class ContinueReadingSlider extends StatelessWidget {
                         ),
                         const SizedBox(height: 5),
                         LinearProgressIndicator(
-                          value: book.progress,
+                          value: (book.progressPercent / 100).clamp(0.0, 1.0),
                           backgroundColor: Colors.black12,
                         ),
                       ],
