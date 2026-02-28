@@ -1,7 +1,8 @@
 import 'package:book_app/core/routes/app_routes.dart';
-import 'package:book_app/providers/auth_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart';
 
 class WriterGenreSelectionScreen extends StatefulWidget {
   const WriterGenreSelectionScreen({Key? key}) : super(key: key);
@@ -26,6 +27,41 @@ class _WriterGenreSelectionScreenState
   ];
 
   final Set<String> selectedGenres = {};
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _validateRole();
+  }
+
+  Future<void> _validateRole() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+      final role = doc.data()?['role']?.toString();
+
+      if (!mounted) return;
+      if (role == 'reader') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ReaderGenreSelectionScreen(),
+          ),
+        );
+      }
+    } on FirebaseException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Failed to load role.')),
+      );
+    }
+  }
 
   void toggleGenre(String genre) {
     setState(() {
@@ -38,10 +74,53 @@ class _WriterGenreSelectionScreenState
   }
 
   Future<void> _goToHome() async {
-    final authProvider = context.read<AuthProvider>();
-    await authProvider.saveGenres(selectedGenres.toList());
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, AppRoutes.profileUpload);
+    if (selectedGenres.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one genre.')),
+      );
+      return;
+    }
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User session not found. Please sign in again.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update({
+        'genres': selectedGenres.toList(),
+        'profileCompleted': true,
+      });
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, AppRoutes.profileUpload);
+    } on FirebaseException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Failed to save genres.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong. Please try again.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   // 🎨 Exact Premium Colors (Image Match)
@@ -218,16 +297,26 @@ class _WriterGenreSelectionScreenState
                       ),
                     ),
                     onPressed: selectedGenres.isEmpty
+                        || _isLoading
                         ? null
                         : _goToHome,
-                    child: const Text(
-                      "Continue",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: bgDark,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: bgDark,
+                            ),
+                          )
+                        : const Text(
+                            "Continue",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: bgDark,
+                            ),
+                          ),
                   ),
                 ),
 
@@ -235,7 +324,7 @@ class _WriterGenreSelectionScreenState
 
                 /// 🔥 Skip Button
                 TextButton(
-                  onPressed: _goToHome,
+                  onPressed: _isLoading ? null : _goToHome,
                   child: const Text(
                     "Skip for now",
                     style: TextStyle(

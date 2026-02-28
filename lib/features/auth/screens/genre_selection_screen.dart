@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart';
 import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dart';
@@ -16,33 +18,77 @@ class _RoleSelectionScreenState
     extends State<RoleSelectionScreen> {
 
   String? selectedRole;
+  bool _isSaving = false;
 
-  Future<void> _handleRoleSelection(String role) async {
+  void _handleRoleSelection(String role) {
     setState(() {
       selectedRole = role;
     });
+  }
 
-    final authProvider = context.read<AuthProvider>();
-    await authProvider.setUserRole(role);
-
-    if (!mounted) return;
-
-    if (role == "reader") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const ReaderGenreSelectionScreen(),
-        ),
+  Future<void> _onContinue() async {
+    if (selectedRole == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a role to continue.')),
       );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const WriterGenreSelectionScreen(),
-        ),
+      return;
+    }
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User session not found. Please sign in again.')),
       );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final authProvider = context.read<AuthProvider>();
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update({'role': selectedRole});
+      await authProvider.setUserRole(selectedRole!);
+
+      if (!mounted) return;
+
+      if (selectedRole == "reader") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const ReaderGenreSelectionScreen(),
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const WriterGenreSelectionScreen(),
+          ),
+        );
+      }
+    } on FirebaseException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Failed to update role.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong. Please try again.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 
@@ -183,6 +229,42 @@ class _RoleSelectionScreenState
                 ),
 
                 const Spacer(),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFD86B),
+                      disabledBackgroundColor:
+                          const Color(0xFF5C4A80),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: _isSaving ? null : _onContinue,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF1F1533),
+                            ),
+                          )
+                        : const Text(
+                            "Continue",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1F1533),
+                            ),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),
