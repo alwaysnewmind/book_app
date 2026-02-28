@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:book_app/models/writer_book_model.dart';
 
 class BookModel {
   final String id;
@@ -10,15 +11,23 @@ class BookModel {
   final double rating;
   final int reviewCount;
   final int viewsCount;
-  final double totalEarnings;
+
+  /// Monetization
   final bool isPaid;
   final double price;
-  final DateTime createdAt;
+  final double totalEarnings;
 
-  /// Legacy compatibility for existing UI/screens
+  /// Favorites / Library
+  final bool isBookmarked;
+  final DateTime createdAt;
+  final DateTime? savedAt;
+
+  /// Assets
+  final String pdfPath;
+
+  /// 🔁 Legacy compatibility (DO NOT REMOVE)
   String get author => authorName;
   String get cover => coverUrl;
-  String get pdfPath => 'assets/original/book1.pdf';
 
   const BookModel({
     this.id = '',
@@ -30,15 +39,27 @@ class BookModel {
     this.rating = 0,
     this.reviewCount = 0,
     this.viewsCount = 0,
-    this.totalEarnings = 0,
     this.isPaid = false,
     this.price = 0,
+    this.totalEarnings = 0,
+    this.isBookmarked = false,
+    this.pdfPath = 'assets/original/book1.pdf',
     DateTime? createdAt,
+    this.savedAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  factory BookModel.fromMap(String id, Map<String, dynamic>? map) {
+  // -----------------------------
+  // 🔥 Firestore → BookModel
+  // -----------------------------
+  factory BookModel.fromMap(
+    String id,
+    Map<String, dynamic>? map, {
+    DateTime? savedAt,
+    bool isBookmarked = false,
+  }) {
     final data = map ?? <String, dynamic>{};
     final createdAtValue = data['createdAt'];
+
     return BookModel(
       id: id,
       title: data['title']?.toString() ?? '',
@@ -52,6 +73,8 @@ class BookModel {
       totalEarnings: (data['totalEarnings'] as num?)?.toDouble() ?? 0,
       isPaid: data['isPaid'] == true,
       price: (data['price'] as num?)?.toDouble() ?? 0,
+      isBookmarked: isBookmarked,
+      savedAt: savedAt,
       createdAt: createdAtValue is Timestamp
           ? createdAtValue.toDate()
           : createdAtValue is DateTime
@@ -60,6 +83,9 @@ class BookModel {
     );
   }
 
+  // -----------------------------
+  // 🔁 BookModel → Firestore
+  // -----------------------------
   Map<String, dynamic> toMap() {
     return {
       'title': title,
@@ -75,5 +101,53 @@ class BookModel {
       'price': price,
       'createdAt': Timestamp.fromDate(createdAt),
     };
+  }
+
+  // -----------------------------
+  // 🧠 Copy helper (Favorites toggle)
+  // -----------------------------
+  BookModel copyWith({
+    bool? isBookmarked,
+    DateTime? savedAt,
+  }) {
+    return BookModel(
+      id: id,
+      title: title,
+      description: description,
+      authorName: authorName,
+      coverUrl: coverUrl,
+      genre: genre,
+      rating: rating,
+      reviewCount: reviewCount,
+      viewsCount: viewsCount,
+      isPaid: isPaid,
+      price: price,
+      totalEarnings: totalEarnings,
+      pdfPath: pdfPath,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      savedAt: savedAt ?? this.savedAt,
+      createdAt: createdAt,
+    );
+  }
+
+  // -----------------------------
+  // ✍️ Reader → Writer bridge
+  // -----------------------------
+  Book toWriterBook() {
+    return Book(
+      id: id,
+      title: title,
+      author: authorName,
+      authorName: authorName,
+      coverImage: coverUrl,
+      summary: description,
+      rating: rating,
+      reviewCount: reviewCount,
+      isPaid: isPaid,
+      isPremium: isPaid,
+      price: price,
+      genre: genre,
+      viewsCount: viewsCount,
+    );
   }
 }
