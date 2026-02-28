@@ -18,7 +18,11 @@ import 'providers/reader_provider.dart';
 import 'providers/app_settings_provider.dart';
 import 'providers/book_provider.dart';
 import 'providers/story_analyzer_provider.dart';
+<<<<<<< HEAD
 import 'providers/reader_studio_provider.dart';
+=======
+import 'providers/discover_provider.dart';
+>>>>>>> origin/codex/implement-backend-logic-for-discover-screen
 import 'features/library/models/library_store.dart';
 
 void main() async {
@@ -63,6 +67,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ReaderStudioProvider()),
         ChangeNotifierProvider(create: (_) => BookProvider()..loadBooks()),
         ChangeNotifierProvider(create: (_) => StoryAnalyzerProvider()),
+        ChangeNotifierProvider(create: (_) => DiscoverProvider()..loadDiscoverData()),
         ChangeNotifierProvider(create: (_) => LibraryStore()),
         ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
       ],

@@ -13,9 +13,11 @@ const _covers = [
   'assets/books/book10.png',
 ];
 
-final List<Book> dummyBooks = List.generate(15, (index) {
-  final paid = index % 3 == 0;
+final List<Book> dummyBooks = List.generate(20, (index) {
+  final paid = index % 3 == 0 || index % 7 == 0;
   final id = 'book_${index + 1}';
+  final createdAt = DateTime.now().subtract(Duration(days: index * 3 + (index % 4)));
+
   return Book(
     id: id,
     title: [
@@ -34,6 +36,11 @@ final List<Book> dummyBooks = List.generate(15, (index) {
       'Fragments of Winter',
       'Beyond the Blue Bridge',
       'Ink, Dust & Dreams',
+      'Moonlight in Cedar Lane',
+      'The Quiet Storm Within',
+      'Chronicles of Aurora-9',
+      'The Orchard of Lost Days',
+      'Beneath Crimson Clouds',
     ][index],
     author: [
       'Aarav Sinha',
@@ -51,6 +58,11 @@ final List<Book> dummyBooks = List.generate(15, (index) {
       'Kabir Jain',
       'Nidhi Suri',
       'Rohan Pillai',
+      'Megha Thomas',
+      'Yash Malhotra',
+      'Ira Sen',
+      'Rahul Dutta',
+      'Prisha Kapoor',
     ][index],
     authorName: [
       'Aarav Sinha',
@@ -68,23 +80,40 @@ final List<Book> dummyBooks = List.generate(15, (index) {
       'Kabir Jain',
       'Nidhi Suri',
       'Rohan Pillai',
+      'Megha Thomas',
+      'Yash Malhotra',
+      'Ira Sen',
+      'Rahul Dutta',
+      'Prisha Kapoor',
     ][index],
-    authorId: 'writer_${(index % 5) + 1}',
+    authorId: 'writer_${(index % 8) + 1}',
     coverImage: _covers[index % _covers.length],
-    summary: 'An immersive story full of emotion, conflict and hope. Chapter by chapter, this book follows unforgettable characters across turning points in their lives.',
-    rating: 3.9 + ((index % 10) / 10),
-    reviewCount: 56 + (index * 17),
+    summary:
+        'An immersive story full of emotion, conflict and hope. Chapter by chapter, this book follows unforgettable characters across turning points in their lives.',
+    rating: 3.4 + ((index % 14) / 10),
+    reviewCount: 28 + (index * 19),
     isPaid: paid,
     isPremium: paid,
-    price: paid ? 99 + (index * 10).toDouble() : 0,
-    totalEarnings: paid ? 4200 + (index * 950).toDouble() : 0,
-    genre: ['Fantasy', 'Romance', 'Sci-Fi', 'Mystery', 'Drama'][index % 5],
-    viewsCount: 1200 + (index * 540),
+    price: paid ? (79 + (index * 12)).toDouble() : 0,
+    totalEarnings: paid ? (2800 + (index * 1025)).toDouble() : (300 + (index * 85)).toDouble(),
+    genre: [
+      'Fantasy',
+      'Romance',
+      'Sci-Fi',
+      'Mystery',
+      'Drama',
+      'Business',
+      'Poetry',
+      'Self Growth',
+    ][index % 8],
+    viewsCount: 850 + (index * 615),
     chapters: List.generate(
       3,
       (chapter) => 'Chapter ${chapter + 1}\n\nSample content for $id chapter ${chapter + 1}.',
     ),
-    totalReads: 420 + index * 30,
-    likes: 120 + index * 9,
+    totalReads: 250 + index * 44,
+    likes: 75 + index * 13,
+    createdAt: createdAt,
+    updatedAt: createdAt,
   );
 });

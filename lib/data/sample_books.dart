@@ -2,15 +2,19 @@ import '../models/book_model.dart';
 
 final List<BookModel> sampleBooks = [
   BookModel(
+    id: 'sample_1',
     title: "Test Book 1",
-    author: "Author One",
-    cover: "assets/images/book1.jpg", // optional
-    pdfPath: "assets/original/book1.pdf",
+    authorName: "Author One",
+    coverUrl: "assets/books/Book1.png",
+    description: 'Sample description',
+    genre: 'Fantasy',
   ),
   BookModel(
+    id: 'sample_2',
     title: "Test Book 2",
-    author: "Author Two",
-    cover: "assets/images/book2.jpg",
-    pdfPath: "assets/original/book2.pdf",
+    authorName: "Author Two",
+    coverUrl: "assets/books/Book2.png",
+    description: 'Sample description',
+    genre: 'Mystery',
   ),
 ];
