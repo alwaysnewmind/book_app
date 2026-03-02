@@ -1,12 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PremiumDashboard extends StatelessWidget {
+import '../../premium/presentation/premium_providers.dart';
+import '../../premium/presentation/premium_state.dart';
+
+class PremiumDashboard extends ConsumerWidget {
   const PremiumDashboard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(premiumControllerProvider);
+
+    ref.listen<PremiumState>(premiumControllerProvider, (previous, next) {
+      final message = next.message;
+      if (message != null && message.isNotEmpty && message != previous?.message) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+
+        ref.read(premiumControllerProvider.notifier).clearMessage();
+      }
+
+      if (next.status == PremiumStatus.success) {
+        Navigator.of(context).maybePop();
+      }
+    });
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1B1B2F), // lighter dark background
+      backgroundColor: const Color(0xFF1B1B2F),
       body: Container(
         decoration: const BoxDecoration(
           gradient: RadialGradient(
@@ -25,10 +46,8 @@ class PremiumDashboard extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 30),
-
-                  /// TITLE
                   const Text(
-                    "Unlock Premium Experience",
+                    'Unlock Premium Experience',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 26,
@@ -36,20 +55,15 @@ class PremiumDashboard extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
                   const Text(
-                    "Read unlimited. Write without limits.",
+                    'Read unlimited. Write without limits.',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white70,
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  /// PREMIUM ILLUSTRATION ICON
                   Container(
                     height: 130,
                     width: 130,
@@ -68,10 +82,7 @@ class PremiumDashboard extends StatelessWidget {
                       color: Colors.black,
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  /// FEATURES CARD
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -81,21 +92,18 @@ class PremiumDashboard extends StatelessWidget {
                         color: Colors.white.withOpacity(0.08),
                       ),
                     ),
-                    child: Column(
-                      children: const [
-                        _FeatureTile("Unlimited Book Downloads"),
-                        _FeatureTile("Ad-Free Reading Experience"),
-                        _FeatureTile("Early Access to New Releases"),
-                        _FeatureTile("Cloud Backup & Sync"),
-                        _FeatureTile("Exclusive Author Analytics"),
-                        _FeatureTile("Custom Themes & Fonts"),
+                    child: const Column(
+                      children: [
+                        _FeatureTile('Unlimited Book Downloads'),
+                        _FeatureTile('Ad-Free Reading Experience'),
+                        _FeatureTile('Early Access to New Releases'),
+                        _FeatureTile('Cloud Backup & Sync'),
+                        _FeatureTile('Exclusive Author Analytics'),
+                        _FeatureTile('Custom Themes & Fonts'),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 30),
-
-                  /// PLAN CARD
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -110,11 +118,11 @@ class PremiumDashboard extends StatelessWidget {
                         color: const Color(0xFFFFD700).withOpacity(0.4),
                       ),
                     ),
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          "Monthly Plan",
+                          'Monthly Plan',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -126,7 +134,7 @@ class PremiumDashboard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "₹199/month",
+                              '₹199/month',
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.white,
@@ -134,7 +142,7 @@ class PremiumDashboard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "₹1499/year",
+                              '₹1499/year',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white70,
@@ -144,7 +152,7 @@ class PremiumDashboard extends StatelessWidget {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          "Cancel anytime • Save 20%",
+                          'Cancel anytime • Save 20%',
                           style: TextStyle(
                             color: Colors.white54,
                             fontSize: 12,
@@ -153,10 +161,7 @@ class PremiumDashboard extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  /// START BUTTON
                   Container(
                     width: double.infinity,
                     height: 55,
@@ -170,44 +175,59 @@ class PremiumDashboard extends StatelessWidget {
                       ),
                     ),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: state.isProcessing
+                          ? null
+                          : () => ref.read(premiumControllerProvider.notifier).startTrial(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
+                        disabledBackgroundColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(40),
                         ),
                       ),
-                      child: const Text(
-                        "Start 7-Day Free Trial",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: state.isProcessing
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Start 7-Day Free Trial',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   const Text(
-                    "No commitment. Cancel anytime.",
+                    'No commitment. Cancel anytime.',
                     style: TextStyle(
                       color: Colors.white54,
                       fontSize: 12,
                     ),
                   ),
-
                   const SizedBox(height: 5),
-
-                  const Text(
-                    "Restore Purchase    Terms & Privacy",
-                    style: TextStyle(
-                      color: Colors.white38,
-                      fontSize: 12,
+                  GestureDetector(
+                    onTap: state.isProcessing
+                        ? null
+                        : () => ref
+                            .read(premiumControllerProvider.notifier)
+                            .restorePurchase(),
+                    child: const Text(
+                      'Restore Purchase    Terms & Privacy',
+                      style: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
-
                   const SizedBox(height: 30),
                 ],
               ),
@@ -219,7 +239,6 @@ class PremiumDashboard extends StatelessWidget {
   }
 }
 
-/// FEATURE TILE
 class _FeatureTile extends StatelessWidget {
   final String title;
 
