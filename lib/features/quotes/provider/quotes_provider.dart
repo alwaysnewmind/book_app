@@ -135,25 +135,24 @@ class QuotesProvider extends ChangeNotifier {
     }
 
     final quote = allQuotes[quoteIndex];
-    final hasLiked = quote.likedBy.contains(userId);
-
     try {
-      await _service.toggleLike(
+      final isNowLiked = await _service.toggleLike(
         quoteId: quoteId,
         userId: userId,
-        hasLiked: hasLiked,
       );
 
       final updatedLikedBy = List<String>.from(quote.likedBy);
-      if (hasLiked) {
-        updatedLikedBy.remove(userId);
+      if (isNowLiked) {
+        if (!updatedLikedBy.contains(userId)) {
+          updatedLikedBy.add(userId);
+        }
       } else {
-        updatedLikedBy.add(userId);
+        updatedLikedBy.remove(userId);
       }
 
       allQuotes[quoteIndex] = quote.copyWith(
         likedBy: updatedLikedBy,
-        likes: hasLiked ? math.max(quote.likes - 1, 0) : quote.likes + 1,
+        likes: isNowLiked ? quote.likes + 1 : math.max(quote.likes - 1, 0),
       );
 
       filterQuotes();

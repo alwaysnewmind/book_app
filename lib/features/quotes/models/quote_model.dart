@@ -23,15 +23,17 @@ class QuoteModel {
 
   factory QuoteModel.fromJson(String id, Map<String, dynamic>? json) {
     final safeJson = json ?? <String, dynamic>{};
+    final rawCategory = safeJson['category'];
+    final normalizedCategory = rawCategory is String ? rawCategory.trim() : '';
 
     return QuoteModel(
       id: id,
-      category: (safeJson['category'] as String?)?.trim().isNotEmpty == true
-          ? safeJson['category'] as String
-          : 'Emotional',
-      quote: (safeJson['quote'] as String?) ?? '',
-      author: (safeJson['author'] as String?) ?? 'Unknown',
-      tag: (safeJson['tag'] as String?) ?? '',
+      category: normalizedCategory.isNotEmpty ? normalizedCategory : 'Emotional',
+      quote: (safeJson['quote'] as String?)?.trim() ?? '',
+      author: (safeJson['author'] as String?)?.trim().isNotEmpty == true
+          ? (safeJson['author'] as String).trim()
+          : 'Unknown',
+      tag: (safeJson['tag'] as String?)?.trim() ?? '',
       likes: (safeJson['likes'] as num?)?.toInt() ?? 0,
       likedBy: (safeJson['likedBy'] as List<dynamic>?)
               ?.map((item) => item.toString())

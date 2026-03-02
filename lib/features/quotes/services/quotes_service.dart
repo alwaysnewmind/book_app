@@ -40,18 +40,28 @@ class QuotesService {
     });
   }
 
-  Future<void> toggleLike({
+  Future<bool> toggleLike({
     required String quoteId,
     required String userId,
-    required bool hasLiked,
   }) async {
     final docRef = _quotesCollection.doc(quoteId);
+    return _firestore.runTransaction<bool>((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      final data = snapshot.data() ?? <String, dynamic>{};
+      final likedBy = (data['likedBy'] as List<dynamic>?)
+              ?.map((item) => item.toString())
+              .toList() ??
+          <String>[];
+      final hasLiked = likedBy.contains(userId);
 
-    await docRef.update(<String, dynamic>{
-      'likedBy': hasLiked
-          ? FieldValue.arrayRemove(<String>[userId])
-          : FieldValue.arrayUnion(<String>[userId]),
-      'likes': FieldValue.increment(hasLiked ? -1 : 1),
+      transaction.update(docRef, <String, dynamic>{
+        'likedBy': hasLiked
+            ? FieldValue.arrayRemove(<String>[userId])
+            : FieldValue.arrayUnion(<String>[userId]),
+        'likes': FieldValue.increment(hasLiked ? -1 : 1),
+      });
+
+      return !hasLiked;
     });
   }
 }
