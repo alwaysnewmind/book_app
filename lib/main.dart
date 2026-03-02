@@ -18,12 +18,10 @@ import 'providers/reader_provider.dart';
 import 'providers/app_settings_provider.dart';
 import 'providers/book_provider.dart';
 import 'providers/story_analyzer_provider.dart';
-<<<<<<< HEAD
 import 'providers/reader_studio_provider.dart';
 import 'providers/discover_provider.dart';
-=======
 import 'providers/writer_provider.dart';
->>>>>>> origin/codex/audit-and-polish-writer-studio-logic
+import 'features/story_analytics/provider/story_analytics_provider.dart';
 import 'features/library/models/library_store.dart';
 
 void main() async {
@@ -68,11 +66,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ReaderStudioProvider()),
         ChangeNotifierProvider(create: (_) => BookProvider()..loadBooks()),
         ChangeNotifierProvider(create: (_) => StoryAnalyzerProvider()),
-
         ChangeNotifierProvider(create: (_) => DiscoverProvider()..loadDiscoverData()),
-
         ChangeNotifierProvider(create: (_) => WriterProvider()),
-        origin/codex/audit-and-polish-writer-studio-logic
+        ChangeNotifierProvider(create: (_) => StoryAnalyticsProvider()),
         ChangeNotifierProvider(create: (_) => LibraryStore()),
         ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
       ],
@@ -109,9 +105,7 @@ class MyApp extends StatelessWidget {
           /// 🔥 CENTRAL ROUTES
           routes: AppRoutes.routes,
         );
-      
       },
     );
   }
-  
 }
