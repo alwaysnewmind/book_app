@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:book_app/providers/auth_provider.dart';
 
 class WriterProfileScreen extends StatelessWidget {
   const WriterProfileScreen({super.key});
@@ -45,8 +48,26 @@ class WriterProfileScreen extends StatelessWidget {
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader();
 
+  String _initialsFromName(String value) {
+    final parts = value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+    if (parts.isEmpty) return 'U';
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().currentUser;
+    final displayName = (user?.name.trim().isNotEmpty ?? false)
+        ? user!.name.trim()
+        : 'User';
+    final initials = _initialsFromName(displayName);
+    final userDetails = [
+      if (user?.email.trim().isNotEmpty ?? false) user!.email.trim(),
+      if (user?.phone.trim().isNotEmpty ?? false) user!.phone.trim(),
+      if (user?.city.trim().isNotEmpty ?? false) user!.city.trim(),
+    ];
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -89,12 +110,12 @@ class _ProfileHeader extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const CircleAvatar(
+                child: CircleAvatar(
+                  backgroundColor: const Color(0xFF251A3F),
                   radius: 52,
-                  backgroundColor: Color(0xFF251A3F),
                   child: Text(
-                    "AM",
-                    style: TextStyle(
+                    initials,
+                    style: const TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFFF5C84C),
@@ -105,18 +126,18 @@ class _ProfileHeader extends StatelessWidget {
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
-                    "Aman Mehra",
-                    style: TextStyle(
+                    displayName,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: 0.6,
                     ),
                   ),
-                  SizedBox(width: 6),
-                  Icon(
+                  const SizedBox(width: 6),
+                  const Icon(
                     Icons.verified,
                     color: Color(0xFFF5C84C),
                     size: 18,
@@ -124,12 +145,14 @@ class _ProfileHeader extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
-                  "Bestselling fiction writer. Passionate about storytelling and emotional thrillers.",
+                  userDetails.isEmpty
+                      ? 'No profile details available.'
+                      : userDetails.join(' • '),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFCFC8E8),
                     fontSize: 13,
                     height: 1.4,
