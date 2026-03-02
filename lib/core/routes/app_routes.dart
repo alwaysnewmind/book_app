@@ -54,7 +54,8 @@ import '../../features/home/mainicon/premium_dashboard.dart';
 import '../../features/home/mainicon/offline_vault.dart';
 import '../../features/home/mainicon/audio_book_dashboard.dart';
 import '../../features/home/mainicon/content_writing_dashboard.dart';
-import '../../features/home/mainicon/review_dashboard.dart';
+import 'package:book_app/features/reviews/provider/review_provider.dart';
+import 'package:book_app/features/reviews/review_dashboard_screen.dart';
 import '../../features/home/mainicon/category_dashboard.dart';
 import '../../features/home/mainicon/book_battle_dashboard.dart';
 import '../../features/home/mainicon/quotes_dashboard.dart';
@@ -163,7 +164,13 @@ class AppRoutes {
         isPrivateChat: (args?['isPrivateChat'] as bool?) ?? false,
       );
     },
-    reviewDashboard: (_) => const ReviewDashboardScreen(),
+    reviewDashboard: (context) {
+      final bookId = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'BOOK_ID';
+      return ChangeNotifierProvider(
+        create: (_) => ReviewProvider(),
+        child: ReviewDashboardScreen(bookId: bookId),
+      );
+    },
     categoryDashboard: (_) => const CategoryDashboard(),
     bookBattleDashboard: (_) => const BookBattleDashboard(),
     quotesDashboard: (_) => const QuotesDashboard(),
