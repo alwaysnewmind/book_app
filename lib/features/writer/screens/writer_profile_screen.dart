@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 
 class WriterProfileScreen extends StatelessWidget {
   const WriterProfileScreen({super.key});

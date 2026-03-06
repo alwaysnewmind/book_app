@@ -1,7 +1,7 @@
 import 'package:book_app/core/theme/app_colors.dart';
 import 'package:book_app/features/subscription/reader_subscription_screen.dart';
 import 'package:book_app/models/user_model.dart';
-import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

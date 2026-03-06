@@ -14,7 +14,6 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
   static const Color goldPrimary = Color(0xFFF5C84C);
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFFCFC8E8);
-  static const Color textMuted = Color(0xFF9F96C8);
   static const Color cardFill = Color(0xFF251A3F);
   static const Color cardBorder = Color(0xFF3A2D5C);
 

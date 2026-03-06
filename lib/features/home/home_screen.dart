@@ -1,4 +1,5 @@
-import 'package:book_app/core/theme/app_colors.dart';
+import 'package:book_app/features/home/widgets/featured_books.dart' show FeaturedBooks;
+import 'package:book_app/navigation/bottom_nav.dart' show BottomNav;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ import 'widgets/services_section.dart';
 import 'widgets/sweet_banner.dart';
 
 // data
-import '../../shared/widgets/data/home_services.dart';
+import 'package:book_app/features/home/widgets/home_services.dart';
 import 'package:book_app/services/auth_service.dart';
 import 'package:book_app/services/role_service.dart';
 import 'package:book_app/core/routes/app_routes.dart';
@@ -111,6 +112,31 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+
+      // ✅ Bottom Navigation Properly Placed
+          bottomNavigationBar: BottomNav(
+            currentIndex: 0,
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  Navigator.pushReplacementNamed(context, AppRoutes.home);
+                  break;
+                case 1:
+                  Navigator.pushReplacementNamed(
+                      context, AppRoutes.writerDashboard);
+                  break;
+                case 2:
+                  Navigator.pushReplacementNamed(context, AppRoutes.library);
+                  break;
+                case 3:
+                  Navigator.pushNamed(
+                      context, AppRoutes.profile);
+                  break;
+              }
+            },
+          ),
+
+
       body: Container(
         decoration: const BoxDecoration(
           gradient: RadialGradient(

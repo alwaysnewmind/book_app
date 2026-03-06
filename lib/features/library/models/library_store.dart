@@ -12,12 +12,13 @@ class LibraryStore extends ChangeNotifier {
   static final LibraryStore instance = LibraryStore();
 
   static final List<LibraryBook> dummyBooks = [
-    LibraryBook(
+    const LibraryBook(
       id: 'lb-001',
       title: 'The Silent Reader',
       author: 'Elena Hart',
       category: 'Mystery',
       imagePath: 'assets/books/Book1.png',
+      pdfPath: 'assets/books/Book1.png',
       progress: 0.65,
       favorite: true,
       downloaded: true,
@@ -28,56 +29,62 @@ class LibraryStore extends ChangeNotifier {
       ],
       lastReadChapter: 1,
     ),
-    LibraryBook(
+    const LibraryBook(
       id: 'lb-002',
       title: 'Deep Work Habits',
       author: 'Marcus Vale',
       category: 'Productivity',
       imagePath: 'assets/books/Book2.png',
+      pdfPath: 'assets/books/Book1.png',
       progress: 0.35,
       favorite: false,
       downloaded: true,
       chapters: ['Part 1', 'Part 2', 'Part 3'],
     ),
-    LibraryBook(
+    const LibraryBook(
       id: 'lb-003',
       title: 'Golden Mindset',
       author: 'Priya Sethi',
       category: 'Self Growth',
       imagePath: 'assets/books/Book3.png',
+      pdfPath: 'assets/books/Book1.png',
       progress: 1.0,
       favorite: true,
       chapters: ['Mindset', 'Focus', 'Consistency'],
       lastReadChapter: 2,
     ),
-    LibraryBook(
+    const LibraryBook(
       id: 'lb-004',
       title: 'Whispers of Dawn',
       author: 'Nikhil Rao',
       category: 'Fantasy',
       imagePath: 'assets/books/Book4.png',
+      
+      pdfPath: 'assets/books/Book1.png',
       progress: 0.0,
       favorite: false,
       chapters: ['Prologue', 'The Forest', 'The Oath'],
     ),
-    LibraryBook(
+    const LibraryBook(
       id: 'lb-005',
       title: 'The Last Formula',
       author: 'Aarav Menon',
       category: 'Thriller',
       imagePath: 'assets/books/Book5.png',
+      pdfPath: 'assets/books/Book1.png',
       progress: 0.8,
       favorite: true,
       downloaded: true,
       chapters: ['Origin', 'Breakpoint', 'Final Cipher'],
       lastReadChapter: 2,
     ),
-    LibraryBook(
+    const LibraryBook(
       id: 'lb-006',
       title: 'Letters to the Moon',
       author: 'Sara Qureshi',
       category: 'Romance',
       imagePath: 'assets/books/Book6.png',
+      pdfPath: 'assets/books/Book1.png',
       progress: 1.0,
       favorite: false,
       chapters: ['Letter One', 'Letter Two', 'Letter Three'],

@@ -1,26 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:book_app/models/writer_book_model.dart';
 
-// Dummy chapter model
-class Chapter {
-  String title;
-  Chapter(this.title);
-}
-
-// Dummy book model
-class Book {
-  String title;
-  String description;
-  String? coverImage;
-  List<Chapter> chapters;
-  Book({
-    required this.title,
-    required this.description,
-    this.coverImage,
-    required this.chapters,
-  });
-}
 
 class WriterPublishPage extends StatefulWidget {
   const WriterPublishPage({super.key});
@@ -31,9 +13,12 @@ class WriterPublishPage extends StatefulWidget {
 
 class _WriterPublishPageState extends State<WriterPublishPage> {
   final Book book = Book(
-    title: "Untitled Book",
-    description: "",
-    chapters: [Chapter("Chapter 1")],
+  id: "book_1",
+  title: "Untitled Book",
+  author: "Unknown Author",
+  coverImage: "",
+  summary: "",
+  chapters: [],
   );
 
   final TextEditingController _titleController = TextEditingController();
@@ -68,7 +53,7 @@ class _WriterPublishPageState extends State<WriterPublishPage> {
   void _addChapter() {
     setState(() {
       book.chapters
-          .add(Chapter("Chapter ${book.chapters.length + 1}"));
+          .add("Chapter ${book.chapters.length + 1}",);
     });
   }
 
@@ -249,7 +234,7 @@ class _WriterPublishPageState extends State<WriterPublishPage> {
                                           .spaceBetween,
                                   children: [
                                     Text(
-                                      chapter.title,
+                                      chapter,
                                       style:
                                           const TextStyle(
                                         color:

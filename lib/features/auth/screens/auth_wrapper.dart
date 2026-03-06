@@ -20,7 +20,7 @@ class AuthWrapper extends StatelessWidget {
 
   _AuthDestination _resolveRouteFromProfile(Map<String, dynamic>? profile) {
     if (profile == null) {
-      return _AuthDestination.login;
+      return _AuthDestination.roleSelection;
     }
 
     final role = profile['role']?.toString();
@@ -46,36 +46,58 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: AuthService.instance.authStateChanges(),
       builder: (context, authSnapshot) {
+
+        /// 🔄 Waiting for Firebase auth state
         if (authSnapshot.connectionState == ConnectionState.waiting) {
           return const SplashScreen();
         }
 
+        /// ❌ Auth stream error
+        if (authSnapshot.hasError) {
+          return const LoginScreen();
+        }
+
         final user = authSnapshot.data;
+
+        /// 👤 User not logged in
         if (user == null) {
           return const LoginScreen();
         }
 
+        /// 🔄 Fetch user profile from Firestore
         return StreamBuilder<Map<String, dynamic>?>(
           stream: RoleService.instance.userProfileStream(user.uid),
           builder: (context, profileSnapshot) {
+
             if (profileSnapshot.connectionState == ConnectionState.waiting) {
               return const SplashScreen();
             }
 
+            /// ❌ Firestore error fallback (avoid infinite splash)
             if (profileSnapshot.hasError) {
-              return const LoginScreen();
+              return const HomeScreen();
             }
 
-            final destination = _resolveRouteFromProfile(profileSnapshot.data);
+            /// 🆕 If profile not created yet
+            if (!profileSnapshot.hasData) {
+              return const RoleSelectionScreen();
+            }
+
+            final destination =
+                _resolveRouteFromProfile(profileSnapshot.data);
+
             switch (destination) {
               case _AuthDestination.admin:
                 return const AdminDashboard();
+
               case _AuthDestination.roleSelection:
                 return const RoleSelectionScreen();
+
               case _AuthDestination.home:
                 return const HomeScreen();
+
               case _AuthDestination.login:
-              default:
+              
                 return const LoginScreen();
             }
           },

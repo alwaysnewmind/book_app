@@ -7,7 +7,8 @@ import 'package:book_app/features/writer/screens/writer_dashboard.dart';
 import 'package:book_app/features/profile/profile_screen.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/core/theme/app_colors.dart';
-import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
+
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});

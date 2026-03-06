@@ -1,19 +1,10 @@
-<<<<<<< HEAD
+import 'package:book_app/features/library/models/library_book.dart';
 import 'package:book_app/features/reader/controller/pdf_reader_controller.dart';
 import 'package:book_app/features/reader/controller/reader_controller.dart';
-import 'package:book_app/features/reader/data/dummy_reader_data.dart';
 import 'package:flutter/material.dart';
 
 class PdfReaderScreen extends StatefulWidget {
-  final ReaderBook book;
-=======
-import 'package:book_app/features/book/book_reader_screen.dart';
-import 'package:book_app/features/library/models/library_book.dart';
-import 'package:flutter/material.dart';
-
-class PdfReaderScreen extends StatelessWidget {
   final LibraryBook book;
->>>>>>> codex/complete-library-flow-functionality
 
   const PdfReaderScreen({
     super.key,
@@ -21,7 +12,6 @@ class PdfReaderScreen extends StatelessWidget {
   });
 
   @override
-<<<<<<< HEAD
   State<PdfReaderScreen> createState() => _PdfReaderScreenState();
 }
 
@@ -54,6 +44,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
     }
 
     _pdfController.onPageChanged(nextPage);
+
     _readerController.updateBookProgress(
       widget.book.id,
       nextPage,
@@ -74,6 +65,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
         animation: _pdfController,
         builder: (context, _) {
           final currentPage = _pdfController.currentPage;
+
           final progressValue = _demoTotalPages == 0
               ? 0.0
               : currentPage / _demoTotalPages;
@@ -100,7 +92,10 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                   child: Container(
                     width: double.infinity,
                     alignment: Alignment.center,
-                    child: Text('PDF: ${widget.book.pdfPath}'),
+                    child: Text(
+                      'PDF Path: ${widget.book.pdfPath}',
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
 
@@ -125,9 +120,3 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
     );
   }
 }
-=======
-  Widget build(BuildContext context) {
-    return BookReaderScreen(book: book);
-  }
-}
->>>>>>> codex/complete-library-flow-functionality

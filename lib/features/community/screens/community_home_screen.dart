@@ -22,7 +22,6 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
   static const Color bgDeep = Color(0xFF140F26);
 
   static const Color goldPrimary = Color(0xFFF5C84C);
-  static const Color goldDark = Color(0xFFE6B93E);
   static const Color goldGlow = Color(0xFFFFD76A);
 
   static const Color textPrimary = Color(0xFFFFFFFF);

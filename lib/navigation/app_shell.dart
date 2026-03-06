@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +10,7 @@ import 'package:book_app/features/library/screens/my_library_screen.dart';
 import 'package:book_app/features/auth/screens/auth_wrapper.dart';
 import 'package:book_app/features/auth/widgets/role_guard.dart';
 
-import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'package:book_app/navigation/bottom_nav.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/services/role_service.dart';

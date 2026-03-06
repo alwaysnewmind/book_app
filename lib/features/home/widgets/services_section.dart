@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../shared/widgets/data/home_services.dart';
+import 'package:book_app/features/home/widgets/home_services.dart';
 
 class ServicesSection extends StatelessWidget {
   final String title;
@@ -17,16 +17,16 @@ class ServicesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(22),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
-              color:const Color(0xFF2F2B4D),
+              color: const Color(0xFF2F2B4D),
               border: Border.all(
                 color: const Color(0xFF3A3A5A),
               ),
@@ -45,7 +45,7 @@ class ServicesSection extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
 
                 /// 🔹 Services Grid
                 GridView.builder(
@@ -55,50 +55,51 @@ class ServicesSection extends StatelessWidget {
                   gridDelegate:
                       SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 1.05, // Compact layout
+                    mainAxisSpacing: 18,
+                    crossAxisSpacing: 18,
+                    childAspectRatio: 0.65, // ✅ FIXED (prevents overflow)
                   ),
                   itemBuilder: (context, index) {
                     final service = services[index];
 
                     return InkWell(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                       onTap: () =>
                           Navigator.pushNamed(context, service.route),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
 
                           /// 🔹 Icon Circle
-                           Container(
-                      height: 64,
-                      width: 64,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color(0xFFFFD600), // Gold Ring
-                          width: 2,
-                        ),
-                      ),
-                      child: Center(
-                        child: Container(
-                          height: 48,
-                          width: 48,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0xFF2B3250), // Inner Purple
-                          ),
-                          child: Icon(
-                            service.icon,
-                            size: 28,
-                            color: Color(0xFFFFD600),
+                          Container(
+                            height: 56,
+                            width: 56,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFFFD600),
+                                width: 2,
+                              ),
+                            ),
+                            child: Center(
+                              child: Container(
+                                height: 44,
+                                width: 44,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xFF2B3250),
+                                ),
+                                child: Icon(
+                                  service.icon,
+                                  size: 26,
+                                  color: const Color(0xFFFFD600),
+                                ),
+                              ),
                             ),
                           ),
-                      ),
-                           ),
 
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
 
                           /// 🔹 Title
                           Text(
@@ -107,7 +108,7 @@ class ServicesSection extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 11.5,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFFE2E2E5),
                             ),
@@ -125,3 +126,9 @@ class ServicesSection extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+

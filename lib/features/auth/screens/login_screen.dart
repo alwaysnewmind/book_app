@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:book_app/navigation/app_shell.dart';
-import '../../../providers/auth_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'package:book_app/core/theme/app_colors.dart';
 import 'package:book_app/features/auth/screens/signup_screen.dart';
 

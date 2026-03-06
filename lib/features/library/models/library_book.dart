@@ -8,6 +8,8 @@ class LibraryBook {
   /// Book title
   final String title;
 
+   final String pdfPath;
+
   /// Book author
   final String author;
 
@@ -39,6 +41,7 @@ class LibraryBook {
     required this.author,
     required this.category,
     required this.imagePath,
+     required this.pdfPath,
     this.progress = 0.0,
     this.downloaded = false,
     this.favorite = false,
@@ -55,6 +58,7 @@ class LibraryBook {
     double? progress,
     bool? downloaded,
     bool? favorite,
+    String? pdfPath,
     List<String>? chapters,
     int? lastReadChapter,
   }) {
@@ -68,6 +72,7 @@ class LibraryBook {
       downloaded: downloaded ?? this.downloaded,
       favorite: favorite ?? this.favorite,
       chapters: chapters ?? this.chapters,
+       pdfPath: pdfPath ?? this.pdfPath,
       lastReadChapter: lastReadChapter ?? this.lastReadChapter,
     );
   }
@@ -83,6 +88,7 @@ class LibraryBook {
       'downloaded': downloaded,
       'favorite': favorite,
       'chapters': chapters,
+       'pdfPath': pdfPath,
       'lastReadChapter': lastReadChapter,
     };
   }
@@ -96,9 +102,12 @@ class LibraryBook {
       imagePath: json['imagePath'] as String,
       progress: (json['progress'] ?? 0.0).toDouble(),
       downloaded: json['downloaded'] ?? false,
+        pdfPath: json['pdfPath'] as String? ?? "", 
       favorite: json['favorite'] ?? false,
       chapters: List<String>.from(json['chapters'] ?? []),
       lastReadChapter: json['lastReadChapter'] ?? 0,
     );
   }
+
+
 }

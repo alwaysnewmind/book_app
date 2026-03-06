@@ -7,8 +7,8 @@ import 'package:book_app/features/reader/widgets/reader_recommended_books_grid.d
 import 'package:book_app/features/reader/widgets/reader_section.dart';
 import 'package:book_app/features/reader/widgets/reader_stats_grid.dart';
 import 'package:book_app/features/reader/widgets/reading_task_section.dart';
-import 'package:book_app/providers/auth_provider.dart';
-import 'package:book_app/providers/reader_studio_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
+import 'package:book_app/features/reader/provider/reader_studio_provider.dart';
 import 'package:book_app/shared/widgets/app_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,14 +19,32 @@ class ReaderDashboardScreen extends StatefulWidget {
   const ReaderDashboardScreen({super.key});
 
   @override
-  State<ReaderDashboardScreen> createState() => _ReaderDashboardScreenState();
+  State<ReaderDashboardScreen> createState() =>
+      _ReaderDashboardScreenState();
 }
 
 class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
-  static const double _horizontalPadding = 16;
-  static const double _sectionSpacing = 28;
+  static const double _horizontalPadding = 20;
+  static const double _sectionSpacing = 36;
 
   final ReaderController _readerController = ReaderController();
+
+  // 🌌 LUXURY COLOR SYSTEM (UPDATED)
+  static const Color bgPrimary = Color(0xFF1F1533);
+  static const Color bgMid = Color(0xFF2A1E47);
+  static const Color bgEnd = Color(0xFF140F26);
+
+  static const Color gold = Color(0xFFF5C84C);
+  static const Color goldGlow = Color(0xFFFFD76A);
+
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFCFC8E8);
+  static const Color textMuted = Color(0xFF9F96C8);
+
+  // 🔥 UPDATED CARD COLORS (No More White)
+  static const Color cardFill = Color(0xFF251A3F);
+  static const Color cardSoft = Color(0xFF2E224F); // NEW
+  static const Color borderInactive = Color(0xFF3A2D5C);
 
   @override
   void initState() {
@@ -49,7 +67,8 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
       return;
     }
 
-    await studioProvider.loadReaderStudioData(userId: authProvider.currentUser?.uid);
+    await studioProvider.loadReaderStudioData(
+        userId: authProvider.currentUser?.uid);
 
     final error = studioProvider.errorMessage;
     if (error != null && mounted) {
@@ -105,115 +124,167 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Consumer<ReaderStudioProvider>(
       builder: (context, studioProvider, _) {
         final continueReadingBooks = studioProvider.getContinueReading();
         final recentlyReadBooks = studioProvider.getRecentlyRead();
         final favoriteBooks = studioProvider.getQuickAccessFavorites();
-        final featuredBooks = favoriteBooks.isNotEmpty ? favoriteBooks : recentlyReadBooks;
-        final recommendedBooks = studioProvider.getRecommendedBooks();
+        final featuredBooks =
+            favoriteBooks.isNotEmpty ? favoriteBooks : recentlyReadBooks;
+        final recommendedBooks =
+            studioProvider.getRecommendedBooks();
 
         return Scaffold(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          body: SafeArea(
-            child: RefreshIndicator(
-              onRefresh: _loadData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const ReaderHeader(),
-                    const SizedBox(height: 28),
+          backgroundColor: bgPrimary,
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [bgPrimary, bgMid, bgEnd],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: SafeArea(
+              child: RefreshIndicator(
+                color: gold,
+                backgroundColor: cardFill,
+                onRefresh: _loadData,
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-                    /// Stats
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
-                      child: AnimatedBuilder(
-                        animation: _readerController,
-                        builder: (context, _) {
-                          return ReaderStatsGrid(
-                            controller: _readerController,
-                            onTap: _openAnalytics,
-                          );
-                        },
+                      /// 🔥 HEADER (Make sure ReaderHeader uses dark grey)
+                      const ReaderHeader(),
+
+                      const SizedBox(height: 42),
+
+                      /// 🔥 STATS CARD (Dark Soft Background)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: _horizontalPadding),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: cardSoft,
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(color: borderInactive),
+                            boxShadow: [
+                              BoxShadow(
+                                color: goldGlow.withOpacity(0.15),
+                                blurRadius: 25,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(24),
+                          child: AnimatedBuilder(
+                            animation: _readerController,
+                            builder: (context, _) {
+                              return ReaderStatsGrid(
+                                controller: _readerController,
+                                onTap: _openAnalytics,
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: _sectionSpacing),
-
-                    /// Analytics
-                    ReaderAnalyticsWidget(onTap: _openAnalytics),
-
-                    const SizedBox(height: _sectionSpacing),
-
-                    if (studioProvider.isLoading)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    else if (studioProvider.allBooks.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: Center(child: Text('No Reader Studio data found.')),
-                      )
-                    else ...[
-                      /// Continue Reading
-                      const ReaderSectionTitle(title: 'Continue Reading'),
-                      continueReadingBooks.isEmpty
-                          ? const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              child: Text('No books in progress yet.'),
-                            )
-                          : ContinueReadingSlider(
-                              books: continueReadingBooks,
-                              onBookTap: _openPdfReader,
-                              onBookLongPress: _toggleBookmark,
-                            ),
 
                       const SizedBox(height: _sectionSpacing),
 
-                      /// Featured Books
-                      const ReaderSectionTitle(title: 'Featured Books'),
-                      featuredBooks.isEmpty
-                          ? const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              child: Text('No recently read books yet.'),
-                            )
-                          : ContinueReadingSlider(
-                              books: featuredBooks,
-                              onBookTap: _openPdfReader,
-                              onBookLongPress: _toggleBookmark,
+                      /// 🔥 ANALYTICS CARD
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: _horizontalPadding),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: cardSoft,
+                            borderRadius: BorderRadius.circular(26),
+                            border: Border.all(color: borderInactive),
+                          ),
+                          padding: const EdgeInsets.all(22),
+                          child: ReaderAnalyticsWidget(
+                            onTap: _openAnalytics,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: _sectionSpacing + 6),
+
+                      if (studioProvider.isLoading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 60),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: gold,
+                              strokeWidth: 3,
                             ),
-
-                      const SizedBox(height: _sectionSpacing),
-
-                      /// Recommended
-                      const ReaderSectionTitle(title: 'Recommended For You'),
-                      recommendedBooks.isEmpty
-                          ? const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              child: Text('No recommendations available.'),
-                            )
-                          : RecommendedBooksGrid(
-                              books: recommendedBooks,
-                              onBookTap: _openPdfReader,
-                              onBookLongPress: _toggleBookmark,
+                          ),
+                        )
+                      else if (studioProvider.allBooks.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 20),
+                          child: Center(
+                            child: Text(
+                              'No Reader Studio data found.',
+                              style: TextStyle(
+                                color: textMuted,
+                                fontSize: 15,
+                              ),
                             ),
+                          ),
+                        )
+                      else ...[
 
-                      const SizedBox(height: _sectionSpacing),
+                        const ReaderSectionTitle(title: 'Continue Reading'),
+                        ContinueReadingSlider(
+                          books: continueReadingBooks,
+                          onBookTap: _openPdfReader,
+                          onBookLongPress: _toggleBookmark,
+                        ),
+
+                        const SizedBox(height: _sectionSpacing),
+
+                        const ReaderSectionTitle(title: 'Featured Books'),
+                        ContinueReadingSlider(
+                          books: featuredBooks,
+                          onBookTap: _openPdfReader,
+                          onBookLongPress: _toggleBookmark,
+                        ),
+
+                        const SizedBox(height: _sectionSpacing),
+
+                        const ReaderSectionTitle(title: 'Recommended For You'),
+                        RecommendedBooksGrid(
+                          books: recommendedBooks,
+                          onBookTap: _openPdfReader,
+                          onBookLongPress: _toggleBookmark,
+                        ),
+
+                        const SizedBox(height: _sectionSpacing),
+                      ],
+
+                      const ReaderSectionTitle(title: 'Reading Tasks'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: _horizontalPadding),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: cardSoft,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: borderInactive),
+                          ),
+                          padding: const EdgeInsets.all(18),
+                          child: ReadingTaskSection(
+                            onTaskTap: (_) => _openAnalytics(),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 80),
                     ],
-
-                    /// Reading Tasks
-                    const ReaderSectionTitle(title: 'Reading Tasks'),
-                    ReadingTaskSection(
-                      onTaskTap: (_) => _openAnalytics(),
-                    ),
-
-                    const SizedBox(height: 40),
-                  ],
+                  ),
                 ),
               ),
             ),

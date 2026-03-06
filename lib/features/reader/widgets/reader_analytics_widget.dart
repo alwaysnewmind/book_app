@@ -17,7 +17,7 @@ class ReaderAnalyticsWidget extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(

@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:book_app/core/routes/app_routes.dart';
-import 'package:book_app/features/book/book_detail_screen.dart';
-import 'package:book_app/providers/writer_provider.dart';
+import 'package:book_app/features/book/screen/book_detail_screen.dart';
+import 'package:book_app/features/writer/provider/writer_provider.dart';
 import 'package:book_app/shared/widgets/app_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -239,9 +239,7 @@ class _WriterDashboardState extends State<WriterDashboard> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) => BookDetailScreen(
-                                              imagePath: book.coverImage,
-                                              title: book.title,
-                                              isLocked: book.isPremium,
+                                             book: book,
                                             ),
                                           ),
                                         );

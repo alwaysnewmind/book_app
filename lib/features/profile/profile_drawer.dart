@@ -1,6 +1,6 @@
 import 'package:book_app/core/routes/app_routes.dart';
-import 'package:book_app/features/home/mainicon/favorites_dashboard.dart';
-import 'package:book_app/features/home/mainicon/offline_vault.dart';
+import 'package:book_app/features/home/mainicon/favorites icon/favorites_dashboard.dart';
+import 'package:book_app/features/home/mainicon/offline icon/offline_vault.dart';
 import 'package:flutter/material.dart';
 
 class ProfileDrawer extends StatelessWidget {

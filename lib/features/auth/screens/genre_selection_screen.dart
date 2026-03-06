@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:provider/provider.dart';
 import 'package:book_app/features/auth/screens/reader_genre_selection_screen.dart';
 import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dart';
-import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'package:book_app/services/user_service.dart';
 
 class RoleSelectionScreen extends StatefulWidget {

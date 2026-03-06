@@ -9,7 +9,7 @@ class ReaderHeader extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xff4A6CF7), Color(0xff6A8DFF)],
+          colors: [Color(0xFF1A1A1A), Color(0xFF1A1A1A)],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(30),

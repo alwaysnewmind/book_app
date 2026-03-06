@@ -1,5 +1,3 @@
-import 'package:book_app/providers/app_settings_provider.dart';
-import 'package:flutter/material.dart';
 class AppStrings {
   static Map<String, Map<String, String>> localizedValues = {
     'en': {

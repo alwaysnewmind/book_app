@@ -6,7 +6,7 @@ import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dar
 import 'package:book_app/features/auth/screens/auth_wrapper.dart';
 
 class ReaderGenreSelectionScreen extends StatefulWidget {
-  const ReaderGenreSelectionScreen({Key? key}) : super(key: key);
+  const ReaderGenreSelectionScreen({super.key});
 
   @override
   State<ReaderGenreSelectionScreen> createState() =>
@@ -76,10 +76,8 @@ class _ReaderGenreSelectionScreenState
   // 🎨 Exact Design Colors (From Image)
   static const Color bgDark = Color(0xFF1F1533);
   static const Color bgTop = Color(0xFF2E1B47);
-  static const Color cardColor = Color(0xFF24163A);
 
   static const Color yellow = Color(0xFFFFD86B);
-  static const Color yellowDark = Color(0xFFF6C453);
 
   static const Color white = Colors.white;
   static const Color subtitleColor = Color(0xFFB8AFCF);

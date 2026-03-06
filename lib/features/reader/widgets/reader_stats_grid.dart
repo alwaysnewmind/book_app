@@ -14,37 +14,58 @@ class ReaderStatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
+
+    // 📱 Responsive grid
+    final width = MediaQuery.of(context).size.width;
+    final crossAxisCount = width < 600 ? 2 : 4;
+
+    return GridView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 15,
-      crossAxisSpacing: 15,
-      childAspectRatio: 2.3,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        mainAxisSpacing: 15,
+        crossAxisSpacing: 15,
+
+        // 🔥 Fixed height to avoid overflow
+        mainAxisExtent: 90,
+      ),
       children: [
+
+        /// 💰 Coins
         ReaderStatsCard(
           title: 'Coins',
           value: controller.coins.toString(),
           icon: Icons.monetization_on,
           onTap: onTap,
+          backgroundColor: const Color(0xFF1A1A1A), // dark grey
         ),
+
+        /// ⚡ XP
         ReaderStatsCard(
           title: 'XP',
           value: controller.xp.toString(),
           icon: Icons.bolt,
           onTap: onTap,
+          backgroundColor: const Color(0xFF1A1A1A),
         ),
+
+        /// 🔥 Streak
         ReaderStatsCard(
           title: 'Streak',
           value: '${controller.streak} days',
           icon: Icons.local_fire_department,
           onTap: onTap,
+          backgroundColor: const Color(0xFF1A1A1A),
         ),
+
+        /// ✅ Completed
         ReaderStatsCard(
           title: 'Completed',
           value: controller.completedBooks.toString(),
           icon: Icons.check_circle,
           onTap: onTap,
+          backgroundColor: const Color(0xFF1A1A1A),
         ),
       ],
     );

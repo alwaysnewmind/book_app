@@ -1,4 +1,4 @@
-import '../models/book_model.dart';
+import 'package:book_app/features/book/model/book_model.dart';
 
 final List<BookModel> sampleBooks = [
   BookModel(

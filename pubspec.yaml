@@ -2,10 +2,10 @@ name: book_app
 description: A book reading application
 publish_to: "none"
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.2.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -13,45 +13,46 @@ dependencies:
 
   # UI & Icons
   cupertino_icons: ^1.0.6
-  google_fonts: ^5.0.0
   shimmer: ^3.0.0
   flutter_animate: ^4.5.0
 
   # State Management
-  provider: ^6.0.5
+  provider: ^6.1.2
+  flutter_riverpod: ^2.6.1
 
-  # Image handling
+  # Image & Media
   cached_network_image: ^3.3.1
   image_picker: ^1.0.7
-  intl: ^0.18.1
+  intl: ^0.20.2
 
-  # Firebase
-  firebase_core: ^2.32.0
-  firebase_auth: ^4.20.0
-  cloud_firestore: ^4.17.0
-  firebase_storage: ^11.7.7
+  # Networking & Storage
+  dio: ^5.7.0
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^10.0.0
+
+  # 🔥 Firebase (Updated to latest compatible generation)
+  firebase_core: ^4.5.0
+  firebase_auth: ^6.2.0
+  cloud_firestore: ^6.1.3
+  firebase_storage: ^13.1.0
 
   # Auth Providers
-  google_sign_in: ^6.2.1
-  flutter_facebook_auth: ^6.0.4
+  google_sign_in: ^6.3.0
 
-  # Local Storage
-  shared_preferences: ^2.2.2
-
-  flutter_riverpod: ^2.5.1
-  dio: ^5.7.0
+  # Payments
   in_app_purchase: ^3.2.0
-  flutter_secure_storage: ^9.2.2
 
-  # Swipe feature
-  flutter_slidable: ^3.0.1
+  # Swipe
+  flutter_slidable: ^4.0.3
+
+  # PDF Viewer (Latest - Compatible with Firebase 6+)
+  syncfusion_flutter_pdfviewer: ^32.2.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
-  syncfusion_flutter_pdfviewer: ^24.2.0
-  
+  flutter_lints: ^6.0.0
+
 flutter:
   uses-material-design: true
 
@@ -62,3 +63,16 @@ flutter:
     - assets/services/
     - assets/image/
     - assets/original/
+    - assets/fonts/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700

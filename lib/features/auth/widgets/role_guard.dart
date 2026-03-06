@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_app/config/app_config.dart';
 import 'package:book_app/features/home/home_screen.dart';
 import 'package:book_app/models/user_model.dart';
-import 'package:book_app/providers/auth_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'package:book_app/services/role_service.dart';
 import 'package:book_app/shared/widgets/app_popup.dart';
 

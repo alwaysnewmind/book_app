@@ -18,14 +18,13 @@ class AuthService {
   User? get currentFirebaseUser => _auth.currentUser;
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
+  /// ==============================
+  /// EMAIL SIGN UP
+  /// ==============================
   Future<AppUser> signUp({
     required String email,
     required String password,
     required String name,
-    String? city,
-    String? phone,
-    String? gender,
-    DateTime? dob,
   }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email.trim(),
@@ -46,6 +45,9 @@ class AuthService {
     return _getOrCreateUser(firebaseUser);
   }
 
+  /// ==============================
+  /// EMAIL LOGIN
+  /// ==============================
   Future<AppUser> login({
     required String email,
     required String password,
@@ -60,77 +62,118 @@ class AuthService {
       throw Exception('Login failed');
     }
 
-    final exists = await _userService.userExists(firebaseUser.uid);
-    if (!exists) {
-      await _auth.signOut();
-      throw FirebaseAuthException(
-        code: 'user-profile-not-found',
-        message: 'User profile missing. Please contact support.',
-      );
-    }
-
     return _getOrCreateUser(firebaseUser);
   }
 
+  /// ==============================
+  /// GOOGLE LOGIN
+  /// ==============================
   Future<({AppUser user, bool isFirstTime})> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final googleUser = await GoogleSignIn().signIn();
     if (googleUser == null) {
-      throw FirebaseAuthException(code: 'aborted-by-user', message: 'Google sign in cancelled');
+      throw FirebaseAuthException(code: 'aborted-by-user');
     }
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final googleAuth = await googleUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
-    final userCredential = await _auth.signInWithCredential(credential);
+    final userCredential =
+        await _auth.signInWithCredential(credential);
+
     final firebaseUser = userCredential.user;
     if (firebaseUser == null) {
-      throw Exception('Google login failed');
+      throw FirebaseAuthException(code: 'invalid-credential');
     }
 
-    return _createOrReadSocialUser(firebaseUser);
+    final doc = await _usersCollection.doc(firebaseUser.uid).get();
+    final isFirstTime = !doc.exists;
+
+    final appUser = await _getOrCreateUser(firebaseUser);
+
+    return (user: appUser, isFirstTime: isFirstTime);
   }
 
+  /// ==============================
+  /// MICROSOFT LOGIN
+  /// ==============================
   Future<({AppUser user, bool isFirstTime})> signInWithMicrosoft() async {
-    final OAuthProvider microsoftProvider = OAuthProvider('microsoft.com');
-    final userCredential = await _auth.signInWithProvider(microsoftProvider);
+    final microsoftProvider = OAuthProvider("microsoft.com");
+
+    final userCredential =
+        await _auth.signInWithProvider(microsoftProvider);
+
     final firebaseUser = userCredential.user;
-
     if (firebaseUser == null) {
-      throw Exception('Microsoft login failed');
+      throw FirebaseAuthException(code: 'invalid-credential');
     }
 
-    return _createOrReadSocialUser(firebaseUser);
+    final doc = await _usersCollection.doc(firebaseUser.uid).get();
+    final isFirstTime = !doc.exists;
+
+    final appUser = await _getOrCreateUser(firebaseUser);
+
+    return (user: appUser, isFirstTime: isFirstTime);
   }
 
-  Future<({AppUser user, bool isFirstTime})> _createOrReadSocialUser(User firebaseUser) async {
-    final docRef = _usersCollection.doc(firebaseUser.uid);
-    final doc = await docRef.get();
-
-    if (doc.exists && doc.data() != null) {
-      return (user: AppUser.fromMap(doc.data()!), isFirstTime: false);
-    }
-
-    final user = await _createUser(firebaseUser, profileCompleted: false);
-
-    return (user: user, isFirstTime: true);
-  }
-
+  /// ==============================
+  /// CURRENT USER SAFE
+  /// ==============================
   Future<AppUser?> getCurrentUser() async {
     final firebaseUser = _auth.currentUser;
     if (firebaseUser == null) return null;
 
-    return _getOrCreateUser(firebaseUser);
+    try {
+      return await _getOrCreateUser(firebaseUser)
+          .timeout(const Duration(seconds: 10));
+    } catch (_) {
+      return null;
+    }
   }
 
+  /// ==============================
+  /// GET USER DOC
+  /// ==============================
   Future<Map<String, dynamic>?> getUserDocument(String uid) async {
-    final doc = await _usersCollection.doc(uid).get();
-    return doc.data();
+    try {
+      final doc = await _usersCollection.doc(uid)
+          .get()
+          .timeout(const Duration(seconds: 8));
+      return doc.data();
+    } catch (_) {
+      return null;
+    }
   }
 
+  /// ==============================
+  /// PROFILE COMPLETION CHECK
+  /// ==============================
+  Future<bool> isProfileCompleted(String uid) async {
+    final data = await getUserDocument(uid);
+    return (data?['profileCompleted'] as bool?) ?? false;
+  }
+
+  /// ==============================
+  /// SET ROLE
+  /// ==============================
+  Future<void> setUserRole({
+    required String uid,
+    required String role,
+  }) async {
+    await _usersCollection.doc(uid).set({
+      'role': role,
+      'currentMode': role,
+      'profileCompleted': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  /// ==============================
+  /// COMPLETE PROFILE
+  /// ==============================
   Future<void> completeProfile({
     required String uid,
     required String name,
@@ -138,60 +181,40 @@ class AuthService {
     required String phone,
   }) async {
     await _usersCollection.doc(uid).set({
-      'uid': uid,
       'name': name,
       'email': email,
       'phone': phone,
-      'role': 'reader',
-      'genres': <String>[],
-      'photoUrl': null,
       'profileCompleted': true,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-      'currentMode': 'reader',
-      'hasCompletedOnboarding': false,
-      'selectedGenres': <String>[],
-      'favoriteGenres': <String>[],
-      'followersCount': 0,
-      'followingCount': 0,
-      'totalEarnings': 0,
-      'availableBalance': 0,
-      'premiumActivatedAt': null,
-      'premiumExpiry': null,
-    }, SetOptions(merge: true));
-  }
-
-  Future<void> setUserRole(String uid, String role) async {
-    await _usersCollection.doc(uid).set({
-      'role': role,
-      'updatedAt': FieldValue.serverTimestamp(),
-      'currentMode': role == 'writer' ? 'writer' : 'reader',
-    }, SetOptions(merge: true));
-  }
-
-  Future<void> setUserGenres(String uid, List<String> genres) async {
-    await _usersCollection.doc(uid).set({
-      'genres': genres,
-      'profileCompleted': true,
-      'selectedGenres': genres,
-      'hasCompletedOnboarding': true,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
 
+  /// ==============================
+  /// SET PHOTO
+  /// ==============================
   Future<void> setUserPhotoUrl(String uid, String photoUrl) async {
-    await _usersCollection.doc(uid).set({
+    await _usersCollection.doc(uid).update({
       'photoUrl': photoUrl,
       'profileImageUrl': photoUrl,
       'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    });
   }
 
-  Future<bool> isProfileCompleted(String uid) async {
-    final data = await getUserDocument(uid);
-    return (data?['profileCompleted'] as bool?) ?? false;
+  /// ==============================
+  /// SET GENRES
+  /// ==============================
+  Future<void> setUserGenres(String uid, List<String> genres) async {
+    await _usersCollection.doc(uid).update({
+      'selectedGenres': genres,
+      'favoriteGenres': genres,
+      'hasCompletedOnboarding': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
+  /// ==============================
+  /// LOGOUT
+  /// ==============================
   Future<void> logout() async {
     await _auth.signOut();
     try {
@@ -199,39 +222,42 @@ class AuthService {
     } catch (_) {}
   }
 
+  /// ==============================
+  /// UPDATE USER
+  /// ==============================
   Future<void> updateUser(AppUser user) async {
     await _usersCollection.doc(user.uid).update(user.toMap());
   }
 
+  /// ==============================
+  /// INTERNAL: GET OR CREATE
+  /// ==============================
   Future<AppUser> _getOrCreateUser(User firebaseUser) async {
-    final doc = await _usersCollection.doc(firebaseUser.uid).get();
+    try {
+      final doc = await _usersCollection.doc(firebaseUser.uid).get();
 
-    if (doc.exists && doc.data() != null) {
-      return AppUser.fromMap(doc.data()!);
-    }
+      if (doc.exists && doc.data() != null) {
+        return AppUser.fromMap(doc.data()!);
+      }
+    } catch (_) {}
 
-    return _createUser(firebaseUser, profileCompleted: false);
+    return _createUser(firebaseUser);
   }
 
-  Future<AppUser> _createUser(
-    User firebaseUser, {
-    String? name,
-    String? city,
-    String? phone,
-    String? gender,
-    DateTime? dob,
-    required bool profileCompleted,
-  }) async {
+  /// ==============================
+  /// INTERNAL: CREATE USER
+  /// ==============================
+  Future<AppUser> _createUser(User firebaseUser) async {
     final now = DateTime.now();
 
     final user = AppUser(
       uid: firebaseUser.uid,
       email: firebaseUser.email ?? '',
-      name: name ?? firebaseUser.displayName ?? 'User',
-      phone: phone ?? firebaseUser.phoneNumber ?? '',
-      city: city ?? '',
-      gender: gender ?? '',
-      dob: dob,
+      name: firebaseUser.displayName ?? 'User',
+      phone: firebaseUser.phoneNumber ?? '',
+      city: '',
+      gender: '',
+      dob: null,
       photoUrl: firebaseUser.photoURL,
       profileImageUrl: firebaseUser.photoURL,
       role: UserRole.reader,
@@ -254,13 +280,11 @@ class AuthService {
       updatedAt: now,
     );
 
-    final role = 'reader';
-
     await _usersCollection.doc(firebaseUser.uid).set({
       ...user.toMap(),
-      'profileCompleted': profileCompleted,
-      'role': role,
-      'genres': const <String>[],
+      'profileCompleted': false,
+      'role': 'reader',
+      'currentMode': 'reader',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));

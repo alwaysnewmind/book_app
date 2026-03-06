@@ -14,6 +14,14 @@ class DefaultFirebaseOptions {
         measurementId: "G-34XVB6QDPE",
       );
     }
-    throw UnsupportedError("Platform not supported");
+
+    // Android ke liye
+    return const FirebaseOptions(
+      apiKey: "AIzaSyC27FUr92rA1v-NVfjryYCFb9p_2zxQ48Y",
+      appId: "1:742798402849:android:5275a346b28b6ace0fca60",
+      messagingSenderId: "742798402849",
+      projectId: "readora-e331b",
+      storageBucket: "readora-e331b.appspot.com",
+    );
   }
 }

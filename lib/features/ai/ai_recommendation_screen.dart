@@ -1,8 +1,8 @@
 import 'package:book_app/core/monetization/access_rules.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/shared/widgets/book_card.dart';
+import 'package:book_app/features/book/widgets/book_card.dart';
 import 'package:book_app/data/dummy_books.dart';
-import 'package:book_app/features/book/book_detail_screen.dart';
+import 'package:book_app/features/book/screen/book_detail_screen.dart';
 import 'package:book_app/core/monetization/premium_guard.dart';
 import 'package:book_app/models/user_model.dart';
 
@@ -81,9 +81,7 @@ class AIRecommendationScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => BookDetailScreen(
-                              imagePath: book.coverImage,
-                              title: book.title,
-                              isLocked: book.isPremium,
+                              book: book,
                             ),
                           ),
                         );

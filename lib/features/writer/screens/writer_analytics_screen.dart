@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:book_app/providers/auth_provider.dart';
-import 'package:book_app/providers/writer_provider.dart';
+import 'package:book_app/features/auth/provider/auth_provider.dart';
+import 'package:book_app/features/writer/provider/writer_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

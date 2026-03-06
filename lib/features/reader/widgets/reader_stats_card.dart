@@ -5,6 +5,7 @@ class ReaderStatsCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final VoidCallback? onTap;
+  final Color backgroundColor;
 
   const ReaderStatsCard({
     super.key,
@@ -12,41 +13,61 @@ class ReaderStatsCard extends StatelessWidget {
     required this.value,
     required this.icon,
     this.onTap,
+    this.backgroundColor = const Color(0xFF1A1A1A),
   });
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+
+        // 🔥 CARD COLOR
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-            ),
-          ],
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFF2E2E2E),
+          ),
         ),
+
         child: Row(
           children: [
-            Icon(icon, size: 28, color: const Color(0xff4A6CF7)),
-            const SizedBox(width: 12),
+
+            /// Icon
+            Icon(
+              icon,
+              color: const Color(0xFFF5C84C),
+              size: 22,
+            ),
+
+            const SizedBox(width: 10),
+
+            /// Texts
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 13)),
-                  const SizedBox(height: 4),
+
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+
+                  const SizedBox(height: 2),
+
                   Text(
                     value,
                     style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
                     ),
                   ),
                 ],

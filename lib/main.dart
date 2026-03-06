@@ -1,6 +1,13 @@
+import 'package:book_app/features/book/provider/book_provider.dart' show BookProvider;
+import 'package:book_app/features/home/mainicon/discover%20icon/provider/discover_provider.dart' show DiscoverProvider;
+import 'package:book_app/features/home/mainicon/story%20analytics%20icon/provider/story_analytics_provider.dart' show StoryAnalyticsProvider;
+import 'package:book_app/features/home/mainicon/story%20analytics%20icon/provider/story_analyzer_provider.dart' show StoryAnalyzerProvider;
+import 'package:book_app/features/reader/provider/reader_provider.dart' show ReaderProvider;
+import 'package:book_app/features/reader/provider/reader_studio_provider.dart' show ReaderStudioProvider;
+import 'package:book_app/features/writer/provider/writer_provider.dart' show WriterProvider;
+import 'package:book_app/firebase_options.dart' show DefaultFirebaseOptions;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,95 +16,86 @@ import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/screens/auth_wrapper.dart';
 import 'features/library/models/library_store.dart';
-import 'features/premium/presentation/premium_providers.dart';
-import 'features/premium/presentation/premium_state.dart';
-import 'features/story_analytics/provider/story_analytics_provider.dart';
-import 'firebase_options.dart';
 import 'providers/app_settings_provider.dart';
 
-/// Providers
-import 'providers/auth_provider.dart';
-import 'providers/book_provider.dart';
+/// 🔌 Core Providers
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'providers/comment_provider.dart';
-import 'providers/discover_provider.dart';
 import 'providers/follow_provider.dart';
 import 'providers/monetization_provider.dart';
 import 'providers/notification_provider.dart';
-import 'providers/reader_provider.dart';
-import 'providers/reader_studio_provider.dart';
-import 'providers/story_analyzer_provider.dart';
-import 'providers/writer_provider.dart';
 
-void main() async {
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  /// 🔧 App environment
   AppConfig.initialize(AppEnvironment.dev);
 
+  /// 🔥 Firebase init
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+  /// 💾 Local storage
   final sharedPreferences = await SharedPreferences.getInstance();
 
   runApp(
-    ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+    MultiProvider(
+      providers: [
+        /// Local storage provider
+        Provider<SharedPreferences>.value(value: sharedPreferences),
+
+        /// Auth & Notifications
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider()..initialize(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NotificationProvider(),
+        ),
+
+        /// Providers dependent on NotificationProvider
+        ChangeNotifierProxyProvider<NotificationProvider, CommentProvider>(
+          create: (context) => CommentProvider(
+            notificationProvider: context.read<NotificationProvider>(),
+          ),
+          update: (context, notifications, _) =>
+              CommentProvider(notificationProvider: notifications),
+        ),
+
+        ChangeNotifierProxyProvider<NotificationProvider, FollowProvider>(
+          create: (context) => FollowProvider(
+            notificationProvider: context.read<NotificationProvider>(),
+          ),
+          update: (context, notifications, _) =>
+              FollowProvider(notificationProvider: notifications),
+        ),
+
+        ChangeNotifierProxyProvider<NotificationProvider, MonetizationProvider>(
+          create: (context) => MonetizationProvider(
+            notificationProvider: context.read<NotificationProvider>(),
+          ),
+          update: (context, notifications, _) =>
+              MonetizationProvider(notificationProvider: notifications),
+        ),
+
+        /// Core App Providers
+        ChangeNotifierProvider(create: (_) => ReaderProvider()),
+        ChangeNotifierProvider(create: (_) => ReaderStudioProvider()),
+        ChangeNotifierProvider(
+          create: (_) => BookProvider()..loadBooks(),
+        ),
+        ChangeNotifierProvider(create: (_) => StoryAnalyzerProvider()),
+        ChangeNotifierProvider(
+          create: (_) => DiscoverProvider()..loadDiscoverData(),
+        ),
+        ChangeNotifierProvider(create: (_) => WriterProvider()),
+        ChangeNotifierProvider(create: (_) => StoryAnalyticsProvider()),
+        ChangeNotifierProvider(create: (_) => LibraryStore()),
+        ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
       ],
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
-          ChangeNotifierProvider(create: (_) => NotificationProvider()),
-          ChangeNotifierProxyProvider<NotificationProvider, CommentProvider>(
-            create: (context) => CommentProvider(
-              notificationProvider: context.read<NotificationProvider>(),
-            ),
-            update: (context, notifications, previous) => CommentProvider(
-              notificationProvider: notifications,
-            ),
-          ),
-          ChangeNotifierProxyProvider<NotificationProvider, FollowProvider>(
-            create: (context) => FollowProvider(
-              notificationProvider: context.read<NotificationProvider>(),
-            ),
-            update: (context, notifications, previous) => FollowProvider(
-              notificationProvider: notifications,
-            ),
-          ),
-          ChangeNotifierProxyProvider<NotificationProvider, MonetizationProvider>(
-            create: (context) => MonetizationProvider(
-              notificationProvider: context.read<NotificationProvider>(),
-            ),
-            update: (context, notifications, previous) => MonetizationProvider(
-              notificationProvider: notifications,
-            ),
-          ),
-          ChangeNotifierProvider(create: (_) => ReaderProvider()),
-          ChangeNotifierProvider(create: (_) => ReaderStudioProvider()),
-          ChangeNotifierProvider(create: (_) => BookProvider()..loadBooks()),
-          ChangeNotifierProvider(create: (_) => StoryAnalyzerProvider()),
-          ChangeNotifierProvider(create: (_) => DiscoverProvider()..loadDiscoverData()),
-          ChangeNotifierProvider(create: (_) => WriterProvider()),
-          ChangeNotifierProvider(create: (_) => StoryAnalyticsProvider()),
-          ChangeNotifierProvider(create: (_) => LibraryStore()),
-          ChangeNotifierProvider(create: (_) => AppSettingsProvider()),
-        ],
-        child: const PremiumSubscriptionBootstrap(child: MyApp()),
-      ),
+      child: const MyApp(),
     ),
   );
-}
-
-class PremiumSubscriptionBootstrap extends ConsumerWidget {
-  final Widget child;
-
-  const PremiumSubscriptionBootstrap({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<PremiumState>(premiumControllerProvider, (_, __) {});
-    return child;
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -106,7 +104,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppSettingsProvider>(
-      builder: (context, settings, child) {
+      builder: (context, settings, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
 
@@ -118,14 +116,15 @@ class MyApp extends StatelessWidget {
             Locale('gu'),
           ],
 
-          /// 🌗 Theme
+          /// 🎨 Theme (self-hosted fonts safe)
           theme: AppTheme.darkTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
 
+          /// 🔐 Auth gate
           home: const AuthWrapper(),
 
-          /// 🔥 CENTRAL ROUTES
+          /// 🚦 Centralized routes
           routes: AppRoutes.routes,
         );
       },
