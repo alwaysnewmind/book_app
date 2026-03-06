@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:book_app/features/reader/data/dummy_reader_data.dart';
 import 'package:book_app/features/reader/models/reader_book_model.dart';
+import 'package:book_app/features/reader/models/reader_stats_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,57 +16,35 @@ class ReaderStudioProvider extends ChangeNotifier {
 
   bool _isLoading = false;
   String? _errorMessage;
+
   List<ReaderBookModel> _books = <ReaderBookModel>[];
-  ReaderStatsSummary _stats = ReaderStatsSummary.empty();
+  List<ReaderBookModel> _continueReadingBooks = <ReaderBookModel>[];
+  List<ReaderBookModel> _recommendedBooks = <ReaderBookModel>[];
+  List<ReadingTask> _readingTasks = <ReadingTask>[];
+
+  ReaderStatsSummary _statsSummary = ReaderStatsSummary.empty();
+  ReaderStatsModel _readingStats = ReaderStatsModel.empty();
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  ReaderStatsSummary get stats => _stats;
 
   List<ReaderBookModel> get allBooks => List<ReaderBookModel>.unmodifiable(_books);
+  List<ReaderBookModel> get continueReadingBooks =>
+      List<ReaderBookModel>.unmodifiable(_continueReadingBooks);
+  List<ReaderBookModel> get recommendedBooks =>
+      List<ReaderBookModel>.unmodifiable(_recommendedBooks);
+  List<ReadingTask> get readingTasks => List<ReadingTask>.unmodifiable(_readingTasks);
 
-  List<ReaderBookModel> getContinueReading() {
-    final filtered = _books
-        .where((book) => book.progressPercent > 0 && book.progressPercent < 100)
-        .toList()
-      ..sort((a, b) => (b.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(a.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0)));
-    return filtered.take(5).toList();
-  }
+  ReaderStatsSummary get stats => _statsSummary;
+  ReaderStatsModel get readingStats => _readingStats;
 
-  List<ReaderBookModel> getRecentlyRead() {
-    final recent = List<ReaderBookModel>.from(_books)
-      ..sort((a, b) => (b.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(a.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0)));
-    return recent.take(10).toList();
-  }
-
-  List<ReaderBookModel> getRecommendedBooks() {
-    if (_books.isEmpty) return <ReaderBookModel>[];
-
-    if (isDummyMode) {
-      final recentlyRead = getRecentlyRead();
-      final preferredGenres = recentlyRead.take(3).map((book) => book.genre).toSet();
-      final byGenre = _books.where((book) => preferredGenres.contains(book.genre)).toList();
-      if (byGenre.isNotEmpty) {
-        return byGenre.take(6).toList();
-      }
-
-      final randomized = List<ReaderBookModel>.from(_books)..shuffle(Random());
-      return randomized.take(6).toList();
-    }
-
-    final ranked = List<ReaderBookModel>.from(_books)
-      ..sort((a, b) {
-        final ratingSort = b.rating.compareTo(a.rating);
-        if (ratingSort != 0) return ratingSort;
-        return b.viewsCount.compareTo(a.viewsCount);
-      });
-    return ranked.take(6).toList();
-  }
-
-  List<ReaderBookModel> getQuickAccessFavorites() {
-    return _books.where((book) => book.isBookmarked).toList();
+  Future<void> loadDashboard({required String? userId}) async {
+    await loadReaderStudioData(userId: userId);
+    _continueReadingBooks = getContinueReading();
+    _recommendedBooks = getRecommendedBooks();
+    _readingTasks = DummyReaderData.readingTasks;
+    _readingStats = calculateStats();
+    notifyListeners();
   }
 
   Future<void> loadReaderStudioData({required String? userId}) async {
@@ -76,15 +56,64 @@ class ReaderStudioProvider extends ChangeNotifier {
       _books = isDummyMode
           ? _getDummyBooks()
           : await _fetchReaderStudioDataFromFirestore(userId: userId);
-      _stats = calculateReadingStats();
-    } catch (error, _) {
+      _statsSummary = _calculateSummary();
+      _readingStats = calculateStats();
+    } catch (_) {
       _errorMessage = 'Failed to load Reader Studio data. Please try again.';
       _books = <ReaderBookModel>[];
-      _stats = ReaderStatsSummary.empty();
+      _statsSummary = ReaderStatsSummary.empty();
+      _readingStats = ReaderStatsModel.empty();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  List<ReaderBookModel> getContinueReading() {
+    final filtered = _books
+        .where((book) => book.progressPercent > 0 && book.progressPercent < 100)
+        .toList()
+      ..sort((a, b) =>
+          (b.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(
+            a.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+          ));
+    return filtered.take(5).toList();
+  }
+
+  List<ReaderBookModel> getRecentlyRead() {
+    final recent = List<ReaderBookModel>.from(_books)
+      ..sort((a, b) =>
+          (b.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(
+            a.lastReadAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+          ));
+    return recent.take(10).toList();
+  }
+
+  List<ReaderBookModel> getRecommendedBooks() {
+    if (_books.isEmpty) return <ReaderBookModel>[];
+
+    final recentlyRead = getRecentlyRead();
+    final preferredGenres = recentlyRead.take(3).map((book) => book.genre).toSet();
+
+    final byGenre = _books
+        .where((book) => preferredGenres.isEmpty || preferredGenres.contains(book.genre))
+        .toList();
+
+    if (byGenre.isNotEmpty) {
+      byGenre.sort((a, b) {
+        final ratingSort = b.rating.compareTo(a.rating);
+        if (ratingSort != 0) return ratingSort;
+        return b.viewsCount.compareTo(a.viewsCount);
+      });
+      return byGenre.take(6).toList();
+    }
+
+    final randomized = List<ReaderBookModel>.from(_books)..shuffle(Random());
+    return randomized.take(6).toList();
+  }
+
+  List<ReaderBookModel> getQuickAccessFavorites() {
+    return _books.where((book) => book.isBookmarked).toList();
   }
 
   Future<void> toggleBookmark({required String bookId, required String? userId}) async {
@@ -99,8 +128,9 @@ class ReaderStudioProvider extends ChangeNotifier {
         await _updateBookmarkInFirestore(userId: userId, book: updatedBook);
       }
 
+      _recommendedBooks = getRecommendedBooks();
       notifyListeners();
-    } catch (error, _) {
+    } catch (_) {
       _errorMessage = 'Unable to update bookmark right now.';
       notifyListeners();
       rethrow;
@@ -128,7 +158,10 @@ class ReaderStudioProvider extends ChangeNotifier {
         lastReadAt: DateTime.now(),
       );
 
-      _stats = calculateReadingStats();
+      _statsSummary = _calculateSummary();
+      _readingStats = calculateStats();
+      _continueReadingBooks = getContinueReading();
+      _recommendedBooks = getRecommendedBooks();
 
       if (!isDummyMode && userId != null) {
         await _updateReadingProgressInFirestore(
@@ -140,14 +173,33 @@ class ReaderStudioProvider extends ChangeNotifier {
       }
 
       notifyListeners();
-    } catch (error, _) {
+    } catch (_) {
       _errorMessage = 'Unable to update reading progress.';
       notifyListeners();
       rethrow;
     }
   }
 
-  ReaderStatsSummary calculateReadingStats() {
+  ReaderStatsModel calculateStats() {
+    if (_books.isEmpty) return ReaderStatsModel.empty();
+
+    final pagesRead = _books.fold<int>(0, (sum, b) => sum + b.lastReadChapter);
+    final booksCompleted = _books.where((book) => book.progressPercent >= 100).length;
+    final readingDays = _books
+        .where((book) => book.lastReadAt != null)
+        .map((book) => DateTime(book.lastReadAt!.year, book.lastReadAt!.month, book.lastReadAt!.day))
+        .toSet()
+        .length;
+
+    return ReaderStatsModel(
+      totalReadingTime: pagesRead * 90,
+      pagesRead: pagesRead,
+      booksCompleted: booksCompleted,
+      readingStreak: readingDays,
+    );
+  }
+
+  ReaderStatsSummary _calculateSummary() {
     if (_books.isEmpty) return ReaderStatsSummary.empty();
 
     final completedBooks = _books.where((book) => book.progressPercent >= 100).length;
@@ -245,7 +297,7 @@ class ReaderStudioProvider extends ChangeNotifier {
     };
     final bookmarkIds = bookmarkSnapshot.docs.map((doc) => doc.id).toSet();
 
-    final books = booksSnapshot.docs.map((doc) {
+    return booksSnapshot.docs.map((doc) {
       final progress = progressMap[doc.id];
       return ReaderBookModel(
         id: doc.id,
@@ -263,8 +315,6 @@ class ReaderStudioProvider extends ChangeNotifier {
         lastReadAt: (progress?['lastReadAt'] as Timestamp?)?.toDate(),
       );
     }).toList();
-
-    return books;
   }
 
   Future<void> _updateBookmarkInFirestore({

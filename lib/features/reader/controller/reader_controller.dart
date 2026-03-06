@@ -1,67 +1,121 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:book_app/features/reader/models/reader_book_model.dart';
+import 'package:book_app/features/reader/models/reader_stats_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ReaderController extends ChangeNotifier {
-  /// ==============================
-  /// GLOBAL USER DATA
-  /// ==============================
+  static const String _statsKey = 'reader_engine_stats';
+  static const String _progressKey = 'reader_engine_progress';
+  static const String _bookContentPrefix = 'reader_engine_content_';
 
-  int _coins = 0;
-  int _xp = 0;
-  int _level = 1;
-  int _streak = 0;
-  int _totalReadingSeconds = 0;
-  int _completedBooks = 0;
+  ReaderBookModel? _activeBook;
+  String _currentBookContent = '';
+  ReaderStatsModel _stats = ReaderStatsModel.empty();
+
+  final Map<String, double> _bookProgress = <String, double>{};
+  final Map<String, DateTime> _lastReadAt = <String, DateTime>{};
 
   Timer? _readingTimer;
 
-  /// ==============================
-  /// BOOK TRACKING
-  /// ==============================
+  ReaderBookModel? get activeBook => _activeBook;
+  String get currentBookContent => _currentBookContent;
+  ReaderStatsModel get statsModel => _stats;
+  Map<String, double> get bookProgress => Map<String, double>.unmodifiable(_bookProgress);
 
-  final Map<String, int> _bookProgress = {}; // bookId : lastPage
-  final Map<String, bool> _bookCompleted = {};
-
-  /// ==============================
-  /// GETTERS
-  /// ==============================
-
-  int get coins => _coins;
-  int get xp => _xp;
-  int get level => _level;
-  int get streak => _streak;
-  int get totalReadingSeconds => _totalReadingSeconds;
-  int get completedBooks => _completedBooks;
-
-  Map<String, int> get bookProgress => _bookProgress;
-
-  /// ==============================
-  /// INIT
-  /// ==============================
+  // Legacy getters used by existing dashboard widgets.
+  int get coins => _stats.pagesRead;
+  int get xp => _stats.totalReadingTime ~/ 60;
+  int get level => ((xp ~/ 200) + 1).clamp(1, 9999);
+  int get streak => _stats.readingStreak;
+  int get totalReadingSeconds => _stats.totalReadingTime;
+  int get completedBooks => _stats.booksCompleted;
 
   Future<void> init() async {
-    await _loadUserData();
+    await _loadPersistedState();
   }
 
-  /// ==============================
-  /// READING TIMER
-  /// ==============================
+  Future<void> openBook(ReaderBookModel book) async {
+    _activeBook = book;
+    _currentBookContent = await loadBookContent(book.id);
+    _lastReadAt[book.id] = DateTime.now();
+    await _persistProgress();
+    notifyListeners();
+  }
 
+  Future<String> loadBookContent(String bookId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedContent = prefs.getString('$_bookContentPrefix$bookId');
+    if (cachedContent != null && cachedContent.isNotEmpty) {
+      return cachedContent;
+    }
+
+    // Placeholder content pipeline for text reader; replace with API/repository later.
+    final generated = List<String>.generate(
+      20,
+      (index) => 'Chapter ${index + 1}\n\nThis is generated content for $bookId. '
+          'It allows production-like flow for progress, resume, analytics and settings.',
+    ).join('\n\n');
+
+    await prefs.setString('$_bookContentPrefix$bookId', generated);
+    return generated;
+  }
+
+  Future<void> updateReadingProgress({
+    required String bookId,
+    required double progress,
+    int pagesRead = 0,
+  }) async {
+    final normalizedProgress = progress.clamp(0, 100).toDouble();
+    _bookProgress[bookId] = normalizedProgress;
+    _lastReadAt[bookId] = DateTime.now();
+
+    if (pagesRead > 0) {
+      _stats = _stats.copyWith(pagesRead: _stats.pagesRead + pagesRead);
+    }
+
+    if (normalizedProgress >= 100) {
+      _stats = _stats.copyWith(booksCompleted: _calculateCompletedBooks());
+    }
+
+    await _persistProgress();
+    notifyListeners();
+  }
+
+  Future<void> saveReadingSession({
+    required String bookId,
+    required Duration duration,
+    int pagesRead = 0,
+  }) async {
+    _stats = _stats.copyWith(
+      totalReadingTime: _stats.totalReadingTime + duration.inSeconds,
+      pagesRead: _stats.pagesRead + pagesRead,
+      readingStreak: _calculateStreak(),
+      booksCompleted: _calculateCompletedBooks(),
+    );
+
+    _lastReadAt[bookId] = DateTime.now();
+    await _persistStats();
+    notifyListeners();
+  }
+
+  ReaderStatsModel calculateReadingStats() {
+    _stats = _stats.copyWith(
+      booksCompleted: _calculateCompletedBooks(),
+      readingStreak: _calculateStreak(),
+    );
+    return _stats;
+  }
+
+  // Legacy compatibility methods.
   void startReadingSession() {
     _readingTimer?.cancel();
-
-    _readingTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      _totalReadingSeconds += 60;
-
-      // Every 5 minutes reward
-      if (_totalReadingSeconds % 300 == 0) {
-        addCoins(5);
-        addXP(10);
-      }
-
-      notifyListeners();
-      _saveUserData();
+    _readingTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      final activeBookId = _activeBook?.id;
+      if (activeBookId == null) return;
+      saveReadingSession(bookId: activeBookId, duration: const Duration(minutes: 1));
     });
   }
 
@@ -69,159 +123,82 @@ class ReaderController extends ChangeNotifier {
     _readingTimer?.cancel();
   }
 
-  /// ==============================
-  /// PAGE UPDATE
-  /// ==============================
-
   void updateBookProgress(String bookId, int page, int totalPages) {
-    _bookProgress[bookId] = page;
-
-    // Every 5 pages reward
-    if (page % 5 == 0) {
-      addCoins(10);
-      addXP(20);
-    }
-
-    // Completion
-    if (page == totalPages && !_bookCompleted.containsKey(bookId)) {
-      _bookCompleted[bookId] = true;
-      _completedBooks++;
-      addCoins(50);
-      addXP(100);
-    }
-
-    notifyListeners();
-    _saveUserData();
+    if (totalPages <= 0) return;
+    final progress = (page / totalPages) * 100;
+    updateReadingProgress(bookId: bookId, progress: progress, pagesRead: 1);
   }
-
-  /// ==============================
-  /// COIN SYSTEM
-  /// ==============================
-
-  void addCoins(int amount) {
-    _coins += amount;
-    notifyListeners();
-  }
-
-  bool spendCoins(int amount) {
-    if (_coins >= amount) {
-      _coins -= amount;
-      notifyListeners();
-      _saveUserData();
-      return true;
-    }
-    return false;
-  }
-
-  /// ==============================
-  /// XP + LEVEL SYSTEM
-  /// ==============================
-
-  void addXP(int amount) {
-    _xp += amount;
-
-    // Level up rule
-    if (_xp >= _level * 200) {
-      _xp = 0;
-      _level++;
-    }
-
-    notifyListeners();
-  }
-
-  /// ==============================
-  /// STREAK SYSTEM
-  /// ==============================
-
-  Future<void> updateDailyStreak() async {
-    final prefs = await SharedPreferences.getInstance();
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final lastDate = prefs.getString("last_read_date");
-
-    if (lastDate == null) {
-      _streak = 1;
-    } else {
-      final last = DateTime.parse(lastDate);
-      final diff = DateTime.now().difference(last).inDays;
-
-      if (diff == 1) {
-        _streak++;
-        addCoins(20);
-      } else if (diff > 1) {
-        _streak = 1;
-      }
-    }
-
-    await prefs.setString("last_read_date", today);
-    notifyListeners();
-    _saveUserData();
-  }
-
-  /// ==============================
-  /// UNLOCK BOOK SYSTEM
-  /// ==============================
-
-  bool unlockBook(String bookId, int price) {
-    if (spendCoins(price)) {
-      _bookProgress[bookId] = 0;
-      return true;
-    }
-    return false;
-  }
-
-  /// ==============================
-  /// SAVE DATA
-  /// ==============================
-
-  Future<void> _saveUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    await prefs.setInt("coins", _coins);
-    await prefs.setInt("xp", _xp);
-    await prefs.setInt("level", _level);
-    await prefs.setInt("streak", _streak);
-    await prefs.setInt("totalReadingSeconds", _totalReadingSeconds);
-    await prefs.setInt("completedBooks", _completedBooks);
-
-    for (var entry in _bookProgress.entries) {
-      await prefs.setInt("progress_${entry.key}", entry.value);
-    }
-  }
-
-  /// ==============================
-  /// LOAD DATA
-  /// ==============================
-
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    _coins = prefs.getInt("coins") ?? 0;
-    _xp = prefs.getInt("xp") ?? 0;
-    _level = prefs.getInt("level") ?? 1;
-    _streak = prefs.getInt("streak") ?? 0;
-    _totalReadingSeconds = prefs.getInt("totalReadingSeconds") ?? 0;
-    _completedBooks = prefs.getInt("completedBooks") ?? 0;
-
-    notifyListeners();
-  }
-
-  /// ==============================
-  /// RESET USER
-  /// ==============================
 
   Future<void> resetAllData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove(_statsKey);
+    await prefs.remove(_progressKey);
 
-    _coins = 0;
-    _xp = 0;
-    _level = 1;
-    _streak = 0;
-    _totalReadingSeconds = 0;
-    _completedBooks = 0;
+    _stats = ReaderStatsModel.empty();
     _bookProgress.clear();
+    _lastReadAt.clear();
+    _activeBook = null;
+    _currentBookContent = '';
+    notifyListeners();
+  }
+
+  int _calculateCompletedBooks() {
+    return _bookProgress.values.where((progress) => progress >= 100).length;
+  }
+
+  int _calculateStreak() {
+    if (_lastReadAt.isEmpty) return 0;
+
+    final dates = _lastReadAt.values
+        .map((date) => DateTime(date.year, date.month, date.day))
+        .toSet()
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    var streakValue = 0;
+    DateTime expectedDay = DateTime.now();
+
+    for (final date in dates) {
+      final normalizedExpected = DateTime(expectedDay.year, expectedDay.month, expectedDay.day);
+      if (date == normalizedExpected) {
+        streakValue++;
+        expectedDay = expectedDay.subtract(const Duration(days: 1));
+      } else if (date.isBefore(normalizedExpected)) {
+        break;
+      }
+    }
+
+    return streakValue;
+  }
+
+  Future<void> _loadPersistedState() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final statsRaw = prefs.getString(_statsKey);
+    if (statsRaw != null && statsRaw.isNotEmpty) {
+      _stats = ReaderStatsModel.fromJson(jsonDecode(statsRaw) as Map<String, dynamic>);
+    }
+
+    final progressRaw = prefs.getString(_progressKey);
+    if (progressRaw != null && progressRaw.isNotEmpty) {
+      final decoded = jsonDecode(progressRaw) as Map<String, dynamic>;
+      _bookProgress
+        ..clear()
+        ..addAll(decoded.map((key, value) => MapEntry(key, (value as num).toDouble())));
+    }
 
     notifyListeners();
+  }
+
+  Future<void> _persistStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_statsKey, jsonEncode(_stats.toJson()));
+  }
+
+  Future<void> _persistProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_progressKey, jsonEncode(_bookProgress));
+    await _persistStats();
   }
 
   @override

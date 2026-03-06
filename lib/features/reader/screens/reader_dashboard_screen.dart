@@ -67,7 +67,7 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
       return;
     }
 
-    await studioProvider.loadReaderStudioData(
+    await studioProvider.loadDashboard(
         userId: authProvider.currentUser?.uid);
 
     final error = studioProvider.errorMessage;
@@ -91,7 +91,7 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const ReaderScreen(isLocked: false),
+        builder: (_) => ReaderScreen(isLocked: false, book: book),
       ),
     );
   }

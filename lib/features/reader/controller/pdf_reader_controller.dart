@@ -1,156 +1,96 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PdfReaderController extends ChangeNotifier {
-  /// ==============================
-  /// Core Variables
-  /// ==============================
+  static const String _pdfProgressKey = 'reader_pdf_progress';
 
+  String _bookId = '';
   int _currentPage = 0;
   int _totalPages = 0;
-  int _coinsEarned = 0;
-  int _lastRewardPage = 0;
-  int _readingSeconds = 0;
+  Duration _sessionDuration = Duration.zero;
 
-  Timer? _readingTimer;
+  Timer? _sessionTimer;
+  final Map<String, int> _pdfPageProgress = <String, int>{};
 
-  String _bookId = "";
-
-  /// ==============================
-  /// Getters
-  /// ==============================
-
+  String get bookId => _bookId;
   int get currentPage => _currentPage;
   int get totalPages => _totalPages;
-  int get coinsEarned => _coinsEarned;
-  int get readingSeconds => _readingSeconds;
-
-  /// ==============================
-  /// Initialize Controller
-  /// ==============================
+  Duration get sessionDuration => _sessionDuration;
 
   Future<void> init(String bookId, int totalPages) async {
-    _bookId = bookId;
-    _totalPages = totalPages;
-
-    await _loadProgress();
-    _startReadingTimer();
+    await openPdf(bookId: bookId, totalPages: totalPages);
+    _startSessionTimer();
   }
 
-  /// ==============================
-  /// Page Change Logic
-  /// ==============================
-
-  void onPageChanged(int pageNumber) {
-    _currentPage = pageNumber;
-
-    _rewardByPageProgress(pageNumber);
-    _checkBookCompletion();
-
-    _saveProgress();
+  Future<void> openPdf({
+    required String bookId,
+    required int totalPages,
+  }) async {
+    _bookId = bookId;
+    _totalPages = totalPages;
+    await _loadPdfProgress();
     notifyListeners();
   }
 
-  /// ==============================
-  /// Reward Logic (Page Based)
-  /// ==============================
-
-  void _rewardByPageProgress(int page) {
-    if (page - _lastRewardPage >= 5) {
-      _lastRewardPage = page;
-      _addCoins(10);
-    }
+  Future<void> trackPdfProgress({required int page}) async {
+    if (_bookId.isEmpty || _totalPages <= 0) return;
+    _currentPage = page.clamp(0, _totalPages);
+    _pdfPageProgress[_bookId] = _currentPage;
+    await savePdfProgress();
+    notifyListeners();
   }
 
-  /// ==============================
-  /// Reward Logic (Time Based)
-  /// ==============================
+  Future<void> savePdfProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_pdfProgressKey, jsonEncode(_pdfPageProgress));
+  }
 
-  void _startReadingTimer() {
-    _readingTimer?.cancel();
-
-    _readingTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      _readingSeconds += 60;
-
-      // Every 5 minutes reward
-      if (_readingSeconds % 300 == 0) {
-        _addCoins(5);
-      }
-
-      notifyListeners();
-    });
+  // Legacy compatibility methods.
+  void onPageChanged(int pageNumber) {
+    trackPdfProgress(page: pageNumber);
   }
 
   void stopReadingTimer() {
-    _readingTimer?.cancel();
+    _sessionTimer?.cancel();
   }
-
-  /// ==============================
-  /// Completion Logic
-  /// ==============================
-
-  void _checkBookCompletion() {
-    if (_currentPage == _totalPages) {
-      _addCoins(50); // Completion reward
-    }
-  }
-
-  /// ==============================
-  /// Coin Management
-  /// ==============================
-
-  void _addCoins(int amount) {
-    _coinsEarned += amount;
-  }
-
-  /// ==============================
-  /// Save Progress
-  /// ==============================
-
-  Future<void> _saveProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt("$_bookId-page", _currentPage);
-    await prefs.setInt("$_bookId-coins", _coinsEarned);
-    await prefs.setInt("$_bookId-seconds", _readingSeconds);
-  }
-
-  /// ==============================
-  /// Load Progress
-  /// ==============================
-
-  Future<void> _loadProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    _currentPage = prefs.getInt("$_bookId-page") ?? 0;
-    _coinsEarned = prefs.getInt("$_bookId-coins") ?? 0;
-    _readingSeconds = prefs.getInt("$_bookId-seconds") ?? 0;
-  }
-
-  /// ==============================
-  /// Reset Book Progress
-  /// ==============================
 
   Future<void> resetProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove("$_bookId-page");
-    await prefs.remove("$_bookId-coins");
-    await prefs.remove("$_bookId-seconds");
-
+    if (_bookId.isEmpty) return;
+    _pdfPageProgress.remove(_bookId);
     _currentPage = 0;
-    _coinsEarned = 0;
-    _readingSeconds = 0;
-
+    await savePdfProgress();
     notifyListeners();
   }
 
-  /// ==============================
-  /// Dispose
-  /// ==============================
+  void _startSessionTimer() {
+    _sessionTimer?.cancel();
+    _sessionTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _sessionDuration += const Duration(seconds: 1);
+    });
+  }
+
+  Future<void> _loadPdfProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_pdfProgressKey);
+    if (raw == null || raw.isEmpty) {
+      _currentPage = 0;
+      return;
+    }
+
+    final decoded = jsonDecode(raw) as Map<String, dynamic>;
+    _pdfPageProgress
+      ..clear()
+      ..addAll(decoded.map((key, value) => MapEntry(key, (value as num).toInt())));
+
+    _currentPage = _pdfPageProgress[_bookId] ?? 0;
+  }
 
   @override
   void dispose() {
-    _readingTimer?.cancel();
+    _sessionTimer?.cancel();
     super.dispose();
   }
 }
