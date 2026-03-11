@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:book_app/features/writer/widgets/content_moderation_service.dart' show ModerationStatus, ContentModerationService;
 import 'package:flutter/material.dart';
 import 'package:book_app/core/routes/app_routes.dart';
 
@@ -60,11 +61,38 @@ class _CreateBookPageState extends State<CreateBookPage> {
     }
   }
 
-  void _addOrUpdateChapter() {
+  /// 🔎 Moderation before adding chapter
+  Future<void> _addOrUpdateChapter() async {
     final title = _chapterTitleController.text.trim();
     final content = _chapterContentController.text.trim();
 
     if (title.isEmpty || content.isEmpty) return;
+
+    final result = await ContentModerationService.checkContent(
+      _bookTitleController.text,
+      title,
+      content,
+    );
+
+    if (!mounted) return;
+
+    if (result.status == ModerationStatus.blocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Content blocked: ${result.matchedKeyword ?? result.message}"),
+        ),
+      );
+      return;
+    }
+
+    if (result.status == ModerationStatus.warning) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Warning: ${result.message}"),
+        ),
+      );
+    }
 
     setState(() {
       _chapters.add({'title': title, 'content': content});
@@ -93,7 +121,8 @@ class _CreateBookPageState extends State<CreateBookPage> {
     });
   }
 
-  void _publishBook() {
+  /// 🔎 Full book moderation before publish
+  Future<void> _publishBook() async {
     final title = _bookTitleController.text.trim();
 
     if (title.isEmpty || _chapters.isEmpty) {
@@ -103,6 +132,37 @@ class _CreateBookPageState extends State<CreateBookPage> {
         ),
       );
       return;
+    }
+
+    String fullContent = "";
+    for (final chapter in _chapters) {
+      fullContent += " ${chapter['title']} ${chapter['content']}";
+    }
+
+    final result = await ContentModerationService.checkContent(
+      title,
+      "",
+      fullContent,
+    );
+
+    if (!mounted) return;
+
+    if (result.status == ModerationStatus.blocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Book cannot be published. Restricted content detected."),
+        ),
+      );
+      return;
+    }
+
+    if (result.status == ModerationStatus.warning) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Warning: ${result.message}"),
+        ),
+      );
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -232,23 +292,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
                           alignment: Alignment.centerRight,
                           child: ElevatedButton(
                             onPressed: _addOrUpdateChapter,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF5C84C),
-                              foregroundColor: const Color(0xFF1F1533),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(22),
-                              ),
-                              elevation: 0,
-                              shadowColor:
-                                  const Color(0xFFFFD76A).withOpacity(0.3),
-                            ),
-                            child: const Text(
-                              "Add Chapter",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold),
-                            ),
+                            child: const Text("Add Chapter"),
                           ),
                         ),
 
@@ -329,20 +373,6 @@ class _CreateBookPageState extends State<CreateBookPage> {
                           height: 60,
                           child: ElevatedButton(
                             onPressed: _publishBook,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color(0xFFF5C84C),
-                              foregroundColor:
-                                  const Color(0xFF1F1533),
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(30),
-                              ),
-                              elevation: 0,
-                              shadowColor:
-                                  const Color(0xFFFFD76A)
-                                      .withOpacity(0.3),
-                            ),
                             child: const Text(
                               "Publish Book",
                               style: TextStyle(
@@ -392,4 +422,3 @@ class _CreateBookPageState extends State<CreateBookPage> {
     );
   }
 }
-

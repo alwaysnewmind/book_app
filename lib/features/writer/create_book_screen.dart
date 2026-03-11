@@ -1,3 +1,5 @@
+import 'package:book_app/features/writer/moderation/moderation_status.dart';
+import 'package:book_app/features/writer/widgets/content_moderation_service.dart' show ContentModerationService;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:book_app/core/routes/app_routes.dart';
@@ -66,6 +68,33 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
       return;
     }
 
+    /// -----------------------------
+    /// CONTENT MODERATION CHECK
+    /// -----------------------------
+    final moderationResult =
+        await ContentModerationService.checkContent(
+      _titleController.text.trim(),
+      _subtitleController.text.trim(),
+      _descController.text.trim(),
+    );
+
+    if (moderationResult == ModerationStatus.blocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("❌ Content violates community guidelines."),
+        ),
+      );
+      return;
+    }
+
+    if (moderationResult == ModerationStatus.warning) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("⚠️ Content may contain sensitive material."),
+        ),
+      );
+    }
+
     setState(() {
       _isSubmitting = true;
     });
@@ -83,6 +112,7 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Book saved as draft")),
       );
+
       Navigator.pushNamed(context, AppRoutes.createBookEntry, arguments: {
         'title': _titleController.text.trim(),
         'subtitle': _subtitleController.text.trim(),
@@ -90,6 +120,7 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
         'genre': _selectedGenre,
         'isPremium': _isPremium,
       });
+
     } on FirebaseException catch (e) {
       if (!mounted) return;
       final error = e.code == 'permission-denied'
@@ -97,12 +128,18 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
           : e.code == 'network-request-failed'
               ? 'Network request failed. Please try again.'
               : (e.message ?? 'Failed to save story');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
       );
+
     } finally {
       if (mounted) {
         setState(() {
@@ -171,18 +208,23 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                 ),
               ),
               const SizedBox(height: 40),
+
               _label("BOOK TITLE"),
               _inputField(
                 controller: _titleController,
                 hint: "Enter book title",
               ),
+
               const SizedBox(height: 22),
+
               _label("SUBTITLE"),
               _inputField(
                 controller: _subtitleController,
                 hint: "Optional subtitle",
               ),
+
               const SizedBox(height: 22),
+
               _label("GENRE"),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -214,14 +256,18 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                   },
                 ),
               ),
+
               const SizedBox(height: 22),
+
               _label("DESCRIPTION"),
               _inputField(
                 controller: _descController,
                 hint: "Write short description...",
                 maxLines: 4,
               ),
+
               const SizedBox(height: 26),
+
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
@@ -248,7 +294,9 @@ class _CreateBookScreenState extends State<CreateBookScreen> {
                   },
                 ),
               ),
+
               const SizedBox(height: 42),
+
               SizedBox(
                 width: double.infinity,
                 height: 60,

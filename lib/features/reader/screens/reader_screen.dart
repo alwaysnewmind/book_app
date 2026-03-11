@@ -89,10 +89,14 @@ End of sample content.
       return;
     }
 
-    await _readerController.openBook(book);
-    await context.read<ReaderProvider>().openBook(
-          book: book,
-          content: _readerController.currentBookContent,
+   await _readerController.openBook(book);
+
+// Check if the widget is still mounted before using context
+if (!mounted) return;
+
+await context.read<ReaderProvider>().openBook(
+      book: book,
+      content: _readerController.currentBookContent,
         );
   }
 

@@ -7,7 +7,7 @@ import 'package:book_app/features/auth/screens/signup_screen.dart';
 import 'package:book_app/features/auth/screens/writer_genre_selection_screen.dart'
     show WriterGenreSelectionScreen;
 import 'package:book_app/features/book/screen/book_detail_screen.dart' show BookDetailScreen;
-import 'package:book_app/features/home/mainicon/favorites%20icon/provider/favorites_provider.dart' show FavoritesProvider;
+import 'package:book_app/features/home/mainicon/favorites_icon/provider/favorites_provider.dart' show FavoritesProvider;
 import 'package:book_app/features/library/screens/my_library_screen.dart' show MyLibraryScreen;
 import 'package:book_app/features/profile/profile_screen.dart' show ProfileScreen;
 import 'package:book_app/features/writer/create_book_entry_page.dart';
@@ -34,14 +34,14 @@ import 'package:book_app/features/auth/screens/login_screen.dart';
 
 /// 🔥 Reading
 import '../../features/book/screen/all_books_screen.dart';
-import '../../features/home/mainicon/story analytics icon/story_analytics_screen.dart';
+import '../../features/home/mainicon/story_analytics_icon/story_analytics_screen.dart';
 import '../../features/reader/screens/pdf_reader_screen.dart';
 import '../../features/reader/data/dummy_reader_data.dart';
 import '../../features/reader/screens/reader_dashboard_screen.dart';
 
 /// 🔥 Settings
-import '../../features/home/mainicon/setting icon/settings_screen.dart';
-import '../../features/home/mainicon/laguge icon/language_selection_screen.dart';
+import '../../features/home/mainicon/setting_icon/settings_screen.dart';
+import '../../features/home/mainicon/laguge_icon/language_selection_screen.dart';
 
 /// 🔥 Writer
 import '../../features/writer/screens/writer_earnings_screen.dart';
@@ -61,21 +61,21 @@ import '../../features/community/screens/chat_screen.dart';
 import '../../features/subscription/reader_subscription_screen.dart';
 
 /// 🔥 Home Dashboards
-import '../../features/home/mainicon/discover icon/discover_dashboard.dart';
-import '../../features/home/mainicon/premium icon/premium_dashboard.dart';
-import '../../features/home/mainicon/offline icon/offline_vault.dart';
-import '../../features/home/mainicon/audio book icon/audio_book_dashboard.dart';
-import '../../features/home/mainicon/content writing icon/content_writing_dashboard.dart';
-import '../../features/home/mainicon/category icon/category_dashboard.dart';
-import '../../features/home/mainicon/book battle icon/book_battle_dashboard.dart';
-import '../../features/home/mainicon/help icon/help_support.dart';
-import '../../features/home/mainicon/favorites icon/favorites_dashboard.dart';
+import '../../features/home/mainicon/discover_icon/discover_dashboard.dart';
+import '../../features/home/mainicon/premium_icon/premium_dashboard.dart';
+import '../../features/home/mainicon/offline_icon/offline_vault.dart';
+import '../../features/home/mainicon/audio_book_icon/audio_book_dashboard.dart';
+import '../../features/home/mainicon/content_writing_icon/content_writing_dashboard.dart';
+import '../../features/home/mainicon/category_icon/category_dashboard.dart';
+import '../../features/home/mainicon/book_battle_icon/book_battle_dashboard.dart';
+import '../../features/home/mainicon/help_icon/help_support.dart';
+import '../../features/home/mainicon/favorites_icon/favorites_dashboard.dart';
 
 /// 🔥 Reviews & Quotes
-import 'package:book_app/features/home/mainicon/reviews icon/provider/review_provider.dart';
-import 'package:book_app/features/home/mainicon/reviews icon/review_dashboard_screen.dart';
-import 'package:book_app/features/home/mainicon/quotes icon//provider/quotes_provider.dart';
-import 'package:book_app/features/home/mainicon/quotes icon/quotes_dashboard.dart';
+import 'package:book_app/features/home/mainicon/reviews_icon/provider/review_provider.dart';
+import 'package:book_app/features/home/mainicon/reviews_icon/review_dashboard_screen.dart';
+import 'package:book_app/features/home/mainicon/quotes_icon//provider/quotes_provider.dart';
+import 'package:book_app/features/home/mainicon/quotes_icon/quotes_dashboard.dart';
 
 
 class AppRoutes {

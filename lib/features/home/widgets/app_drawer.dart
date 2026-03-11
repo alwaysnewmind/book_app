@@ -4,7 +4,7 @@ import 'package:book_app/features/subscription/reader_subscription_screen.dart' 
 import 'package:flutter/material.dart';
 import 'package:book_app/features/profile/edit_profile_screen.dart';
 import '../../library/screens/my_library_screen.dart';
-import '../mainicon/setting icon/settings_screen.dart' show SettingsScreen;
+import '../mainicon/setting_icon/settings_screen.dart' show SettingsScreen;
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});

@@ -12,7 +12,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     this.actions,
     this.leading,
-    this.titleText = "Reader App",
+    this.titleText = "Mythica",
     this.backgroundColor = Colors.deepPurple,
     this.titleStyle,
     this.centerTitle = false,

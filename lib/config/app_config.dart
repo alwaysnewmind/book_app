@@ -31,7 +31,7 @@ class AppConfig {
 
       case AppEnvironment.prod:
         _instance = AppConfig._(
-          appName: "BookApp",
+          appName: "Mythica",
           baseUrl: "Local", // replace later with real prod URL
           enableLogging: false,
           enablePayments: true,

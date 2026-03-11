@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ReaderBookModel {
   final String id;
   final String title;
@@ -28,6 +30,16 @@ class ReaderBookModel {
     required this.isBookmarked,
     required this.lastReadAt,
   });
+
+  /// ==============================
+  /// PROGRESS GETTER (READER ENGINE USE)
+  /// ==============================
+
+  double get progress => progressPercent;
+
+  /// ==============================
+  /// COPY WITH
+  /// ==============================
 
   ReaderBookModel copyWith({
     String? id,
@@ -61,64 +73,97 @@ class ReaderBookModel {
     );
   }
 
+  /// ==============================
+  /// FIRESTORE FACTORY
+  /// ==============================
+
   factory ReaderBookModel.fromFirestore({
     required String id,
     required Map<String, dynamic> bookData,
     Map<String, dynamic>? progressData,
     bool isBookmarked = false,
   }) {
-    final totalChapters = (bookData['totalChapters'] ?? 0) as int;
-    final lastReadChapter = (progressData?['lastReadChapter'] ?? 0) as int;
+    final int totalChapters = (bookData['totalChapters'] ?? 0) as int;
+    final int lastReadChapter = (progressData?['lastReadChapter'] ?? 0) as int;
+
     final dynamic progressValue = progressData?['progressPercent'];
-    final progressPercent = progressValue is num
+
+    final double progressPercent = progressValue is num
         ? progressValue.toDouble()
-        : _calculateProgress(lastReadChapter: lastReadChapter, totalChapters: totalChapters);
+        : _calculateProgress(
+            lastReadChapter: lastReadChapter,
+            totalChapters: totalChapters,
+          );
 
     return ReaderBookModel(
       id: id,
-      title: (bookData['title'] ?? '') as String,
-      description: (bookData['description'] ?? '') as String,
-      authorName: (bookData['authorName'] ?? '') as String,
-      coverUrl: (bookData['coverUrl'] ?? '') as String,
-      genre: (bookData['genre'] ?? '') as String,
-      rating: ((bookData['rating'] ?? 0) as num).toDouble(),
+      title: bookData['title'] ?? '',
+      description: bookData['description'] ?? '',
+      authorName: bookData['authorName'] ?? '',
+      coverUrl: bookData['coverUrl'] ?? '',
+      genre: bookData['genre'] ?? '',
+      rating: (bookData['rating'] ?? 0).toDouble(),
       totalChapters: totalChapters,
       lastReadChapter: lastReadChapter,
       progressPercent: progressPercent,
       viewsCount: (bookData['viewsCount'] ?? 0) as int,
       isBookmarked: isBookmarked,
-      lastReadAt: progressData?['lastReadAt'] as DateTime?,
+      lastReadAt: _parseTimestamp(progressData?['lastReadAt']),
     );
   }
+
+  /// ==============================
+  /// JSON (DATABASE WRITE)
+  /// ==============================
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'authorName': authorName,
+      'coverUrl': coverUrl,
+      'genre': genre,
+      'rating': rating,
+      'totalChapters': totalChapters,
+      'viewsCount': viewsCount,
+    };
+  }
+
+  /// ==============================
+  /// PROGRESS JSON
+  /// ==============================
+
+  Map<String, dynamic> progressJson() {
+    return {
+      'lastReadChapter': lastReadChapter,
+      'progressPercent': progressPercent,
+      'lastReadAt': lastReadAt,
+    };
+  }
+
+  /// ==============================
+  /// UTILITIES
+  /// ==============================
 
   static double _calculateProgress({
     required int lastReadChapter,
     required int totalChapters,
   }) {
     if (totalChapters <= 0) return 0;
-    return (lastReadChapter / totalChapters) * 100;
+    return ((lastReadChapter / totalChapters) * 100).clamp(0, 100).toDouble();
   }
-}
 
-class ReaderStatsSummary {
-  final int totalBooksRead;
-  final int completedBooks;
-  final int currentlyReading;
-  final double averageProgress;
+  static DateTime? _parseTimestamp(dynamic value) {
+    if (value == null) return null;
 
-  const ReaderStatsSummary({
-    required this.totalBooksRead,
-    required this.completedBooks,
-    required this.currentlyReading,
-    required this.averageProgress,
-  });
+    if (value is Timestamp) {
+      return value.toDate();
+    }
 
-  factory ReaderStatsSummary.empty() {
-    return const ReaderStatsSummary(
-      totalBooksRead: 0,
-      completedBooks: 0,
-      currentlyReading: 0,
-      averageProgress: 0,
-    );
+    if (value is DateTime) {
+      return value;
+    }
+
+    return null;
   }
 }

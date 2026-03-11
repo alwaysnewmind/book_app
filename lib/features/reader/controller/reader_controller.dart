@@ -1,209 +1,272 @@
-import 'dart:async';
 import 'dart:convert';
-
-import 'package:book_app/features/reader/models/reader_book_model.dart';
-import 'package:book_app/features/reader/models/reader_stats_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/reader_book_model.dart';
 
 class ReaderController extends ChangeNotifier {
-  static const String _statsKey = 'reader_engine_stats';
-  static const String _progressKey = 'reader_engine_progress';
-  static const String _bookContentPrefix = 'reader_engine_content_';
 
-  ReaderBookModel? _activeBook;
-  String _currentBookContent = '';
-  ReaderStatsModel _stats = ReaderStatsModel.empty();
+  /// Storage Keys
+  static const _statsKey = "reader_stats";
+  static const _bookProgressKey = "reader_book_progress";
 
-  final Map<String, double> _bookProgress = <String, double>{};
-  final Map<String, DateTime> _lastReadAt = <String, DateTime>{};
+  late SharedPreferences _prefs;
 
-  Timer? _readingTimer;
+  /// Current Book
+  ReaderBookModel? _currentBook;
 
-  ReaderBookModel? get activeBook => _activeBook;
-  String get currentBookContent => _currentBookContent;
-  ReaderStatsModel get statsModel => _stats;
-  Map<String, double> get bookProgress => Map<String, double>.unmodifiable(_bookProgress);
+  /// Reading Stats
+  int _pagesRead = 0;
+  int _booksCompleted = 0;
+  int _readingStreak = 1;
+  int _readingMinutes = 0;
 
-  // Legacy getters used by existing dashboard widgets.
-  int get coins => _stats.pagesRead;
-  int get xp => _stats.totalReadingTime ~/ 60;
-  int get level => ((xp ~/ 200) + 1).clamp(1, 9999);
-  int get streak => _stats.readingStreak;
-  int get totalReadingSeconds => _stats.totalReadingTime;
-  int get completedBooks => _stats.booksCompleted;
+  /// Reading Progress
+  double _progress = 0;
 
+  /// Session tracking
+  DateTime? _sessionStart;
+
+  /// Book Progress Map
+  final Map<String, double> _bookProgress = {};
+
+  bool _initialized = false;
+
+  /// Getters
+  ReaderBookModel? get currentBook => _currentBook;
+  int get pagesRead => _pagesRead;
+  int get booksCompleted => _booksCompleted;
+  int get readingStreak => _readingStreak;
+  double get progress => _progress;
+  int get readingMinutes => _readingMinutes;
+
+  String get currentBookContent => '';
+
+  get completedBooks => null;
+
+  get streak => null;
+
+  get coins => null;
+
+  get xp => null;
+
+  /// -------------------------
+  /// Init Reader Engine
+  /// -------------------------
   Future<void> init() async {
-    await _loadPersistedState();
+
+    if (_initialized) return;
+
+    _prefs = await SharedPreferences.getInstance();
+
+    await _loadStats();
+    await _loadBookProgress();
+
+    _initialized = true;
+
+    notifyListeners();
   }
 
+  /// -------------------------
+  /// Open Book
+  /// -------------------------
   Future<void> openBook(ReaderBookModel book) async {
-    _activeBook = book;
-    _currentBookContent = await loadBookContent(book.id);
-    _lastReadAt[book.id] = DateTime.now();
-    await _persistProgress();
+
+    if (!_initialized) {
+      await init();
+    }
+
+    _currentBook = book;
+
+    _progress = _bookProgress[book.id] ?? book.progress;
+
+    _startSession();
+
     notifyListeners();
   }
 
-  Future<String> loadBookContent(String bookId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final cachedContent = prefs.getString('$_bookContentPrefix$bookId');
-    if (cachedContent != null && cachedContent.isNotEmpty) {
-      return cachedContent;
-    }
-
-    // Placeholder content pipeline for text reader; replace with API/repository later.
-    final generated = List<String>.generate(
-      20,
-      (index) => 'Chapter ${index + 1}\n\nThis is generated content for $bookId. '
-          'It allows production-like flow for progress, resume, analytics and settings.',
-    ).join('\n\n');
-
-    await prefs.setString('$_bookContentPrefix$bookId', generated);
-    return generated;
+  /// -------------------------
+  /// Start Reading Session
+  /// -------------------------
+  void _startSession() {
+    _sessionStart = DateTime.now();
   }
 
-  Future<void> updateReadingProgress({
-    required String bookId,
-    required double progress,
-    int pagesRead = 0,
-  }) async {
-    final normalizedProgress = progress.clamp(0, 100).toDouble();
-    _bookProgress[bookId] = normalizedProgress;
-    _lastReadAt[bookId] = DateTime.now();
+  /// -------------------------
+  /// End Reading Session
+  /// -------------------------
+  Future<void> endSession() async {
 
-    if (pagesRead > 0) {
-      _stats = _stats.copyWith(pagesRead: _stats.pagesRead + pagesRead);
-    }
+    if (_sessionStart == null) return;
 
-    if (normalizedProgress >= 100) {
-      _stats = _stats.copyWith(booksCompleted: _calculateCompletedBooks());
-    }
+    final duration =
+        DateTime.now().difference(_sessionStart!).inMinutes;
 
-    await _persistProgress();
+    _readingMinutes += duration;
+
+    _sessionStart = null;
+
+    await _saveStats();
+
     notifyListeners();
   }
 
-  Future<void> saveReadingSession({
-    required String bookId,
-    required Duration duration,
-    int pagesRead = 0,
-  }) async {
-    _stats = _stats.copyWith(
-      totalReadingTime: _stats.totalReadingTime + duration.inSeconds,
-      pagesRead: _stats.pagesRead + pagesRead,
-      readingStreak: _calculateStreak(),
-      booksCompleted: _calculateCompletedBooks(),
-    );
+  /// -------------------------
+  /// Update Reading Progress
+  /// -------------------------
+  Future<void> updateProgress(double progress) async {
 
-    _lastReadAt[bookId] = DateTime.now();
-    await _persistStats();
+    if (_currentBook == null) return;
+
+    final double newProgress =
+        progress.clamp(0, 100).toDouble();
+
+    if (newProgress == _progress) return;
+
+    _progress = newProgress;
+
+    _bookProgress[_currentBook!.id] = _progress;
+
+    /// Example page calculation
+    const int estimatedPages = 300;
+
+    final pages =
+        (_progress / 100 * estimatedPages).toInt();
+
+    if (pages > _pagesRead) {
+      _pagesRead = pages;
+    }
+
+    if (_progress >= 100) {
+      _completeBook();
+    }
+
+    await _saveBookProgress();
+    await _saveStats();
+
     notifyListeners();
   }
 
-  ReaderStatsModel calculateReadingStats() {
-    _stats = _stats.copyWith(
-      booksCompleted: _calculateCompletedBooks(),
-      readingStreak: _calculateStreak(),
-    );
-    return _stats;
+  /// -------------------------
+  /// Complete Book
+  /// -------------------------
+  void _completeBook() {
+
+    if (_progress < 100) return;
+
+    _booksCompleted += 1;
+
+    _updateStreak();
   }
 
-  // Legacy compatibility methods.
-  void startReadingSession() {
-    _readingTimer?.cancel();
-    _readingTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      final activeBookId = _activeBook?.id;
-      if (activeBookId == null) return;
-      saveReadingSession(bookId: activeBookId, duration: const Duration(minutes: 1));
-    });
+  /// -------------------------
+  /// Reading Streak Logic
+  /// -------------------------
+  void _updateStreak() {
+    _readingStreak += 1;
   }
 
-  void stopReadingSession() {
-    _readingTimer?.cancel();
-  }
+  /// -------------------------
+  /// Reset Stats
+  /// -------------------------
+  Future<void> resetStats() async {
 
-  void updateBookProgress(String bookId, int page, int totalPages) {
-    if (totalPages <= 0) return;
-    final progress = (page / totalPages) * 100;
-    updateReadingProgress(bookId: bookId, progress: progress, pagesRead: 1);
-  }
+    _pagesRead = 0;
+    _booksCompleted = 0;
+    _readingMinutes = 0;
+    _readingStreak = 1;
+    _progress = 0;
 
-  Future<void> resetAllData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_statsKey);
-    await prefs.remove(_progressKey);
-
-    _stats = ReaderStatsModel.empty();
     _bookProgress.clear();
-    _lastReadAt.clear();
-    _activeBook = null;
-    _currentBookContent = '';
-    notifyListeners();
-  }
 
-  int _calculateCompletedBooks() {
-    return _bookProgress.values.where((progress) => progress >= 100).length;
-  }
-
-  int _calculateStreak() {
-    if (_lastReadAt.isEmpty) return 0;
-
-    final dates = _lastReadAt.values
-        .map((date) => DateTime(date.year, date.month, date.day))
-        .toSet()
-        .toList()
-      ..sort((a, b) => b.compareTo(a));
-
-    var streakValue = 0;
-    DateTime expectedDay = DateTime.now();
-
-    for (final date in dates) {
-      final normalizedExpected = DateTime(expectedDay.year, expectedDay.month, expectedDay.day);
-      if (date == normalizedExpected) {
-        streakValue++;
-        expectedDay = expectedDay.subtract(const Duration(days: 1));
-      } else if (date.isBefore(normalizedExpected)) {
-        break;
-      }
-    }
-
-    return streakValue;
-  }
-
-  Future<void> _loadPersistedState() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final statsRaw = prefs.getString(_statsKey);
-    if (statsRaw != null && statsRaw.isNotEmpty) {
-      _stats = ReaderStatsModel.fromJson(jsonDecode(statsRaw) as Map<String, dynamic>);
-    }
-
-    final progressRaw = prefs.getString(_progressKey);
-    if (progressRaw != null && progressRaw.isNotEmpty) {
-      final decoded = jsonDecode(progressRaw) as Map<String, dynamic>;
-      _bookProgress
-        ..clear()
-        ..addAll(decoded.map((key, value) => MapEntry(key, (value as num).toDouble())));
-    }
+    await _prefs.remove(_statsKey);
+    await _prefs.remove(_bookProgressKey);
 
     notifyListeners();
   }
 
-  Future<void> _persistStats() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_statsKey, jsonEncode(_stats.toJson()));
+  /// -------------------------
+  /// Save Stats
+  /// -------------------------
+  Future<void> _saveStats() async {
+
+    final data = {
+      "pagesRead": _pagesRead,
+      "booksCompleted": _booksCompleted,
+      "readingStreak": _readingStreak,
+      "readingMinutes": _readingMinutes,
+    };
+
+    await _prefs.setString(_statsKey, jsonEncode(data));
   }
 
-  Future<void> _persistProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_progressKey, jsonEncode(_bookProgress));
-    await _persistStats();
+  /// -------------------------
+  /// Load Stats
+  /// -------------------------
+  Future<void> _loadStats() async {
+
+    final raw = _prefs.getString(_statsKey);
+
+    if (raw == null) return;
+
+    try {
+
+      final data = jsonDecode(raw);
+
+      _pagesRead = data["pagesRead"] ?? 0;
+      _booksCompleted = data["booksCompleted"] ?? 0;
+      _readingStreak = data["readingStreak"] ?? 1;
+      _readingMinutes = data["readingMinutes"] ?? 0;
+
+    } catch (_) {}
   }
 
+  /// -------------------------
+  /// Save Book Progress
+  /// -------------------------
+  Future<void> _saveBookProgress() async {
+
+    await _prefs.setString(
+      _bookProgressKey,
+      jsonEncode(_bookProgress),
+    );
+  }
+
+  /// -------------------------
+  /// Load Book Progress
+  /// -------------------------
+  Future<void> _loadBookProgress() async {
+
+    final raw = _prefs.getString(_bookProgressKey);
+
+    if (raw == null) return;
+
+    try {
+
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+
+      _bookProgress.clear();
+
+      decoded.forEach((key, value) {
+        _bookProgress[key] = (value as num).toDouble();
+      });
+
+    } catch (_) {}
+  }
+
+  /// -------------------------
+  /// Dispose
+  /// -------------------------
   @override
   void dispose() {
-    _readingTimer?.cancel();
+    endSession();
     super.dispose();
   }
+
+  void startReadingSession() {}
+
+  void stopReadingSession() {}
+
+  void updateBookProgress(String id, int nextPage, int demoTotalPages) {}
+
+  void updateReadingProgress({required String bookId, required double progress, required int pagesRead}) {}
 }

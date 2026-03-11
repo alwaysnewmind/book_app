@@ -234,53 +234,54 @@ class _LoginScreenState extends State<LoginScreen>
 const SizedBox(height: 20),
 
 
-                            /// Google
-                            _socialButton(
-                              "Login with Google",
-                              () async {
-                                final success = await authProvider.signInWithGoogle();
-                                if (!mounted) return;
+/// Google
+_socialButton(
+  "Login with Google",
+  () async {
+    final success = await authProvider.signInWithGoogle();
 
-                                if (!success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(authProvider.error ?? 'Google sign-in failed')),
-                                  );
-                                  return;
-                                }
+    if (!mounted) return; // ✅ ensure widget still exists
 
-                                if (authProvider.requiresProfileCompletion) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Please complete your profile setup.')),
-                                  );
-                                }
-                              },
-                            ),
+    if (!success) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(authProvider.error ?? 'Google sign-in failed')),
+      );
+      return;
+    }
 
-                            const SizedBox(height: 12),
+    if (authProvider.requiresProfileCompletion) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        const SnackBar(content: Text('Please complete your profile setup.')),
+      );
+    }
+  },
+),
 
-                            /// Microsoft
-                            _socialButton(
-                              "Login with Outlook",
-                              () async {
-                                final success = await authProvider.signInWithMicrosoft();
-                                if (!mounted) return;
+const SizedBox(height: 12),
 
-                                if (!success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(authProvider.error ?? 'Microsoft sign-in failed')),
-                                  );
-                                  return;
-                                }
+/// Microsoft
+_socialButton(
+  "Login with Outlook",
+  () async {
+    final success = await authProvider.signInWithMicrosoft();
 
-                                if (authProvider.requiresProfileCompletion) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Please complete your profile setup.')),
-                                  );
-                                }
-                              },
-                            ),
+    if (!mounted) return; // ✅ ensure widget still exists
 
-                            const SizedBox(height: 12),
+    if (!success) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(authProvider.error ?? 'Microsoft sign-in failed')),
+      );
+      return;
+    }
+
+    if (authProvider.requiresProfileCompletion) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        const SnackBar(content: Text('Please complete your profile setup.')),
+      );
+    }
+  },
+),
+const SizedBox(height: 12),
 
                             /// Guest
                             _socialButton(

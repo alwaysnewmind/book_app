@@ -16,23 +16,20 @@ class PremiumState {
   final String? planType;
 
   const PremiumState({
-    required this.status,
-    required this.message,
-    required this.isProcessing,
-    required this.isPremium,
-    required this.expiryDate,
-    required this.planType,
+    this.status = PremiumStatus.initial,
+    this.message,
+    this.isProcessing = false,
+    this.isPremium = false,
+    this.expiryDate,
+    this.planType,
   });
 
-  factory PremiumState.initial() => const PremiumState(
-        status: PremiumStatus.initial,
-        message: null,
-        isProcessing: false,
-        isPremium: false,
-        expiryDate: null,
-        planType: null,
-      );
+  /// Initial state
+  factory PremiumState.initial() {
+    return const PremiumState();
+  }
 
+  /// CopyWith
   PremiumState copyWith({
     PremiumStatus? status,
     String? message,
@@ -53,4 +50,8 @@ class PremiumState {
       planType: clearPlan ? null : (planType ?? this.planType),
     );
   }
+
+  bool get isLoading => status == PremiumStatus.loading;
+  bool get hasError => status == PremiumStatus.error;
+  bool get isActive => status == PremiumStatus.premiumActive && isPremium;
 }

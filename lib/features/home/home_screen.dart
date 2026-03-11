@@ -49,6 +49,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final uid = FirebaseAuth.instance.currentUser?.uid;
+    final size = MediaQuery.of(context).size;
+    final padding = MediaQuery.of(context).padding;
 
     return StreamBuilder<Map<String, dynamic>?>(
       stream: uid == null ? null : RoleService.instance.userProfileStream(uid),
@@ -66,54 +68,53 @@ class HomeScreen extends StatelessWidget {
         final remaining = visibleServices.skip(16).toList();
 
         return Scaffold(
-      backgroundColor: Colors.transparent,
-      drawer: const AppDrawer(),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: HomeAppBar(
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.library_books),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  _animatedRoute(const MyLibraryScreen()),
-                );
-              },
+          backgroundColor: Colors.transparent,
+          drawer: const AppDrawer(),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(size.height * 0.09),
+            child: HomeAppBar(
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.library_books),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      _animatedRoute(const MyLibraryScreen()),
+                    );
+                  },
+                ),
+                if (uid != null)
+                  Consumer<NotificationProvider>(
+                    builder: (context, notifications, _) {
+                      if (notifications.notificationsForUser(uid).isEmpty) {
+                        notifications.loadNotifications(uid);
+                      }
+                      final unread = notifications.unreadCount(uid);
+                      return Stack(children: [
+                        IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+                        if (unread > 0)
+                          Positioned(
+                            right: 10,
+                            top: 10,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                              child: Text('$unread', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                            ),
+                          ),
+                      ]);
+                    },
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: () async {
+                    await AuthService.instance.logout();
+                  },
+                ),
+              ],
             ),
-            if (uid != null)
-              Consumer<NotificationProvider>(
-                builder: (context, notifications, _) {
-                  if (notifications.notificationsForUser(uid).isEmpty) {
-                    notifications.loadNotifications(uid);
-                  }
-                  final unread = notifications.unreadCount(uid);
-                  return Stack(children: [
-                    IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
-                    if (unread > 0)
-                      Positioned(
-                        right: 10,
-                        top: 10,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                          child: Text('$unread', style: const TextStyle(fontSize: 10, color: Colors.white)),
-                        ),
-                      ),
-                  ]);
-                },
-              ),
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () async {
-                await AuthService.instance.logout();
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
 
-      // ✅ Bottom Navigation Properly Placed
           bottomNavigationBar: BottomNav(
             currentIndex: 0,
             onTap: (index) {
@@ -122,134 +123,133 @@ class HomeScreen extends StatelessWidget {
                   Navigator.pushReplacementNamed(context, AppRoutes.home);
                   break;
                 case 1:
-                  Navigator.pushReplacementNamed(
-                      context, AppRoutes.writerDashboard);
+                  Navigator.pushReplacementNamed(context, AppRoutes.writerDashboard);
                   break;
                 case 2:
                   Navigator.pushReplacementNamed(context, AppRoutes.library);
                   break;
                 case 3:
-                  Navigator.pushNamed(
-                      context, AppRoutes.profile);
+                  Navigator.pushNamed(context, AppRoutes.profile);
                   break;
               }
             },
           ),
 
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.topCenter,
+                radius: 1.3,
+                colors: [
+                  Color(0xFF2E1B47),
+                  Color(0xFF1C1B3A),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: padding.bottom),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.topCenter,
-            radius: 1.3,
-            colors: [
-              Color(0xFF2E1B47),
-              Color(0xFF1C1B3A),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                      const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
+                      /// 🔎 SEARCH BAR
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: HomeSearchBar(),
+                      ),
 
-                /// 🔎 SEARCH BAR
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: HomeSearchBar(),
-                ),
+                      const SizedBox(height: 24),
 
-                const SizedBox(height: 24),
+                      /// 🎯 BANNER SLIDER
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: BannerSlider(
+                          banners: [
+                            "assets/banners/banner1.jpg",
+                            "assets/banners/banner2.jpg",
+                            "assets/banners/banner3.jpg",
+                          ],
+                        ),
+                      ),
 
-                /// 🎯 BANNER SLIDER
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: BannerSlider(
-                    banners: [
-                      "assets/banners/banner1.jpg",
-                      "assets/banners/banner2.jpg",
-                      "assets/banners/banner3.jpg",
+                      SizedBox(height: size.height * 0.04),
+
+                      /// 🛠 OUR SERVICES
+                      ServicesSection(
+                        title: "Our Services",
+                        services: ourServices,
+                        crossAxisCount: 4,
+                      ),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      /// 📚 FEATURED BOOKS
+                      const SectionTitle("Featured Books"),
+                      SizedBox(height: size.height * 0.02),
+                      const FeaturedBooks(),
+
+                      SizedBox(height: size.height * 0.04),
+
+                      /// 🔎 EXPLORE
+                      ServicesSection(
+                        title: "Explore",
+                        services: explore,
+                        crossAxisCount: 4,
+                      ),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      /// 🚀 DISCOVER MORE
+                      ServicesSection(
+                        title: "Discover More",
+                        services: discoverMore,
+                        crossAxisCount: 4,
+                      ),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      /// 💎 PROMO CARD
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: BannerCard(
+                          text: "AI Powered Reading & Writing Experience",
+                        ),
+                      ),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      /// ❤️ RECOMMENDED BOOKS
+                      const SectionTitle("Recommended For You"),
+                      SizedBox(height: size.height * 0.02),
+                      const RecommendedBooksSection(),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      /// 🔥 OTHERS
+                      ServicesSection(
+                        title: "Others",
+                        services: remaining,
+                        crossAxisCount: 4,
+                      ),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      /// ✨ SWEET BOTTOM BANNER
+                      const SweetBanner(),
+
+                      SizedBox(height: size.height * 0.05),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 40),
-
-                /// 🛠 OUR SERVICES
-                ServicesSection(
-                  title: "Our Services",
-                  services: ourServices,
-                  crossAxisCount: 4,
-                ),
-
-                const SizedBox(height: 30),
-
-                /// 📚 FEATURED BOOKS
-                const SectionTitle("Featured Books"),
-                const SizedBox(height: 16),
-                const FeaturedBooks(),
-
-                const SizedBox(height: 40),
-
-                /// 🔎 EXPLORE
-                ServicesSection(
-                  title: "Explore",
-                  services: explore,
-                  crossAxisCount: 4,
-                ),
-
-                const SizedBox(height: 30),
-
-                /// 🚀 DISCOVER MORE
-                ServicesSection(
-                  title: "Discover More",
-                  services: discoverMore,
-                  crossAxisCount: 4,
-                ),
-
-                const SizedBox(height: 30),
-
-                /// 💎 PROMO CARD
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 40),
-                  child: BannerCard(
-                    text: "AI Powered Reading & Writing Experience",
-                  ),
-                ),
-
-                const SizedBox(height: 36),
-
-                /// ❤️ RECOMMENDED BOOKS
-                const SectionTitle("Recommended For You"),
-                const SizedBox(height: 16),
-                const RecommendedBooksSection(),
-
-                const SizedBox(height: 36),
-
-                /// 🔥 OTHERS
-                ServicesSection(
-                  title: "Others",
-                  services: remaining,
-                  crossAxisCount: 4,
-                ),
-
-
-                const SizedBox(height: 30),
-
-                /// ✨ SWEET BOTTOM BANNER
-                const SweetBanner(),
-
-                const SizedBox(height: 60),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        );
       },
     );
   }
@@ -268,6 +268,8 @@ class HomeServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
@@ -281,8 +283,8 @@ class HomeServiceTile extends StatelessWidget {
 
           /// OUTER RING
           Container(
-            height: 72,
-            width: 72,
+            height: size.width * 0.18,
+            width: size.width * 0.18,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -294,31 +296,32 @@ class HomeServiceTile extends StatelessWidget {
                   color: const Color(0xFFFFD86B).withOpacity(0.4),
                   blurRadius: 18,
                   spreadRadius: 1,
-            ),]
+                ),
+              ],
             ),
             child: Center(
               child: Container(
-                height: 54,
-                width: 54,
+                height: size.width * 0.135,
+                width: size.width * 0.135,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  
                   gradient: LinearGradient(
                     colors: [
                       Color(0xFF3C2A5E),
                       Color(0xFF2A2045),
                     ],
-                  ),),
+                  ),
+                ),
                 child: Icon(
                   service.icon,
-                  size: 40,
-                  color: Color (0xFFFFD86B),
+                  size: size.width * 0.1,
+                  color: const Color(0xFFFFD86B),
                 ),
               ),
             ),
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: size.height * 0.012),
 
           Text(
             service.title,
@@ -326,9 +329,9 @@ class HomeServiceTile extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFFE2E2E5),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFFE2E2E5),
             ),
           ),
         ],
@@ -345,6 +348,7 @@ class RecommendedBooksSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final books = [
       "assets/books/Book1.png",
       "assets/books/Book2.png",
@@ -354,12 +358,12 @@ class RecommendedBooksSection extends StatelessWidget {
     ];
 
     return SizedBox(
-      height: 190,
+      height: size.height * 0.23,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: books.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        separatorBuilder: (_, __) => SizedBox(width: size.width * 0.035),
         itemBuilder: (context, index) {
           final image = books[index];
 
@@ -370,10 +374,9 @@ class RecommendedBooksSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
-                    transitionDuration:
-                        const Duration(milliseconds: 350),
+                    transitionDuration: const Duration(milliseconds: 350),
                     pageBuilder: (_, __, ___) => Scaffold(
-                      backgroundColor:const Color(0xFF1C1B3A),
+                      backgroundColor: const Color(0xFF1C1B3A),
                       body: Center(
                         child: Hero(
                           tag: image,
@@ -388,7 +391,7 @@ class RecommendedBooksSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 child: Image.asset(
                   image,
-                  width: 130,
+                  width: size.width * 0.32,
                   fit: BoxFit.cover,
                 ),
               ),

@@ -1,5 +1,7 @@
 // features/reader/models/reader_state_model.dart
 
+import 'dart:collection';
+
 class ReaderStateModel {
   /// ==============================
   /// GLOBAL USER DATA
@@ -22,7 +24,7 @@ class ReaderStateModel {
   /// unlocked premium books
   final Set<String> unlockedBooks;
 
-  /// completed book IDs
+  /// completed books
   final Set<String> completedBookIds;
 
   /// ==============================
@@ -60,6 +62,19 @@ class ReaderStateModel {
   }
 
   /// ==============================
+  /// IMMUTABLE COLLECTION GETTERS
+  /// ==============================
+
+  UnmodifiableMapView<String, int> get safeBookProgress =>
+      UnmodifiableMapView(bookProgress);
+
+  UnmodifiableSetView<String> get safeUnlockedBooks =>
+      UnmodifiableSetView(unlockedBooks);
+
+  UnmodifiableSetView<String> get safeCompletedBooks =>
+      UnmodifiableSetView(completedBookIds);
+
+  /// ==============================
   /// COPY WITH (IMMUTABLE UPDATE)
   /// ==============================
 
@@ -82,10 +97,12 @@ class ReaderStateModel {
       totalReadingSeconds:
           totalReadingSeconds ?? this.totalReadingSeconds,
       completedBooks: completedBooks ?? this.completedBooks,
-      bookProgress: bookProgress ?? this.bookProgress,
-      unlockedBooks: unlockedBooks ?? this.unlockedBooks,
+      bookProgress:
+          Map.unmodifiable(bookProgress ?? this.bookProgress),
+      unlockedBooks:
+          Set.unmodifiable(unlockedBooks ?? this.unlockedBooks),
       completedBookIds:
-          completedBookIds ?? this.completedBookIds,
+          Set.unmodifiable(completedBookIds ?? this.completedBookIds),
     );
   }
 
@@ -95,7 +112,8 @@ class ReaderStateModel {
 
   double get levelProgress {
     final requiredXp = level * 200;
-    return xp / requiredXp;
+    if (requiredXp == 0) return 0;
+    return (xp / requiredXp).clamp(0, 1);
   }
 
   /// ==============================
@@ -110,7 +128,7 @@ class ReaderStateModel {
   }
 
   /// ==============================
-  /// SERIALIZATION
+  /// JSON SERIALIZATION
   /// ==============================
 
   Map<String, dynamic> toJson() {
@@ -127,23 +145,52 @@ class ReaderStateModel {
     };
   }
 
-  factory ReaderStateModel.fromJson(Map<String, dynamic> json) {
-    return ReaderStateModel(
-      coins: json['coins'] ?? 0,
-      xp: json['xp'] ?? 0,
-      level: json['level'] ?? 1,
-      streak: json['streak'] ?? 0,
-      totalReadingSeconds:
-          json['totalReadingSeconds'] ?? 0,
-      completedBooks: json['completedBooks'] ?? 0,
-      bookProgress:
-          Map<String, int>.from(json['bookProgress'] ?? {}),
-      unlockedBooks:
-          Set<String>.from(json['unlockedBooks'] ?? []),
-      completedBookIds:
-          Set<String>.from(json['completedBookIds'] ?? []),
-    );
+  factory ReaderStateModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return ReaderStateModel.initial();
+
+    try {
+      return ReaderStateModel(
+        coins: json['coins'] ?? 0,
+        xp: json['xp'] ?? 0,
+        level: json['level'] ?? 1,
+        streak: json['streak'] ?? 0,
+        totalReadingSeconds: json['totalReadingSeconds'] ?? 0,
+        completedBooks: json['completedBooks'] ?? 0,
+        bookProgress:
+            Map<String, int>.from(json['bookProgress'] ?? {}),
+        unlockedBooks:
+            Set<String>.from(json['unlockedBooks'] ?? []),
+        completedBookIds:
+            Set<String>.from(json['completedBookIds'] ?? []),
+      );
+    } catch (_) {
+      return ReaderStateModel.initial();
+    }
   }
+
+  /// ==============================
+  /// EQUALITY (IMPORTANT FOR PROVIDER)
+  /// ==============================
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReaderStateModel &&
+        coins == other.coins &&
+        xp == other.xp &&
+        level == other.level &&
+        streak == other.streak &&
+        totalReadingSeconds == other.totalReadingSeconds &&
+        completedBooks == other.completedBooks;
+  }
+
+  @override
+  int get hashCode =>
+      coins ^
+      xp ^
+      level ^
+      streak ^
+      totalReadingSeconds ^
+      completedBooks;
 
   /// ==============================
   /// DEBUG
@@ -153,11 +200,11 @@ class ReaderStateModel {
   String toString() {
     return '''
 ReaderStateModel(
-  coins: $coins,
-  xp: $xp,
-  level: $level,
-  streak: $streak,
-  readingTime: $formattedReadingTime,
+  coins: $coins
+  xp: $xp
+  level: $level
+  streak: $streak
+  readingTime: $formattedReadingTime
   completedBooks: $completedBooks
 )
 ''';

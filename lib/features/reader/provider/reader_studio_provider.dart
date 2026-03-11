@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:book_app/features/reader/data/dummy_reader_data.dart';
+import 'package:book_app/features/reader/models/ReaderStatsSummary%20.dart' show ReaderStatsSummary;
 import 'package:book_app/features/reader/models/reader_book_model.dart';
 import 'package:book_app/features/reader/models/reader_stats_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -195,7 +196,7 @@ class ReaderStudioProvider extends ChangeNotifier {
       totalReadingTime: pagesRead * 90,
       pagesRead: pagesRead,
       booksCompleted: booksCompleted,
-      readingStreak: readingDays,
+      readingStreak: readingDays, totalReadingSeconds:0, lastReadAt: null,
     );
   }
 

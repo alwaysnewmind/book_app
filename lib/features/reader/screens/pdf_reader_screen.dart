@@ -24,7 +24,12 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
   @override
   void initState() {
     super.initState();
-    _pdfController.init(widget.book.id, _demoTotalPages);
+
+    _pdfController.init(
+      bookId: widget.book.id,
+      totalPages: _demoTotalPages,
+    );
+
     _readerController.init();
     _readerController.startReadingSession();
   }
@@ -39,7 +44,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
   }
 
   void _changePage(int nextPage) {
-    if (nextPage < 0 || nextPage > _demoTotalPages) {
+    if (nextPage < 0 || nextPage >= _demoTotalPages) {
       return;
     }
 
@@ -64,11 +69,10 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
       body: AnimatedBuilder(
         animation: _pdfController,
         builder: (context, _) {
-          final currentPage = _pdfController.currentPage;
+          final int currentPage = _pdfController.currentPage;
 
-          final progressValue = _demoTotalPages == 0
-              ? 0.0
-              : currentPage / _demoTotalPages;
+          final double progressValue =
+              _demoTotalPages == 0 ? 0.0 : currentPage / _demoTotalPages;
 
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -84,6 +88,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                 LinearProgressIndicator(value: progressValue),
 
                 const SizedBox(height: 8),
+
                 Text('Page $currentPage / $_demoTotalPages'),
 
                 const SizedBox(height: 16),

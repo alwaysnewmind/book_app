@@ -19,13 +19,11 @@ class ReaderDashboardScreen extends StatefulWidget {
   const ReaderDashboardScreen({super.key});
 
   @override
-  State<ReaderDashboardScreen> createState() =>
-      _ReaderDashboardScreenState();
+  State<ReaderDashboardScreen> createState() => _ReaderDashboardScreenState();
 }
 
 class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
   static const double _horizontalPadding = 20;
-  static const double _sectionSpacing = 36;
 
   final ReaderController _readerController = ReaderController();
 
@@ -37,13 +35,10 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
   static const Color gold = Color(0xFFF5C84C);
   static const Color goldGlow = Color(0xFFFFD76A);
 
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFFCFC8E8);
   static const Color textMuted = Color(0xFF9F96C8);
 
-  // 🔥 UPDATED CARD COLORS (No More White)
   static const Color cardFill = Color(0xFF251A3F);
-  static const Color cardSoft = Color(0xFF2E224F); // NEW
+  static const Color cardSoft = Color(0xFF2E224F);
   static const Color borderInactive = Color(0xFF3A2D5C);
 
   @override
@@ -67,8 +62,7 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
       return;
     }
 
-    await studioProvider.loadDashboard(
-        userId: authProvider.currentUser?.uid);
+    await studioProvider.loadDashboard(userId: authProvider.currentUser?.uid);
 
     final error = studioProvider.errorMessage;
     if (error != null && mounted) {
@@ -124,6 +118,8 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
     return Consumer<ReaderStudioProvider>(
       builder: (context, studioProvider, _) {
         final continueReadingBooks = studioProvider.getContinueReading();
@@ -131,8 +127,7 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
         final favoriteBooks = studioProvider.getQuickAccessFavorites();
         final featuredBooks =
             favoriteBooks.isNotEmpty ? favoriteBooks : recentlyReadBooks;
-        final recommendedBooks =
-            studioProvider.getRecommendedBooks();
+        final recommendedBooks = studioProvider.getRecommendedBooks();
 
         return Scaffold(
           backgroundColor: bgPrimary,
@@ -151,20 +146,19 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
                 onRefresh: _loadData,
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
-                      /// 🔥 HEADER (Make sure ReaderHeader uses dark grey)
-                      const ReaderHeader(),
+                        const ReaderHeader(),
 
-                      const SizedBox(height: 42),
+                        SizedBox(height: screenSize.height * 0.03),
 
-                      /// 🔥 STATS CARD (Dark Soft Background)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: _horizontalPadding),
-                        child: Container(
+                        /// 🔥 STATS GRID
+                        Container(
                           decoration: BoxDecoration(
                             color: cardSoft,
                             borderRadius: BorderRadius.circular(28),
@@ -177,7 +171,7 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
                               ),
                             ],
                           ),
-                          padding: const EdgeInsets.all(24),
+                          padding: EdgeInsets.all(screenSize.width * 0.06),
                           child: AnimatedBuilder(
                             animation: _readerController,
                             builder: (context, _) {
@@ -188,102 +182,91 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
                             },
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: _sectionSpacing),
+                        SizedBox(height: screenSize.height * 0.04),
 
-                      /// 🔥 ANALYTICS CARD
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: _horizontalPadding),
-                        child: Container(
+                        /// 🔥 ANALYTICS CARD
+                        Container(
                           decoration: BoxDecoration(
                             color: cardSoft,
                             borderRadius: BorderRadius.circular(26),
                             border: Border.all(color: borderInactive),
                           ),
-                          padding: const EdgeInsets.all(22),
-                          child: ReaderAnalyticsWidget(
-                            onTap: _openAnalytics,
-                          ),
+                          padding: EdgeInsets.all(screenSize.width * 0.055),
+                          child: ReaderAnalyticsWidget(onTap: _openAnalytics),
                         ),
-                      ),
 
-                      const SizedBox(height: _sectionSpacing + 6),
+                        SizedBox(height: screenSize.height * 0.045),
 
-                      if (studioProvider.isLoading)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 60),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: gold,
-                              strokeWidth: 3,
-                            ),
-                          ),
-                        )
-                      else if (studioProvider.allBooks.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-                          child: Center(
-                            child: Text(
-                              'No Reader Studio data found.',
-                              style: TextStyle(
-                                color: textMuted,
-                                fontSize: 15,
+                        if (studioProvider.isLoading)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: screenSize.height * 0.08),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: gold,
+                                strokeWidth: 3,
                               ),
                             ),
+                          )
+                        else if (studioProvider.allBooks.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: screenSize.height * 0.04),
+                            child: Center(
+                              child: Text(
+                                'No Reader Studio data found.',
+                                style: TextStyle(
+                                  color: textMuted,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          )
+                        else ...[
+
+                          const ReaderSectionTitle(title: 'Continue Reading'),
+                          ContinueReadingSlider(
+                            books: continueReadingBooks,
+                            onBookTap: _openPdfReader,
+                            onBookLongPress: _toggleBookmark,
                           ),
-                        )
-                      else ...[
 
-                        const ReaderSectionTitle(title: 'Continue Reading'),
-                        ContinueReadingSlider(
-                          books: continueReadingBooks,
-                          onBookTap: _openPdfReader,
-                          onBookLongPress: _toggleBookmark,
-                        ),
+                          SizedBox(height: screenSize.height * 0.04),
 
-                        const SizedBox(height: _sectionSpacing),
+                          const ReaderSectionTitle(title: 'Featured Books'),
+                          ContinueReadingSlider(
+                            books: featuredBooks,
+                            onBookTap: _openPdfReader,
+                            onBookLongPress: _toggleBookmark,
+                          ),
 
-                        const ReaderSectionTitle(title: 'Featured Books'),
-                        ContinueReadingSlider(
-                          books: featuredBooks,
-                          onBookTap: _openPdfReader,
-                          onBookLongPress: _toggleBookmark,
-                        ),
+                          SizedBox(height: screenSize.height * 0.04),
 
-                        const SizedBox(height: _sectionSpacing),
+                          const ReaderSectionTitle(title: 'Recommended For You'),
+                          RecommendedBooksGrid(
+                            books: recommendedBooks,
+                            onBookTap: _openPdfReader,
+                            onBookLongPress: _toggleBookmark,
+                          ),
 
-                        const ReaderSectionTitle(title: 'Recommended For You'),
-                        RecommendedBooksGrid(
-                          books: recommendedBooks,
-                          onBookTap: _openPdfReader,
-                          onBookLongPress: _toggleBookmark,
-                        ),
+                          SizedBox(height: screenSize.height * 0.04),
+                        ],
 
-                        const SizedBox(height: _sectionSpacing),
-                      ],
-
-                      const ReaderSectionTitle(title: 'Reading Tasks'),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: _horizontalPadding),
-                        child: Container(
+                        const ReaderSectionTitle(title: 'Reading Tasks'),
+                        Container(
                           decoration: BoxDecoration(
                             color: cardSoft,
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(color: borderInactive),
                           ),
-                          padding: const EdgeInsets.all(18),
+                          padding: EdgeInsets.all(screenSize.width * 0.045),
                           child: ReadingTaskSection(
                             onTaskTap: (_) => _openAnalytics(),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 80),
-                    ],
+                        SizedBox(height: screenSize.height * 0.07),
+                      ],
+                    ),
                   ),
                 ),
               ),

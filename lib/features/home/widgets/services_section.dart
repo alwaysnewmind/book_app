@@ -57,7 +57,7 @@ class ServicesSection extends StatelessWidget {
                     crossAxisCount: crossAxisCount,
                     mainAxisSpacing: 18,
                     crossAxisSpacing: 18,
-                    childAspectRatio: 0.65, // ✅ FIXED (prevents overflow)
+                    childAspectRatio: 0.60, // ✅ FIXED (prevents overflow)
                   ),
                   itemBuilder: (context, index) {
                     final service = services[index];
