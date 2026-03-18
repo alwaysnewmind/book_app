@@ -1,8 +1,8 @@
 import 'package:book_app/config/app_config.dart';
 import 'package:book_app/data/dummy_books.dart';
+import 'package:book_app/features/writer/widgets/content_moderation_service.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/models/writer_book_model.dart';
-import 'package:book_app/features/writer/widgets/content_moderation_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +25,7 @@ class WriterProvider extends ChangeNotifier {
 
   /// Async action tracking per book (e.g., publish, delete)
   final Map<String, bool> _bookActionLoading = {};
+  final Map<String, int> _chapterCountByBook = {};
 
   bool get isLoading => _isLoading;
   bool get isActionLoading => _isActionLoading;
@@ -36,12 +37,13 @@ class WriterProvider extends ChangeNotifier {
 
   bool isBookProcessing(String bookId) => _bookActionLoading[bookId] ?? false;
 
+  int chapterCountForBook(String bookId) => _chapterCountByBook[bookId] ?? 0;
+
   /// ---------- STATS ----------
   int get totalBooks => _writerBooks.length;
   double get totalEarnings =>
       _writerBooks.fold(0, (sum, book) => sum + book.totalEarnings);
-  int get totalViews =>
-      _writerBooks.fold(0, (sum, book) => sum + book.viewsCount);
+  int get totalViews => _writerBooks.fold(0, (sum, book) => sum + book.viewsCount);
   double get avgRating {
     if (_writerBooks.isEmpty) return 0;
     return _writerBooks.fold<double>(0, (sum, book) => sum + book.rating) /
@@ -77,7 +79,7 @@ class WriterProvider extends ChangeNotifier {
     if (user.role != UserRole.writer && user.role != UserRole.admin) return false;
     if (book.authorId != user.uid) return false;
 
-    final status = (book as dynamic).status?.toString().toLowerCase();
+    final status = book.status?.toLowerCase();
     const blockedStatuses = ['banned', 'locked', 'under_review'];
     if (status != null && blockedStatuses.contains(status)) return false;
 
@@ -109,10 +111,10 @@ class WriterProvider extends ChangeNotifier {
       if (isDummyMode) {
         await _loadDummyData(user);
       } else {
-        await _loadFirestoreData(user.uid);
+        await getMyBooks(user.uid);
       }
       _loaded = true;
-    } catch (e) {
+    } catch (_) {
       _setError('Unable to load writer studio. Please try again.');
     } finally {
       _isLoading = false;
@@ -131,19 +133,35 @@ class WriterProvider extends ChangeNotifier {
   /// ---------- DUMMY DATA ----------
   Future<void> _loadDummyData(AppUser user) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    _writerBooks =
-        dummyBooks.where((book) => book.authorId == user.uid).toList();
+    _writerBooks = dummyBooks.where((book) => book.authorId == user.uid).toList();
     _followersCount = user.followersCount > 0 ? user.followersCount : 128;
+    for (final book in _writerBooks) {
+      _chapterCountByBook[book.id] = book.chapters.length;
+    }
   }
 
   /// ---------- FIRESTORE DATA ----------
-  Future<void> _loadFirestoreData(String uid) async {
-    final snapshot =
-        await _firestore.collection('books').where('authorId', isEqualTo: uid).get();
+  Future<void> getMyBooks(String authorId) async {
+    final snapshot = await _firestore
+        .collection('books')
+        .where('authorId', isEqualTo: authorId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
     _writerBooks = snapshot.docs.map(_bookFromMap).toList();
 
-    final userDoc = await _firestore.collection('users').doc(uid).get();
+    for (final book in _writerBooks) {
+      final countSnapshot = await _firestore
+          .collection('chapters')
+          .where('bookId', isEqualTo: book.id)
+          .count()
+          .get();
+      _chapterCountByBook[book.id] = countSnapshot.count ?? 0;
+    }
+
+    final userDoc = await _firestore.collection('users').doc(authorId).get();
     _followersCount = (userDoc.data()?['followersCount'] as num?)?.toInt() ?? 0;
+    notifyListeners();
   }
 
   /// ---------- BOOK PARSER ----------
@@ -165,37 +183,221 @@ class WriterProvider extends ChangeNotifier {
       totalEarnings: (map['totalEarnings'] as num?)?.toDouble() ?? 0,
       genre: map['genre']?.toString() ?? 'General',
       viewsCount: (map['viewsCount'] as num?)?.toInt() ?? 0,
+      status: map['status']?.toString() ?? 'draft',
     );
   }
 
-  /// ---------- CRUD OPERATIONS ----------
-  Future<void> createBook(Book book) async {
+  /// ---------- WRITER CRUD ----------
+  Future<String?> createBook({
+    required String title,
+    required String authorId,
+    required String authorName,
+    required String description,
+    String coverImage = 'assets/books/Book1.png',
+    String genre = 'General',
+    bool isPremium = false,
+    double price = 0,
+  }) async {
     _isActionLoading = true;
+    _error = null;
     notifyListeners();
     try {
       final docRef = await _firestore.collection('books').add({
-        'title': book.title,
-        'authorName': book.authorName,
-        'authorId': book.authorId,
-        'coverImage': book.coverImage,
-        'summary': book.summary,
-        'rating': book.rating,
-        'reviewCount': book.reviewCount,
-        'isPaid': book.isPaid,
-        'price': book.price,
-        'totalEarnings': book.totalEarnings,
-        'genre': book.genre,
-        'viewsCount': book.viewsCount,
+        'title': title,
+        'authorName': authorName,
+        'authorId': authorId,
+        'description': description,
+        'summary': description,
+        'coverImage': coverImage,
+        'rating': 0,
+        'reviewCount': 0,
+        'isPaid': isPremium,
+        'price': price,
+        'totalEarnings': 0,
+        'genre': genre,
+        'viewsCount': 0,
         'status': 'draft',
+        'createdAt': FieldValue.serverTimestamp(),
       });
-      _writerBooks.add(book.copyWith(id: docRef.id));
+
+      final createdBook = Book(
+        id: docRef.id,
+        title: title,
+        author: authorName,
+        authorName: authorName,
+        authorId: authorId,
+        coverImage: coverImage,
+        summary: description,
+        isPaid: isPremium,
+        isPremium: isPremium,
+        price: price,
+        genre: genre,
+        status: 'draft',
+      );
+
+      _writerBooks = [createdBook, ..._writerBooks];
+      _chapterCountByBook[docRef.id] = 0;
       notifyListeners();
-    } catch (e) {
+      return docRef.id;
+    } catch (_) {
       _setError('Failed to create book.');
+      return null;
     } finally {
       _isActionLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> addChapter({
+    required String bookId,
+    required String title,
+    required String content,
+    int? chapterNumber,
+  }) async {
+    _bookActionLoading[bookId] = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final nextChapterNumber = chapterNumber ?? (chapterCountForBook(bookId) + 1);
+
+      await _firestore.collection('chapters').add({
+        'bookId': bookId,
+        'title': title,
+        'content': content,
+        'chapterNumber': nextChapterNumber,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      _chapterCountByBook[bookId] = nextChapterNumber;
+      notifyListeners();
+    } catch (_) {
+      _setError('Failed to add chapter.');
+    } finally {
+      _bookActionLoading[bookId] = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateChapter({
+    required String chapterId,
+    required String title,
+    required String content,
+  }) async {
+    _isActionLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _firestore.collection('chapters').doc(chapterId).update({
+        'title': title,
+        'content': content,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {
+      _setError('Failed to update chapter.');
+    } finally {
+      _isActionLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> submitForPublish(String bookId) async {
+    _bookActionLoading[bookId] = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _firestore.collection('books').doc(bookId).update({
+        'status': 'pending_approval',
+        'submittedAt': FieldValue.serverTimestamp(),
+      });
+
+      final index = _writerBooks.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _writerBooks[index] = _writerBooks[index].copyWith(status: 'pending_approval');
+      }
+      notifyListeners();
+    } catch (_) {
+      _setError('Failed to submit for publishing.');
+    } finally {
+      _bookActionLoading[bookId] = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String> getPublishStatus(String bookId) async {
+    try {
+      Book? localBook;
+      for (final book in _writerBooks) {
+        if (book.id == bookId) {
+          localBook = book;
+          break;
+        }
+      }
+      if (localBook?.status != null && localBook!.status!.isNotEmpty) {
+        return localBook.status!;
+      }
+
+      final snapshot = await _firestore.collection('books').doc(bookId).get();
+      final status = snapshot.data()?['status']?.toString() ?? 'draft';
+
+      final index = _writerBooks.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _writerBooks[index] = _writerBooks[index].copyWith(status: status);
+      }
+      notifyListeners();
+
+      return status;
+    } catch (_) {
+      return 'draft';
+    }
+  }
+
+  /// ---------- ADMIN FLOW ----------
+  Future<List<Book>> getPendingBooks() async {
+    final snapshot = await _firestore
+        .collection('books')
+        .where('status', isEqualTo: 'pending_approval')
+        .orderBy('submittedAt', descending: false)
+        .get();
+
+    return snapshot.docs.map(_bookFromMap).toList();
+  }
+
+  Future<void> approveBook(String bookId) async {
+    await _firestore.collection('books').doc(bookId).update({
+      'status': 'approved',
+      'approvedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> publishBook(String bookId) async {
+    _bookActionLoading[bookId] = true;
+    notifyListeners();
+    try {
+      await _firestore.collection('books').doc(bookId).update({
+        'status': 'published',
+        'publishedAt': FieldValue.serverTimestamp(),
+      });
+      final index = _writerBooks.indexWhere((b) => b.id == bookId);
+      if (index != -1) {
+        _writerBooks[index] = _writerBooks[index].copyWith(status: 'published');
+      }
+      notifyListeners();
+    } catch (_) {
+      _setError('Failed to publish book.');
+    } finally {
+      _bookActionLoading[bookId] = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> rejectBook(String bookId, {String reason = ''}) async {
+    await _firestore.collection('books').doc(bookId).update({
+      'status': 'rejected',
+      'rejectionReason': reason,
+      'rejectedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> updateBook(String bookId, Map<String, dynamic> newData) async {
@@ -208,7 +410,7 @@ class WriterProvider extends ChangeNotifier {
         _writerBooks[index] = _writerBooks[index].copyWithMap(newData);
       }
       notifyListeners();
-    } catch (e) {
+    } catch (_) {
       _setError('Failed to update book.');
     } finally {
       _bookActionLoading[bookId] = false;
@@ -221,32 +423,11 @@ class WriterProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await _firestore.collection('books').doc(bookId).delete();
-      _writerBooks.removeWhere((b) => b.id == bookId);
+      _writerBooks = _writerBooks.where((b) => b.id != bookId).toList();
+      _chapterCountByBook.remove(bookId);
       notifyListeners();
-    } catch (e) {
+    } catch (_) {
       _setError('Failed to delete book.');
-    } finally {
-      _bookActionLoading[bookId] = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> publishBook(String bookId) async {
-    _bookActionLoading[bookId] = true;
-    notifyListeners();
-    try {
-      await _firestore
-          .collection('books')
-          .doc(bookId)
-          .update({'status': 'published'});
-      final index = _writerBooks.indexWhere((b) => b.id == bookId);
-      if (index != -1) {
-        _writerBooks[index] =
-            _writerBooks[index].copyWithMap({'status': 'published'});
-      }
-      notifyListeners();
-    } catch (e) {
-      _setError('Failed to publish book.');
     } finally {
       _bookActionLoading[bookId] = false;
       notifyListeners();
@@ -255,7 +436,10 @@ class WriterProvider extends ChangeNotifier {
 
   /// ---------- ANALYTICS ----------
   Map<String, dynamic> bookAnalytics(String bookId) {
-    final book = _writerBooks.firstWhere((b) => b.id == bookId, orElse: () => Book.empty());
+    final book = _writerBooks.firstWhere(
+      (b) => b.id == bookId,
+      orElse: Book.empty,
+    );
     return {
       'views': book.viewsCount,
       'earnings': book.totalEarnings,

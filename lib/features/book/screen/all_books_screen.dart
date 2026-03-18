@@ -27,7 +27,12 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
     return Consumer<BookProvider>(
       builder: (context, provider, _) {
         final books = provider.books
-            .where((book) => book.title.toLowerCase().contains(searchQuery.toLowerCase()))
+            .where((book) {
+              final status = (book.status ?? '').toLowerCase();
+              final canShowInReader = status.isEmpty || status == 'approved' || status == 'published';
+              final matchesSearch = book.title.toLowerCase().contains(searchQuery.toLowerCase());
+              return canShowInReader && matchesSearch;
+            })
             .toList();
 
         return Scaffold(
