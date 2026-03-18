@@ -13,7 +13,28 @@ const _covers = [
   'assets/books/book10.png',
 ];
 
-final List<Book> dummyBooks = List.generate(20, (index) {
+final List<Book> dummyBooks = [
+  Book(
+    id: 'test_book_1',
+    title: 'Test Book 1',
+    author: 'Mythica Library',
+    authorName: 'Mythica Library',
+    coverImage: 'assets/books/Book1.png',
+    summary: 'A real PDF test title bundled with the Mythica app.',
+    genre: 'Demo',
+    pdfPath: 'assets/original/book1.pdf',
+  ),
+  Book(
+    id: 'test_book_2',
+    title: 'Test Book 2',
+    author: 'Mythica Library',
+    authorName: 'Mythica Library',
+    coverImage: 'assets/books/Book2.png',
+    summary: 'Second bundled PDF used to validate end-to-end reading flow.',
+    genre: 'Demo',
+    pdfPath: 'assets/original/book2.pdf',
+  ),
+  ...List.generate(20, (index) {
   final paid = index % 3 == 0 || index % 7 == 0;
   final id = 'book_${index + 1}';
   final createdAt = DateTime.now().subtract(Duration(days: index * 3 + (index % 4)));
@@ -107,6 +128,9 @@ final List<Book> dummyBooks = List.generate(20, (index) {
       'Self Growth',
     ][index % 8],
     viewsCount: 850 + (index * 615),
+    pdfPath: index.isEven
+        ? 'assets/original/book1.pdf'
+        : 'assets/original/book2.pdf',
     chapters: List.generate(
       3,
       (chapter) => 'Chapter ${chapter + 1}\n\nSample content for $id chapter ${chapter + 1}.',
@@ -116,4 +140,5 @@ final List<Book> dummyBooks = List.generate(20, (index) {
     createdAt: createdAt,
     updatedAt: createdAt,
   );
-});
+}),
+];

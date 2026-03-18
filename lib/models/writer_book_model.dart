@@ -23,6 +23,7 @@ class Book {
 
   final String genre;
   final int viewsCount;
+  final String pdfPath;
 
   /// Reader Compatibility
   final List<String> chapters;
@@ -52,6 +53,7 @@ class Book {
     this.totalEarnings = 0,
     this.genre = 'General',
     this.viewsCount = 0,
+    this.pdfPath = 'assets/original/book1.pdf',
     this.chapters = const [],
     this.totalReads = 0,
     this.likes = 0,
@@ -96,6 +98,7 @@ class Book {
     double? totalEarnings,
     String? genre,
     int? viewsCount,
+    String? pdfPath,
     List<String>? chapters,
     int? totalReads,
     int? likes,
@@ -120,6 +123,7 @@ class Book {
       totalEarnings: totalEarnings ?? this.totalEarnings,
       genre: genre ?? this.genre,
       viewsCount: viewsCount ?? this.viewsCount,
+      pdfPath: pdfPath ?? this.pdfPath,
       chapters: chapters ?? this.chapters,
       totalReads: totalReads ?? this.totalReads,
       likes: likes ?? this.likes,
@@ -151,6 +155,7 @@ class Book {
       totalEarnings: (map['totalEarnings'] as num?)?.toDouble(),
       genre: map['genre'] as String?,
       viewsCount: map['viewsCount'] as int?,
+      pdfPath: map['pdfPath'] as String?,
       chapters: (map['chapters'] as List?)?.map((e) => e.toString()).toList(),
       totalReads: map['totalReads'] as int?,
       likes: map['likes'] as int?,
@@ -179,6 +184,7 @@ class Book {
       totalEarnings: (map['totalEarnings'] as num?)?.toDouble() ?? 0,
       genre: map['genre'] ?? 'General',
       viewsCount: map['viewsCount'] ?? 0,
+      pdfPath: map['pdfPath'] ?? 'assets/original/book1.pdf',
       chapters: List<String>.from(map['chapters'] ?? []),
       totalReads: map['totalReads'] ?? 0,
       likes: map['likes'] ?? 0,
@@ -216,6 +222,7 @@ class Book {
       'totalEarnings': totalEarnings,
       'genre': genre,
       'viewsCount': viewsCount,
+      'pdfPath': pdfPath,
       'chapters': chapters,
       'totalReads': totalReads,
       'likes': likes,

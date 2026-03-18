@@ -1,7 +1,8 @@
 import 'package:book_app/features/library/models/library_book.dart';
 import 'package:book_app/features/reader/controller/pdf_reader_controller.dart';
-import 'package:book_app/features/reader/controller/reader_controller.dart';
+import 'package:book_app/features/reader/provider/reader_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PdfReaderScreen extends StatefulWidget {
@@ -17,122 +18,130 @@ class PdfReaderScreen extends StatefulWidget {
 }
 
 class _PdfReaderScreenState extends State<PdfReaderScreen> {
-  static const int _demoTotalPages = 100;
-
   final PdfReaderController _pdfController = PdfReaderController();
-  final ReaderController _readerController = ReaderController();
+  final PdfViewerController _viewerController = PdfViewerController();
+
+  int _totalPages = 0;
+  String? _loadError;
 
   @override
   void initState() {
     super.initState();
-
     _pdfController.init(
       bookId: widget.book.id,
-      totalPages: _demoTotalPages,
-    );
-
-    _readerController.init();
-    _readerController.startSession(
-      widget.book.id,
-      startPage: 0,
-      totalPages: _demoTotalPages,
+      totalPages: 0,
     );
   }
 
   @override
   void dispose() {
-    _readerController.endSession();
+    final readerProvider = context.read<ReaderProvider>();
+
+    readerProvider.savePdfProgress(
+      bookId: widget.book.id,
+      currentPage: _pdfController.currentPage,
+      totalPages: _totalPages,
+    );
+
     _pdfController.stopReadingTimer();
     _pdfController.dispose();
-    _readerController.dispose();
     super.dispose();
   }
 
-  void _changePage(int nextPage) {
-    if (nextPage < 0 || nextPage >= _demoTotalPages) return;
+  void _onPageChanged(PdfPageChangedDetails details) {
+    final zeroBasedPage = details.newPageNumber - 1;
+    _pdfController.onPageChanged(zeroBasedPage);
 
-    _pdfController.onPageChanged(nextPage);
+    context.read<ReaderProvider>().savePdfProgress(
+          bookId: widget.book.id,
+          currentPage: zeroBasedPage,
+          totalPages: _totalPages,
+        );
+  }
 
-    _readerController.updateProgress(nextPage.toDouble());
+  void _onDocumentLoaded(PdfDocumentLoadedDetails details) {
+    final savedFromProvider =
+        context.read<ReaderProvider>().getPdfSavedPage(widget.book.id);
+
+    setState(() {
+      _totalPages = details.document.pages.count;
+      _loadError = null;
+    });
+
+    _pdfController.openPdf(
+      bookId: widget.book.id,
+      totalPages: _totalPages,
+    );
+
+    final savedPage =
+        savedFromProvider > 0 ? savedFromProvider : _pdfController.currentPage;
+
+    if (savedPage > 0 && savedPage < _totalPages) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _viewerController.jumpToPage(savedPage + 1);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.book.title),
       ),
-      backgroundColor: theme.scaffoldBackgroundColor,
       body: AnimatedBuilder(
         animation: _pdfController,
         builder: (context, _) {
-          final int currentPage = _pdfController.currentPage;
+          final currentPage = _pdfController.currentPage;
 
-          final double progressValue =
-              _demoTotalPages > 0 ? currentPage / _demoTotalPages : 0.0;
-
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// Author
-                Text(
-                  widget.book.author,
-                  style: theme.textTheme.bodyMedium,
-                ),
-
-                const SizedBox(height: 12),
-
-                /// Progress bar
-                LinearProgressIndicator(
-                  value: progressValue.clamp(0.0, 1.0),
-                  backgroundColor: Colors.grey.shade300,
-                  color: theme.primaryColor,
-                  minHeight: 6,
-                ),
-
-                const SizedBox(height: 8),
-
-                /// Page info
-                Text('Page ${currentPage + 1} / $_demoTotalPages'),
-
-                const SizedBox(height: 16),
-
-                /// PDF Viewer
-                Expanded(
-                  child: SfPdfViewer.asset(
-                    widget.book.pdfPath,
-                    onPageChanged: (details) {
-                      _changePage(details.newPageNumber - 1);
-                    },
+          return Column(
+            children: [
+              if (_loadError != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Text(
+                      _loadError!,
+                      style: TextStyle(color: Colors.red.shade700),
+                    ),
+                  ),
+                )
+              else if (_totalPages > 0)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(widget.book.author),
+                      Text('Page ${currentPage + 1} / $_totalPages'),
+                    ],
                   ),
                 ),
-
-                const SizedBox(height: 10),
-
-                /// Navigation buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: currentPage > 0
-                          ? () => _changePage(currentPage - 1)
-                          : null,
-                      child: const Text('Previous'),
-                    ),
-                    ElevatedButton(
-                      onPressed: currentPage < _demoTotalPages - 1
-                          ? () => _changePage(currentPage + 1)
-                          : null,
-                      child: const Text('Next'),
-                    ),
-                  ],
+              Expanded(
+                child: SfPdfViewer.asset(
+                  widget.book.pdfPath,
+                  controller: _viewerController,
+                  canShowPaginationDialog: true,
+                  enableDoubleTapZooming: true,
+                  enableTextSelection: true,
+                  onDocumentLoaded: _onDocumentLoaded,
+                  onDocumentLoadFailed: (details) {
+                    setState(() {
+                      _loadError =
+                          'Failed to load PDF from ${widget.book.pdfPath}. ${details.error}';
+                    });
+                  },
+                  onPageChanged: _onPageChanged,
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),

@@ -1,6 +1,6 @@
-import 'package:book_app/features/book/screen/book_reader_screen.dart' show BookReaderScreen;
 import 'package:book_app/features/library/models/library_book.dart';
 import 'package:book_app/features/library/models/library_store.dart';
+import 'package:book_app/features/reader/screens/pdf_reader_screen.dart';
 import 'package:book_app/models/user_model.dart';
 import 'package:book_app/models/writer_book_model.dart';
 import 'package:book_app/features/auth/provider/auth_provider.dart';
@@ -180,7 +180,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           child: Text(book.isPaid
                               ? 'Purchase'
                               : (existingBook == null
-                                  ? 'Read Book'
+                                  ? 'Read Now'
                                   : 'Continue')),
                           onPressed: () async {
                             /// paid book
@@ -231,8 +231,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       author: book.author,
                                       title: book.title,
                                       category: book.genre,
-                                      pdfPath:
-                                          "assets/original/book1.pdf",
+                                      pdfPath: book.pdfPath,
                                       imagePath: book.coverImage,
                                       chapters: book.chapters,
                                     );
@@ -245,10 +244,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => BookReaderScreen(
-                                  book: readerBook,
-                                  isLocked: book.isPremium,
-                                ),
+                                builder: (_) =>
+                                    PdfReaderScreen(book: readerBook),
                               ),
                             );
                           },

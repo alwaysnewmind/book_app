@@ -12,6 +12,7 @@ class ReaderProvider extends ChangeNotifier {
   static const String _highlightsStoreKey = 'reader_provider_highlights';
   static const String _notesStoreKey = 'reader_provider_notes';
   static const String _downloadsStoreKey = 'reader_provider_downloads';
+  static const String _pdfPageStoreKey = 'reader_provider_pdf_pages';
 
   /// PAGE CONTROLLER
   final PageController pageController = PageController();
@@ -53,6 +54,7 @@ class ReaderProvider extends ChangeNotifier {
   final Map<String, List<String>> _highlights = {};
   final Map<String, List<String>> _notes = {};
   final Set<String> _downloads = {};
+  final Map<String, int> _pdfPages = {};
 
   /// THEME
   ReaderThemeMode get themeMode {
@@ -75,6 +77,8 @@ class ReaderProvider extends ChangeNotifier {
   ValueChanged<int>? get setChapter => null;
 
   VoidCallback? get goToPreviousChapter => null;
+
+  int getPdfSavedPage(String bookId) => _pdfPages[bookId] ?? 0;
 
   /// INITIALIZE
   Future<void> initialize() async {
@@ -253,6 +257,16 @@ class ReaderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> savePdfProgress({
+    required String bookId,
+    required int currentPage,
+    required int totalPages,
+  }) async {
+    final maxPage = totalPages > 0 ? totalPages - 1 : 0;
+    _pdfPages[bookId] = currentPage.clamp(0, maxPage);
+    await _saveDataStore();
+  }
+
   /// TTS
   void setSpeaking(bool value) {
     if (_isSpeaking == value) return;
@@ -410,6 +424,17 @@ class ReaderProvider extends ChangeNotifier {
             (jsonDecode(downloadsRaw) as List).map((e) => e.toString()),
           );
       }
+
+      final pdfPagesRaw = _prefs?.getString(_pdfPageStoreKey);
+      if (pdfPagesRaw != null) {
+        _pdfPages
+          ..clear()
+          ..addAll(
+            (jsonDecode(pdfPagesRaw) as Map<String, dynamic>).map(
+              (key, value) => MapEntry(key, (value as num).toInt()),
+            ),
+          );
+      }
     } catch (_) {}
   }
 
@@ -432,6 +457,11 @@ class ReaderProvider extends ChangeNotifier {
     await _prefs?.setString(
       _downloadsStoreKey,
       jsonEncode(_downloads.toList()),
+    );
+
+    await _prefs?.setString(
+      _pdfPageStoreKey,
+      jsonEncode(_pdfPages),
     );
   }
 

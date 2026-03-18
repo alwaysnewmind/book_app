@@ -62,7 +62,8 @@ flutter:
     - assets/profile/
     - assets/services/
     - assets/image/
-    - assets/original/
+    - assets/original/book1.pdf
+    - assets/original/book2.pdf
     - assets/fonts/
 
   fonts:

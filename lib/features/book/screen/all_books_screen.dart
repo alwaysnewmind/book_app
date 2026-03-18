@@ -1,5 +1,6 @@
 import 'package:book_app/features/book/screen/book_detail_screen.dart';
 import 'package:book_app/features/book/provider/book_provider.dart';
+import 'package:book_app/features/book/widgets/book_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +13,14 @@ class AllBooksScreen extends StatefulWidget {
 
 class _AllBooksScreenState extends State<AllBooksScreen> {
   String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookProvider>().loadBooks();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +57,13 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
               Expanded(
                 child: provider.isLoading
                     ? const Center(child: CircularProgressIndicator())
+                    : provider.error != null
+                        ? Center(
+                            child: Text(
+                              provider.error!,
+                              style: const TextStyle(color: Colors.redAccent),
+                            ),
+                          )
                     : books.isEmpty
                         ? const Center(
                             child: Text('No books found', style: TextStyle(color: Colors.white70)),
@@ -64,27 +80,13 @@ class _AllBooksScreenState extends State<AllBooksScreen> {
                             ),
                             itemBuilder: (context, index) {
                               final book = books[index];
-                              return GestureDetector(
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookDetailScreen(book: book))),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Hero(
-                                        tag: book.coverImage,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(16),
-                                            image: DecorationImage(image: AssetImage(book.coverImage), fit: BoxFit.cover),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
-                                    const SizedBox(height: 4),
-                                    Text(book.isPaid ? 'Premium' : 'Free', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: book.isPaid ? Colors.redAccent : Colors.greenAccent)),
-                                  ],
+                              return BookCard(
+                                book: book,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => BookDetailScreen(book: book),
+                                  ),
                                 ),
                               );
                             },

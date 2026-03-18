@@ -123,6 +123,7 @@ class BookProvider extends ChangeNotifier {
       totalEarnings: (map['totalEarnings'] as num?)?.toDouble() ?? 0.0,
       genre: map['genre']?.toString() ?? 'General',
       viewsCount: (map['viewsCount'] as num?)?.toInt() ?? 0,
+      pdfPath: map['pdfPath']?.toString() ?? 'assets/original/book1.pdf',
     );
   }
 

@@ -48,9 +48,9 @@ class PdfReaderController extends ChangeNotifier {
     required String bookId,
     required int totalPages,
   }) async {
-    if (_initialized) return;
-
-    _prefs = await SharedPreferences.getInstance();
+    _prefs = _initialized
+        ? _prefs
+        : await SharedPreferences.getInstance();
 
     _bookId = bookId;
     _totalPages = totalPages;
@@ -72,17 +72,7 @@ class PdfReaderController extends ChangeNotifier {
     required String bookId,
     required int totalPages,
   }) async {
-    if (!_initialized) {
-      await init(bookId: bookId, totalPages: totalPages);
-      return;
-    }
-
-    _bookId = bookId;
-    _totalPages = totalPages;
-
-    await _loadPdfProgress();
-
-    notifyListeners();
+    await init(bookId: bookId, totalPages: totalPages);
   }
 
   /// ---------------------------
@@ -92,7 +82,8 @@ class PdfReaderController extends ChangeNotifier {
   Future<void> trackPdfProgress(int page) async {
     if (_bookId.isEmpty) return;
 
-    final newPage = page.clamp(0, _totalPages);
+    final lastPage = _totalPages > 0 ? _totalPages - 1 : 0;
+    final newPage = page.clamp(0, lastPage);
 
     if (newPage == _currentPage) return;
 

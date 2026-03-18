@@ -60,10 +60,15 @@ class _BookCardState extends State<BookCard> {
                 Positioned.fill(
                   child: Hero(
                     tag: book.coverImage,
-                    child: Image.asset(
-                      book.coverImage,
-                      fit: BoxFit.cover,
-                    ),
+                    child: book.coverImage.startsWith('http')
+                        ? Image.network(
+                            book.coverImage,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            book.coverImage,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
 
