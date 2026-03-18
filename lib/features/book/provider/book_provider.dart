@@ -124,6 +124,7 @@ class BookProvider extends ChangeNotifier {
       genre: map['genre']?.toString() ?? 'General',
       viewsCount: (map['viewsCount'] as num?)?.toInt() ?? 0,
       pdfPath: map['pdfPath']?.toString() ?? 'assets/original/book1.pdf',
+      status: map['status']?.toString(),
     );
   }
 

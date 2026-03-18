@@ -1,7 +1,52 @@
+import 'package:book_app/features/writer/provider/writer_provider.dart';
+import 'package:book_app/models/writer_book_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class AdminBookApprovalScreen extends StatelessWidget {
+class AdminBookApprovalScreen extends StatefulWidget {
   const AdminBookApprovalScreen({super.key});
+
+  @override
+  State<AdminBookApprovalScreen> createState() => _AdminBookApprovalScreenState();
+}
+
+class _AdminBookApprovalScreenState extends State<AdminBookApprovalScreen> {
+  late Future<List<Book>> _pendingBooksFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingBooksFuture = _loadPendingBooks();
+  }
+
+  Future<List<Book>> _loadPendingBooks() {
+    return context.read<WriterProvider>().getPendingBooks();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _pendingBooksFuture = _loadPendingBooks();
+    });
+    await _pendingBooksFuture;
+  }
+
+  Future<void> _approve(String bookId) async {
+    await context.read<WriterProvider>().approveBook(bookId);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Book approved.')),
+    );
+    await _refresh();
+  }
+
+  Future<void> _reject(String bookId) async {
+    await context.read<WriterProvider>().rejectBook(bookId);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Book rejected.')),
+    );
+    await _refresh();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,132 +55,98 @@ class AdminBookApprovalScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F172A),
         elevation: 0,
-        title: const Text("Book Approval"),
+        title: const Text('Book Approval Queue'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: const [
-          _BookApprovalCard(
-            title: "Soul Journey",
-            author: "Rahul Sharma",
-            isPremium: true,
-          ),
-          _BookApprovalCard(
-            title: "Inner Power",
-            author: "Anjali Mehta",
-            isPremium: false,
-          ),
-          _BookApprovalCard(
-            title: "Mind Awakening",
-            author: "Kunal Verma",
-            isPremium: true,
-          ),
-        ],
-      ),
-    );
-  }
-}
+      body: FutureBuilder<List<Book>>(
+        future: _pendingBooksFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-//
-// 📘 BOOK CARD
-//
-
-class _BookApprovalCard extends StatelessWidget {
-  final String title;
-  final String author;
-  final bool isPremium;
-
-  const _BookApprovalCard({
-    required this.title,
-    required this.author,
-    required this.isPremium,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title + Premium tag
-          Row(
-            children: [
-              Expanded(
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
                 child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Failed to load pending books: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.redAccent),
                 ),
               ),
-              if (isPremium)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            );
+          }
+
+          final books = snapshot.data ?? [];
+
+          if (books.isEmpty) {
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: ListView(
+                children: const [
+                  SizedBox(height: 220),
+                  Center(
+                    child: Text(
+                      'No books pending approval.',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView.builder(
+              itemCount: books.length,
+              padding: const EdgeInsets.all(16),
+              itemBuilder: (context, index) {
+                final book = books[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.amber,
-                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
-                    "PREMIUM",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        book.title,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      Text('Author: ${book.authorName}', style: const TextStyle(color: Colors.white70)),
+                      const SizedBox(height: 6),
+                      Text('Status: ${book.status ?? 'pending_approval'}', style: const TextStyle(color: Colors.white70)),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => _approve(book.id),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                              child: const Text('Approve'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => _reject(book.id),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                              child: const Text('Reject'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            "by $author",
-            style: const TextStyle(color: Colors.white70),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Actions
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () {},
-                  child: const Text("Approve"),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () {},
-                  child: const Text("Reject"),
-                ),
-              ),
-            ],
-          ),
-        ],
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }

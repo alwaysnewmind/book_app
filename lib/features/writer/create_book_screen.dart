@@ -1,12 +1,8 @@
-import 'package:book_app/features/writer/moderation/moderation_status.dart';
-import 'package:book_app/features/writer/widgets/content_moderation_service.dart'
-    show ContentModerationService;
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:book_app/core/routes/app_routes.dart';
-import 'package:book_app/services/story_service.dart';
-import 'package:provider/provider.dart';
 import 'package:book_app/features/auth/provider/auth_provider.dart';
+import 'package:book_app/features/writer/provider/writer_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CreateBookScreen extends StatefulWidget {
   const CreateBookScreen({super.key});
@@ -17,336 +13,176 @@ class CreateBookScreen extends StatefulWidget {
 
 class _CreateBookScreenState extends State<CreateBookScreen> {
   final _titleController = TextEditingController();
-  final _subtitleController = TextEditingController();
   final _descController = TextEditingController();
 
+  String _selectedGenre = 'Fiction';
   bool _isPremium = false;
-  bool _isSubmitting = false;
-  String _selectedGenre = "Fiction";
 
-  final List<String> _genres = [
-    "Fiction",
-    "Romance",
-    "Thriller",
-    "Horror",
-    "Self Growth",
-    "Business"
+  final List<String> _genres = const [
+    'Fiction',
+    'Romance',
+    'Fantasy',
+    'Thriller',
+    'Horror',
+    'Business',
+    'Self Growth',
   ];
 
   @override
   void dispose() {
     _titleController.dispose();
-    _subtitleController.dispose();
     _descController.dispose();
     super.dispose();
   }
 
-  Future<void> _saveStory() async {
-    final firebaseUser = FirebaseAuth.instance.currentUser;
-    final authProvider = context.read<AuthProvider>();
-    final appUser = authProvider.currentUser;
-
-    if (firebaseUser == null || appUser == null) {
+  Future<void> _createBook() async {
+    final auth = context.read<AuthProvider>();
+    final user = auth.currentUser;
+    if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please login again to continue.')),
+        const SnackBar(content: Text('Please sign in again.')),
       );
       return;
     }
 
-    final uid = firebaseUser.uid;
-    final userName = appUser.name;
+    final title = _titleController.text.trim();
+    final description = _descController.text.trim();
 
-    if (_titleController.text.trim().isEmpty) {
+    if (title.isEmpty || description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title is required')),
+        const SnackBar(content: Text('Title and description are required.')),
       );
       return;
     }
 
-    if (_descController.text.trim().isEmpty) {
+    final writer = context.read<WriterProvider>();
+    final bookId = await writer.createBook(
+      title: title,
+      authorId: user.uid,
+      authorName: user.name,
+      description: description,
+      genre: _selectedGenre,
+      isPremium: _isPremium,
+    );
+
+    if (!mounted) return;
+
+    if (bookId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content is required')),
+        SnackBar(content: Text(writer.error ?? 'Failed to create book.')),
       );
       return;
     }
 
-    setState(() => _isSubmitting = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Book created as draft.')),
+    );
 
-    try {
-      // ✅ CONTENT MODERATION
-      final moderationResult = await ContentModerationService.checkContent(
-        _titleController.text.trim(),
-        _subtitleController.text.trim(),
-        _descController.text.trim(),
-      );
-
-      if (moderationResult == ModerationStatus.blocked) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("❌ Content violates community guidelines.")),
-        );
-        return;
-      }
-
-      if (moderationResult == ModerationStatus.warning) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("⚠️ Content may contain sensitive material.")),
-        );
-      }
-
-      // ✅ SAVE WITH REAL USER NAME
-      await StoryService.instance.createStory(
-        uid: uid,
-        authorName: userName,
-        title: _titleController.text.trim(),
-        description: _subtitleController.text.trim(),
-        content: _descController.text.trim(),
-        genre: _selectedGenre,
-        isPremium: _isPremium,
-      );
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Book saved as draft")),
-      );
-
-      Navigator.pushNamed(
-        context,
-        AppRoutes.createBookEntry,
-        arguments: {
-          'title': _titleController.text.trim(),
-          'subtitle': _subtitleController.text.trim(),
-          'description': _descController.text.trim(),
-          'genre': _selectedGenre,
-          'isPremium': _isPremium,
-        },
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
+    Navigator.pushNamed(
+      context,
+      AppRoutes.writeChapter,
+      arguments: {
+        'bookId': bookId,
+        'bookTitle': title,
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final userName = context.select<AuthProvider, String>(
-      (provider) => provider.currentUser?.name ?? "User",
-    );
-
     return Scaffold(
       backgroundColor: const Color(0xFF1F1533),
       appBar: AppBar(
-        elevation: 0,
+        title: const Text('Create Book'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        title: Text(
-          "Create Book - $userName",
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFFF5C84C)),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF1F1533), Color(0xFF2A1E47)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  height: 210,
-                  width: 155,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF251A3F),
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: const Color(0xFF3A2D5C)),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.add_a_photo_outlined,
-                        color: Color(0xFFCFC8E8), size: 42),
+      body: Consumer<WriterProvider>(
+        builder: (context, writer, _) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Book Title', style: TextStyle(color: Colors.white70)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _titleController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration('Enter book title'),
+                ),
+                const SizedBox(height: 16),
+                const Text('Description', style: TextStyle(color: Colors.white70)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _descController,
+                  maxLines: 4,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration('Describe your book'),
+                ),
+                const SizedBox(height: 16),
+                const Text('Genre', style: TextStyle(color: Colors.white70)),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedGenre,
+                  decoration: _inputDecoration('Select genre'),
+                  dropdownColor: const Color(0xFF251A3F),
+                  items: _genres
+                      .map((genre) => DropdownMenuItem(
+                            value: genre,
+                            child: Text(genre),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedGenre = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  value: _isPremium,
+                  onChanged: (value) => setState(() => _isPremium = value),
+                  title: const Text('Premium book', style: TextStyle(color: Colors.white)),
+                  activeColor: const Color(0xFFF5C84C),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: writer.isActionLoading ? null : _createBook,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF5C84C),
+                    ),
+                    child: writer.isActionLoading
+                        ? const CircularProgressIndicator(color: Colors.black)
+                        : const Text(
+                            'Create Draft Book',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
-
-              _label("BOOK TITLE"),
-              _inputField(
-                  controller: _titleController, hint: "Enter book title"),
-
-              const SizedBox(height: 22),
-
-              _label("SUBTITLE"),
-              _inputField(
-                  controller: _subtitleController,
-                  hint: "Optional subtitle"),
-
-              const SizedBox(height: 22),
-
-              _label("GENRE"),
-              _genreDropdown(),
-
-              const SizedBox(height: 22),
-
-              _label("DESCRIPTION"),
-              _inputField(
-                controller: _descController,
-                hint: "Write short description...",
-                maxLines: 4,
-              ),
-
-              const SizedBox(height: 26),
-
-              _premiumToggle(),
-
-              const SizedBox(height: 42),
-
-              _submitButton(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _label(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFF9F96C8),
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1,
-        ),
-      ),
-    );
-  }
-
-  Widget _inputField({
-    required TextEditingController controller,
-    required String hint,
-    int maxLines = 1,
-  }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF9F96C8)),
-        filled: true,
-        fillColor: const Color(0xFF251A3F),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Color(0xFF3A2D5C)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide:
-              const BorderSide(color: Color(0xFFF5C84C), width: 1.2),
-        ),
-      ),
-    );
-  }
-
-  Widget _genreDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF251A3F),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF3A2D5C)),
-      ),
-      child: DropdownButton<String>(
-        value: _selectedGenre,
-        dropdownColor: const Color(0xFF251A3F),
-        isExpanded: true,
-        underline: const SizedBox(),
-        icon: const Icon(Icons.keyboard_arrow_down,
-            color: Color(0xFFF5C84C)),
-        style: const TextStyle(color: Colors.white),
-        items: _genres.map((genre) {
-          return DropdownMenuItem(
-            value: genre,
-            child: Text(genre),
+              ],
+            ),
           );
-        }).toList(),
-        onChanged: (value) {
-          if (value != null) {
-            setState(() => _selectedGenre = value);
-          }
         },
       ),
     );
   }
 
-  Widget _premiumToggle() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF251A3F),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFF3A2D5C)),
-      ),
-      child: SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        activeColor: const Color(0xFFF5C84C),
-        value: _isPremium,
-        title: const Text(
-          "Mark as Premium Book",
-          style: TextStyle(color: Colors.white),
-        ),
-        onChanged: (value) => setState(() => _isPremium = value),
-      ),
-    );
-  }
-
-  Widget _submitButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(28),
-        onTap: _isSubmitting ? null : _saveStory,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5C84C),
-            borderRadius: BorderRadius.circular(28),
-          ),
-          child: Center(
-            child: _isSubmitting
-                ? const CircularProgressIndicator(color: Colors.black)
-                : const Text(
-                    "Save & Continue",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1F1533),
-                    ),
-                  ),
-          ),
-        ),
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.white54),
+      filled: true,
+      fillColor: const Color(0xFF251A3F),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }
