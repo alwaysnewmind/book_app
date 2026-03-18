@@ -35,7 +35,7 @@ class ReaderStatsGrid extends StatelessWidget {
         /// 💰 Coins
         ReaderStatsCard(
           title: 'Coins',
-          value: controller.coins.toString(),
+          value: controller.readingMinutes.toString(),
           icon: Icons.monetization_on,
           onTap: onTap,
           backgroundColor: const Color(0xFF1A1A1A), // dark grey
@@ -44,7 +44,7 @@ class ReaderStatsGrid extends StatelessWidget {
         /// ⚡ XP
         ReaderStatsCard(
           title: 'XP',
-          value: controller.xp.toString(),
+          value: controller.progress.toString(),
           icon: Icons.bolt,
           onTap: onTap,
           backgroundColor: const Color(0xFF1A1A1A),
@@ -53,7 +53,7 @@ class ReaderStatsGrid extends StatelessWidget {
         /// 🔥 Streak
         ReaderStatsCard(
           title: 'Streak',
-          value: '${controller.streak} days',
+          value: '${controller.readingStreak} days',
           icon: Icons.local_fire_department,
           onTap: onTap,
           backgroundColor: const Color(0xFF1A1A1A),
@@ -62,7 +62,7 @@ class ReaderStatsGrid extends StatelessWidget {
         /// ✅ Completed
         ReaderStatsCard(
           title: 'Completed',
-          value: controller.completedBooks.toString(),
+          value: controller.booksCompleted.toString(),
           icon: Icons.check_circle,
           onTap: onTap,
           backgroundColor: const Color(0xFF1A1A1A),

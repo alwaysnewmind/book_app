@@ -252,7 +252,7 @@ class _SubscribersList extends StatelessWidget {
                     horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isPremium
-                      ? const Color(0xFFF5C84C).withOpacity(0.15)
+                      ? const Color(0xFFF5C84C).withValues(alpha:0.15)
                       : const Color(0xFF251A3F),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(

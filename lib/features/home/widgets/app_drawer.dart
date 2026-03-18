@@ -64,7 +64,7 @@ class AppDrawer extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: goldGlow.withOpacity(0.30),
+                color: goldGlow.withValues(alpha:0.30),
                 blurRadius: 30,
                 spreadRadius: 2,
               ),
@@ -75,7 +75,7 @@ class AppDrawer extends StatelessWidget {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
               child: Container(
-                color: bgTop.withOpacity(0.95),
+                color: bgTop.withValues(alpha:0.95),
                 child: Column(
                   children: [
                     const SizedBox(height: 28),
@@ -193,7 +193,7 @@ class AppDrawer extends StatelessWidget {
             border: Border.all(color: borderInactive),
             boxShadow: [
               BoxShadow(
-                color: goldGlow.withOpacity(0.30),
+                color: goldGlow.withValues(alpha:0.30),
                 blurRadius: 18,
               ),
             ],
@@ -298,7 +298,7 @@ class AppDrawer extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Add Firebase logout logic
+          
             },
             child: const Text(
               "Logout",

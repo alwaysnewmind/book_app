@@ -49,7 +49,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: goldGlow.withOpacity(0.30),
+              color: goldGlow.withValues(alpha:0.30),
               blurRadius: 20,
               spreadRadius: 1,
             )

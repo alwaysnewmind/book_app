@@ -18,7 +18,7 @@ class StoryService {
     required String content,
     required String genre,
     String description = '',
-    String coverImageUrl = '',
+    String coverImageUrl = '', required bool isPremium, required String authorName,
   }) async {
     if (title.trim().isEmpty) {
       throw ArgumentError('Title is required');

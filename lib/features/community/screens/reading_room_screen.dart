@@ -103,7 +103,7 @@ class ReadingRoomScreen extends StatelessWidget {
         border: Border.all(color: borderInactive),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.35),
+            color: Colors.black.withValues(alpha:0.35),
             blurRadius: 20,
             offset: const Offset(0, 10),
           )
@@ -119,7 +119,7 @@ class ReadingRoomScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: goldGlow.withOpacity(0.3),
+                  color: goldGlow.withValues(alpha:0.3),
                   blurRadius: 16,
                 )
               ],
@@ -252,7 +252,7 @@ class ReadingRoomScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: goldGlow.withOpacity(0.3),
+                color: goldGlow.withValues(alpha:0.3),
                 blurRadius: 20,
               )
             ],

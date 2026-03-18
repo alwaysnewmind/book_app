@@ -1,8 +1,8 @@
 import 'package:book_app/core/routes/app_routes.dart';
 import 'package:book_app/features/writer/provider/writer_provider.dart';
-import 'package:book_app/features/writer/widgets/content_moderation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:book_app/features/writer/moderation/moderation_status.dart';
 
 class WriteChapterScreen extends StatefulWidget {
   const WriteChapterScreen({super.key});
@@ -34,8 +34,10 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
     }
 
     final provider = context.read<WriterProvider>();
-    
-    // Moderation Check
+
+    // -----------------------------
+    // Content Moderation
+    // -----------------------------
     final status = await provider.validateContentSafety(
       title: title,
       description: '',
@@ -53,7 +55,18 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
       return;
     }
 
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+    if (status == ModerationStatus.warning) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.orangeAccent,
+          content: Text("⚠️ Content may contain sensitive material."),
+        ),
+      );
+    }
+
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
 
     if (!mounted) return;
     Navigator.pushNamed(
@@ -82,10 +95,10 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800), // Responsive Max Width
+              constraints: const BoxConstraints(maxWidth: 800),
               child: Column(
                 children: [
-                  _header(context),
+                  _header(),
                   Expanded(
                     child: Container(
                       width: double.infinity,
@@ -104,11 +117,17 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
                           _label("Chapter Content"),
                           const SizedBox(height: 8),
                           Expanded(
-                            child: _inputField(_chapterContentController, "Start writing...", null, true),
+                            child: _inputField(
+                              _chapterContentController,
+                              "Start writing...",
+                              null,
+                              true,
+                            ),
                           ),
                           const SizedBox(height: 24),
                           Consumer<WriterProvider>(
-                            builder: (context, provider, _) => _saveButton(provider.isActionLoading),
+                            builder: (context, provider, _) =>
+                                _saveButton(provider.isActionLoading),
                           ),
                         ],
                       ),
@@ -123,7 +142,7 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
     );
   }
 
-  Widget _header(BuildContext context) => Container(
+  Widget _header() => Container(
         height: 80,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
@@ -133,17 +152,32 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
               icon: const Icon(Icons.arrow_back, color: Color(0xFFF5C84C)),
             ),
             const SizedBox(width: 14),
-            const Text("Write Chapter", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+            const Text(
+              "Write Chapter",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ],
         ),
       );
 
   Widget _label(String text) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: Text(text, style: const TextStyle(color: Color(0xFFCFC8E8), fontSize: 14, fontWeight: FontWeight.w600)),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFFCFC8E8),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       );
 
-  Widget _inputField(TextEditingController controller, String hint, int? maxLines, bool expands) => Container(
+  Widget _inputField(TextEditingController controller, String hint, int? maxLines, bool expands) =>
+      Container(
         decoration: BoxDecoration(
           color: const Color(0xFF1F1533),
           borderRadius: BorderRadius.circular(18),
@@ -173,9 +207,15 @@ class _WriteChapterScreenState extends State<WriteChapterScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
           onPressed: isLoading ? null : _handleSave,
-          child: isLoading 
-            ? const CircularProgressIndicator(color: Color(0xFF1F1533))
-            : const Text("Save Chapter", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1F1533))),
+          child: isLoading
+              ? const CircularProgressIndicator(color: Color(0xFF1F1533))
+              : const Text(
+                  "Save Chapter",
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F1533)),
+                ),
         ),
       );
 }

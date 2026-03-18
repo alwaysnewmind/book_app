@@ -264,7 +264,7 @@ class _DiscoverDashboardState extends State<DiscoverDashboard> {
       return;
     }
 
-    // TODO: Add navigation to BookDetails
+  
   }
 }
 

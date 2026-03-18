@@ -110,7 +110,7 @@ class _RoleSelectionScreenState
             if (isSelected)
               BoxShadow(
                 color: const Color(0xFFFFD86B)
-                    .withOpacity(0.45),
+                    .withValues(alpha:0.45),
                 blurRadius: 25,
                 spreadRadius: 1,
               ),

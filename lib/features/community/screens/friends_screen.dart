@@ -46,7 +46,7 @@ class FriendsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [
-            BoxShadow(color: goldGlow.withOpacity(0.3), blurRadius: 18, spreadRadius: 1)
+            BoxShadow(color: goldGlow.withValues(alpha:0.3), blurRadius: 18, spreadRadius: 1)
           ],
         ),
         child: FloatingActionButton(

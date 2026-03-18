@@ -29,7 +29,7 @@ class LoadingState extends StatelessWidget {
               message!,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: textColor ?? theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                color: textColor ?? theme.textTheme.bodyMedium?.color?.withValues(alpha:0.7),
               ),
             ),
           ],

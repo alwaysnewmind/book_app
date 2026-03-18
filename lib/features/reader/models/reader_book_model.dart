@@ -32,7 +32,7 @@ class ReaderBookModel {
   });
 
   /// ==============================
-  /// PROGRESS GETTER (READER ENGINE USE)
+  /// READER ENGINE PROGRESS
   /// ==============================
 
   double get progress => progressPercent;
@@ -113,7 +113,7 @@ class ReaderBookModel {
   }
 
   /// ==============================
-  /// JSON (DATABASE WRITE)
+  /// BOOK JSON (DATABASE WRITE)
   /// ==============================
 
   Map<String, dynamic> toJson() {
@@ -130,7 +130,7 @@ class ReaderBookModel {
   }
 
   /// ==============================
-  /// PROGRESS JSON
+  /// READING PROGRESS JSON
   /// ==============================
 
   Map<String, dynamic> progressJson() {
@@ -150,7 +150,10 @@ class ReaderBookModel {
     required int totalChapters,
   }) {
     if (totalChapters <= 0) return 0;
-    return ((lastReadChapter / totalChapters) * 100).clamp(0, 100).toDouble();
+
+    return ((lastReadChapter / totalChapters) * 100)
+        .clamp(0, 100)
+        .toDouble();
   }
 
   static DateTime? _parseTimestamp(dynamic value) {

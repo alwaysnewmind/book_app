@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class ReviewDashboardScreen extends StatefulWidget {
@@ -82,7 +81,7 @@ class _ReviewDashboardScreenState
           boxShadow: [
             BoxShadow(
               color: const Color(0xFFFFD76A)
-                  .withOpacity(0.3),
+                  .withValues(alpha:0.3),
               blurRadius: 18,
               spreadRadius: 1,
             )
@@ -405,8 +404,8 @@ class _ReviewDashboardScreenState
                 BoxShadow(
                   color: const Color(
                           0xFFFFD76A)
-                      .withOpacity(
-                          0.3),
+                      .withValues(
+                          alpha:0.3),
                   blurRadius: 20,
                 )
               ],

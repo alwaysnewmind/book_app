@@ -118,10 +118,10 @@ class _PremiumDashboardState extends State<PremiumDashboard> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.06),
+                      color: Colors.white.withValues(alpha:0.06),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withValues(alpha:0.08),
                       ),
                     ),
                     child: const Column(
@@ -150,7 +150,7 @@ class _PremiumDashboardState extends State<PremiumDashboard> {
                         ],
                       ),
                       border: Border.all(
-                        color: const Color(0xFFFFD700).withOpacity(0.4),
+                        color: const Color(0xFFFFD700).withValues(alpha:0.4),
                       ),
                     ),
                     child: const Column(

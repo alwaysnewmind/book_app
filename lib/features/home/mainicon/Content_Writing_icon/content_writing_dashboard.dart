@@ -232,7 +232,7 @@ class _ContentWritingDashboardState extends State<ContentWritingDashboard> {
                             elevation: 0,
                           ).copyWith(
                             shadowColor: MaterialStateProperty.all(
-                              const Color(0xFFFFD76A).withOpacity(0.3),
+                              const Color(0xFFFFD76A).withValues(alpha:0.3),
                             ),
                           ),
                           child: const Text(

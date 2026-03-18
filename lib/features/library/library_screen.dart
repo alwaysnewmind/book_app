@@ -1,3 +1,4 @@
+import 'package:book_app/features/book/screen/booklist.dart';
 import 'package:book_app/features/library/models/library_book.dart';
 import 'package:flutter/material.dart';
 import 'widgets/library_books_grid.dart';
@@ -22,7 +23,8 @@ class LibraryScreen extends StatelessWidget {
   static const Color cardFill = Color(0xFF251A3F);
   static const Color borderInactive = Color(0xFF3A2D5C);
 
-  List<LibraryBook> get myBooksList => [];
+ 
+  List<LibraryBook> get myBooksList => LibraryData.demoBooks;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +71,7 @@ class LibraryScreen extends StatelessWidget {
                           gradient: LinearGradient(
                             colors: [
                               Colors.transparent,
-                              bgBottom.withOpacity(0.85),
+                              bgBottom.withValues(alpha:0.85),
                               bgBottom,
                             ],
                             begin: Alignment.topCenter,
@@ -121,7 +123,7 @@ class LibraryScreen extends StatelessWidget {
                                 ),
                                 elevation: 0,
                                 shadowColor:
-                                    goldGlow.withOpacity(0.3),
+                                    goldGlow.withValues(alpha:0.3),
                               ),
                               onPressed: () {
                                 Navigator.pushNamed(
@@ -243,7 +245,7 @@ class LibraryScreen extends StatelessWidget {
         border: Border.all(color: borderInactive),
         boxShadow: [
           BoxShadow(
-            color: goldGlow.withOpacity(0.25),
+            color: goldGlow.withValues(alpha:0.25),
             blurRadius: 16,
           ),
         ],

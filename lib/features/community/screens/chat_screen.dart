@@ -139,7 +139,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back, color: textSecondary)),
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(shape: BoxShape.circle, color: goldPrimary, boxShadow: [BoxShadow(color: goldGlow.withOpacity(0.3), blurRadius: 15)]),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: goldPrimary, boxShadow: [BoxShadow(color: goldGlow.withValues(alpha:0.3), blurRadius: 15)]),
             child: const Icon(Icons.menu_book, color: bgPrimary),
           ),
           const SizedBox(width: 14),
@@ -166,7 +166,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
       child: ClipRRect(
         borderRadius: BorderRadius.circular(35),
         child: Container(
-          decoration: BoxDecoration(color: cardFill.withOpacity(0.95), borderRadius: BorderRadius.circular(35), border: Border.all(color: cardBorder)),
+          decoration: BoxDecoration(color: cardFill.withValues(alpha:0.95), borderRadius: BorderRadius.circular(35), border: Border.all(color: cardBorder)),
           child: Column(
             children: [
               Expanded(
@@ -208,7 +208,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                 Container(
                   padding: const EdgeInsets.all(8),
                   margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(color: bgPrimary.withOpacity(0.5), borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: bgPrimary.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(12)),
                   child: Text(message.replyTo!, style: const TextStyle(fontSize: 12, color: textSecondary)),
                 ),
               Text(message.text, style: TextStyle(color: message.isMe ? bgPrimary : textSecondary)),
@@ -247,7 +247,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(color: bgPrimary.withOpacity(0.6), borderRadius: BorderRadius.circular(30), border: Border.all(color: cardBorder)),
+              decoration: BoxDecoration(color: bgPrimary.withValues(alpha:0.6), borderRadius: BorderRadius.circular(30), border: Border.all(color: cardBorder)),
               child: TextField(
                 controller: _controller,
                 onSubmitted: (_) => sendMessage(),

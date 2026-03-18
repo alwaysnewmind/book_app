@@ -86,7 +86,7 @@ class ProfileDrawer extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha:0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -184,7 +184,7 @@ class _DrawerItemState extends State<_DrawerItem> {
         child: InkWell(
           onTap: widget.onTap,
           borderRadius: BorderRadius.circular(16),
-          splashColor: const Color(0xFF8E6CFF).withOpacity(0.15),
+          splashColor: const Color(0xFF8E6CFF).withValues(alpha:0.15),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             child: Row(
@@ -192,7 +192,7 @@ class _DrawerItemState extends State<_DrawerItem> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF8E6CFF).withOpacity(0.1),
+                    color: const Color(0xFF8E6CFF).withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(

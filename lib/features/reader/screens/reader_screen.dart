@@ -9,16 +9,22 @@ class ReaderScreen extends StatefulWidget {
   final bool isLocked;
   final ReaderBookModel? book;
 
-  const ReaderScreen({super.key, required this.isLocked, this.book});
+  const ReaderScreen({
+    super.key,
+    required this.isLocked,
+    this.book,
+  });
 
   @override
   State<ReaderScreen> createState() => _ReaderScreenState();
 }
 
 class _ReaderScreenState extends State<ReaderScreen> {
-  double _progress = 0;
+
   final ScrollController _scrollController = ScrollController();
   final ReaderController _readerController = ReaderController();
+
+  double _progress = 0;
 
   final String _dummyContent = """
 📖 Book content starts here...
@@ -31,7 +37,7 @@ Later API / PDF / text will load here.
 
 Keep scrolling to see progress change.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in neque et nisl.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 End of sample content.
 """;
@@ -39,42 +45,57 @@ End of sample content.
   @override
   void initState() {
     super.initState();
+
     _readerController.init();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeReader());
 
-    _scrollController.addListener(() {
-      final maxScroll = _scrollController.position.maxScrollExtent;
-      final currentScroll = _scrollController.position.pixels;
-
-      if (maxScroll > 0) {
-        final progress = (currentScroll / maxScroll) * 100;
-        setState(() {
-          _progress = progress;
-        });
-
-        context.read<ReaderProvider>().updateProgress(progress);
-        final activeBook = widget.book;
-        if (activeBook != null) {
-          _readerController.updateReadingProgress(
-            bookId: activeBook.id,
-            progress: progress,
-            pagesRead: 1,
-          );
-        }
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeReader();
     });
+
+    _scrollController.addListener(_handleScroll);
   }
 
+  /// SCROLL PROGRESS
+  void _handleScroll() {
+
+    if (!_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+
+    if (maxScroll <= 0) return;
+
+    final progress = (currentScroll / maxScroll) * 100;
+
+    setState(() {
+      _progress = progress;
+    });
+
+    final activeBook = widget.book;
+
+    if (activeBook != null) {
+      _readerController.updateReadingProgress(
+        bookId: activeBook.id,
+        progress: progress,
+        pagesRead: 1,
+      );
+    }
+  }
+
+  /// INIT READER
   Future<void> _initializeReader() async {
+
     final book = widget.book;
+
     if (book == null) {
+
       await context.read<ReaderProvider>().openBook(
             book: const ReaderBookModel(
               id: 'demo_reader_book',
               title: 'Reader Demo',
-              description: 'Demo content for reader engine',
+              description: 'Demo content',
               authorName: 'System',
-              coverUrl: 'assets/covers/atomic.jpg',
+              coverUrl: '',
               genre: 'Demo',
               rating: 5,
               totalChapters: 1,
@@ -86,18 +107,15 @@ End of sample content.
             ),
             content: _dummyContent,
           );
+
       return;
     }
 
-   await _readerController.openBook(book);
+    await _readerController.openBook(book);
 
-// Check if the widget is still mounted before using context
-if (!mounted) return;
+    if (!mounted) return;
 
-await context.read<ReaderProvider>().openBook(
-      book: book,
-      content: _readerController.currentBookContent,
-        );
+       
   }
 
   @override
@@ -107,53 +125,88 @@ await context.read<ReaderProvider>().openBook(
     super.dispose();
   }
 
+  /// THEME HELPER
+  (Color, Color) _resolveTheme(ReaderProvider provider) {
+
+    switch (provider.themeMode) {
+
+      case ReaderThemeMode.dark:
+        return (Colors.black, Colors.white);
+
+      case ReaderThemeMode.sepia:
+        return (const Color(0xFFF4ECD8), Colors.brown);
+
+      case ReaderThemeMode.light:
+        return (Colors.white, Colors.black);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.isLocked) return const ReaderSubscriptionScreen();
+
+    if (widget.isLocked) {
+      return const ReaderSubscriptionScreen();
+    }
 
     return Consumer<ReaderProvider>(
       builder: (context, provider, _) {
-        Color bgColor = Colors.white;
-        Color textColor = Colors.black;
 
-        if (provider.darkMode) {
-          bgColor = Colors.black;
-          textColor = Colors.white;
-        } else if (provider.sepiaMode) {
-          bgColor = const Color(0xFFF4ECD8);
-          textColor = Colors.brown.shade800;
-        }
+        final (bgColor, textColor) = _resolveTheme(provider);
 
         return Scaffold(
           backgroundColor: bgColor,
+
           appBar: AppBar(
             backgroundColor: bgColor,
             elevation: 0,
-            title: const Text('Reader'),
             iconTheme: IconThemeData(color: textColor),
-            titleTextStyle: TextStyle(
-              color: textColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+
+            title: Text(
+              provider.currentBook?.title ?? "Reader",
+              style: TextStyle(color: textColor),
             ),
+
             actions: [
+
+              /// DARK MODE
               IconButton(
                 icon: Icon(Icons.dark_mode, color: textColor),
-                onPressed: provider.toggleDarkMode,
+                onPressed: () {
+                  provider.changeTheme(ReaderThemeMode.dark);
+                },
               ),
+
+              /// SEPIA
               IconButton(
                 icon: Icon(Icons.menu_book, color: textColor),
-                onPressed: provider.toggleSepiaMode,
+                onPressed: () {
+                  provider.changeTheme(ReaderThemeMode.sepia);
+                },
+              ),
+
+              /// LIGHT
+              IconButton(
+                icon: Icon(Icons.light_mode, color: textColor),
+                onPressed: () {
+                  provider.changeTheme(ReaderThemeMode.light);
+                },
               ),
             ],
           ),
+
+          /// CONTENT
           body: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+
             child: SingleChildScrollView(
               controller: _scrollController,
               physics: const BouncingScrollPhysics(),
+
               child: Text(
-                provider.currentBookContent.isEmpty ? _dummyContent : provider.currentBookContent,
+                provider.currentBookContent.isEmpty
+                    ? _dummyContent
+                    : provider.currentBookContent,
+
                 style: TextStyle(
                   fontSize: provider.fontSize,
                   height: 1.8,
@@ -162,22 +215,33 @@ await context.read<ReaderProvider>().openBook(
               ),
             ),
           ),
+
+          /// BOTTOM BAR
           bottomNavigationBar: Container(
+
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: provider.darkMode ? Colors.grey[900] : Colors.black87,
-            ),
+
+            color: provider.themeMode == ReaderThemeMode.dark
+                ? Colors.grey[900]
+                : Colors.black87,
+
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
                 IconButton(
                   icon: const Icon(Icons.remove, color: Colors.white),
                   onPressed: provider.decreaseFont,
                 ),
+
                 Text(
-                  '${_progress.toStringAsFixed(0)}%',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  "${_progress.toStringAsFixed(0)}%",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+
                 IconButton(
                   icon: const Icon(Icons.add, color: Colors.white),
                   onPressed: provider.increaseFont,

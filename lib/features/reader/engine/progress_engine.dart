@@ -1,144 +1,164 @@
-
-
 class ProgressEngine {
 
   /// =========================
-  /// SCROLL BASED PROGRESS
+  /// SCROLL BASED PROGRESS (0-100)
   /// =========================
-
   double calculateScrollProgress({
     required double scroll,
     required double maxScroll,
   }) {
     if (maxScroll <= 0) return 0;
 
-    final progress = (scroll / maxScroll) * 100;
+    final safeScroll = scroll.clamp(0.0, maxScroll);
 
-    return progress.clamp(0, 100);
+    final progress = (safeScroll / maxScroll) * 100;
+
+    return progress.clamp(0.0, 100.0);
   }
 
   /// =========================
-  /// PAGE BASED PROGRESS
+  /// PAGE BASED PROGRESS (0-100)
   /// =========================
-
   double calculatePageProgress({
     required int currentPage,
     required int totalPages,
   }) {
-    if (totalPages == 0) return 0;
+    if (totalPages <= 0) return 0;
 
-    final progress = (currentPage / totalPages) * 100;
+    final safePage = currentPage.clamp(0, totalPages - 1);
 
-    return progress.clamp(0, 100);
+    final progress = ((safePage + 1) / totalPages) * 100;
+
+    return progress.clamp(0.0, 100.0);
   }
 
   /// =========================
-  /// CHAPTER PROGRESS
+  /// CHAPTER PROGRESS (0-100)
   /// =========================
-
   double calculateChapterProgress({
     required int currentChapter,
     required int totalChapters,
   }) {
-    if (totalChapters == 0) return 0;
+    if (totalChapters <= 0) return 0;
 
-    final progress = (currentChapter / totalChapters) * 100;
+    final safeChapter = currentChapter.clamp(0, totalChapters - 1);
 
-    return progress.clamp(0, 100);
+    final progress = ((safeChapter + 1) / totalChapters) * 100;
+
+    return progress.clamp(0.0, 100.0);
   }
 
   /// =========================
   /// BOOK COMPLETION CHECK
   /// =========================
-
   bool isBookCompleted(double progress) {
-    return progress >= 100;
+    final safe = progress.clamp(0.0, 100.0);
+    return safe >= 99.9;
   }
 
   /// =========================
   /// PAGES READ CALCULATOR
   /// =========================
-
   int calculatePagesRead({
     required double progress,
     required int totalPages,
   }) {
-    return (progress / 100 * totalPages).round();
+    if (totalPages <= 0) return 0;
+
+    final safeProgress = progress.clamp(0.0, 100.0);
+
+    return ((safeProgress / 100) * totalPages).round();
   }
 
   /// =========================
   /// READING SPEED
   /// pages per minute
   /// =========================
-
   double calculateReadingSpeed({
     required int pagesRead,
     required int minutes,
   }) {
-    if (minutes == 0) return 0;
+    if (minutes <= 0) return 0;
 
-    return pagesRead / minutes;
+    final safePages = pagesRead < 0 ? 0 : pagesRead;
+
+    return safePages / minutes;
   }
 
   /// =========================
   /// ESTIMATED TIME LEFT
   /// =========================
-
   int estimateRemainingMinutes({
     required int pagesLeft,
     required double pagesPerMinute,
   }) {
-    if (pagesPerMinute == 0) return 0;
+    if (pagesPerMinute <= 0) return 0;
 
-    return (pagesLeft / pagesPerMinute).ceil();
+    final safePagesLeft = pagesLeft < 0 ? 0 : pagesLeft;
+
+    return (safePagesLeft / pagesPerMinute).ceil();
   }
 
   /// =========================
-  /// READING PERCENT LABEL
+  /// REMAINING PAGES
   /// =========================
+  int calculateRemainingPages({
+    required int totalPages,
+    required int pagesRead,
+  }) {
+    if (totalPages <= 0) return 0;
 
+    final remaining = totalPages - pagesRead;
+
+    return remaining < 0 ? 0 : remaining;
+  }
+
+  /// =========================
+  /// FORMAT PROGRESS LABEL
+  /// =========================
   String formatProgress(double progress) {
-    return "${progress.toStringAsFixed(0)}%";
+    final safe = progress.clamp(0.0, 100.0);
+
+    return "${safe.toStringAsFixed(0)}%";
   }
 
   /// =========================
-  /// BOOK STATUS
+  /// READING STATUS LABEL
   /// =========================
-
   String getReadingStatus(double progress) {
+    final safe = progress.clamp(0.0, 100.0);
 
-    if (progress == 0) {
+    if (safe <= 0) {
       return "Not Started";
     }
 
-    if (progress < 25) {
+    if (safe < 25) {
       return "Just Started";
     }
 
-    if (progress < 75) {
+    if (safe < 75) {
       return "In Progress";
     }
 
-    if (progress < 100) {
+    if (safe < 99) {
       return "Almost Finished";
     }
 
     return "Completed";
   }
 
-  /// Calculate reading progress (0 → 1)
-  double calculateProgress(double scroll, double maxScroll) {
+  /// =========================
+  /// NORMALIZED PROGRESS (0-1)
+  /// for UI animations
+  /// =========================
+  double calculateNormalizedProgress({
+    required double scroll,
+    required double maxScroll,
+  }) {
+    if (maxScroll <= 0) return 0;
 
-    if (maxScroll <= 0) return 0.0;
+    final safeScroll = scroll.clamp(0.0, maxScroll);
 
-    final double safeSize =
-        (scroll / maxScroll).clamp(0.0, 1.0).toDouble();
-
-    return safeSize;
+    return (safeScroll / maxScroll).clamp(0.0, 1.0);
   }
 }
-
-  Object? calculateProgress(double scroll, double maxScroll) {
-    return null;
-  }
-

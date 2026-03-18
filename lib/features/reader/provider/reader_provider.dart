@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:book_app/features/reader/models/reader_book_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,83 +16,88 @@ class ReaderProvider extends ChangeNotifier {
   /// PAGE CONTROLLER
   final PageController pageController = PageController();
 
-  /// CHAPTER SYSTEM
+  SharedPreferences? _prefs;
+
+  /// BOOK
+  ReaderBookModel? _currentBook;
+  String _currentBookContent = "";
+
+  ReaderBookModel? get currentBook => _currentBook;
+  String get currentBookContent => _currentBookContent;
+
+  /// CHAPTER
   int _currentChapter = 0;
   int _totalChapters = 0;
 
   int get currentChapter => _currentChapter;
-  int get previousChapter => _currentChapter > 0 ? _currentChapter - 1 : 0;
+  int get totalChapters => _totalChapters;
 
-  /// UI CONTROLS
+  /// UI
   bool _showControls = true;
   bool get showControls => _showControls;
 
-  /// TTS STATE
+  /// TTS
   bool _isSpeaking = false;
   bool get isSpeaking => _isSpeaking;
 
-  /// PROGRESS
-  double get progress => currentBookProgress;
+  /// SETTINGS
+  double _fontSize = 18;
+  bool _darkMode = false;
+  bool _sepiaMode = false;
 
-  ReaderBookModel? _currentBook;
-  String _currentBookContent = '';
+  double get fontSize => _fontSize;
 
+  /// STORAGE
   final Map<String, double> _readingProgress = {};
   final Map<String, Set<String>> _bookmarks = {};
   final Map<String, List<String>> _highlights = {};
   final Map<String, List<String>> _notes = {};
   final Set<String> _downloads = {};
 
-  double _fontSize = 18;
-  bool _darkMode = false;
-  bool _sepiaMode = false;
-
-  ReaderBookModel? get currentBook => _currentBook;
-  String get currentBookContent => _currentBookContent;
-
-  Map<String, double> get readingProgress =>
-      Map.unmodifiable(_readingProgress);
-
-  double get fontSize => _fontSize;
-  bool get darkMode => _darkMode;
-  bool get sepiaMode => _sepiaMode;
-
-  Map<String, dynamic> get readerSettings => {
-        'fontSize': _fontSize,
-        'darkMode': _darkMode,
-        'sepiaMode': _sepiaMode,
-      };
-
-  double get currentBookProgress {
-    final id = _currentBook?.id;
-    if (id == null) return 0;
-    return _readingProgress[id] ?? _currentBook!.progressPercent;
-  }
-
+  /// THEME
   ReaderThemeMode get themeMode {
     if (_darkMode) return ReaderThemeMode.dark;
     if (_sepiaMode) return ReaderThemeMode.sepia;
     return ReaderThemeMode.light;
   }
 
+  /// PROGRESS
+  double get progress {
+    final id = _currentBook?.id;
+    if (id == null) return 0;
+    return _readingProgress[id] ?? 0;
+  }
+
+  double get progressNormalized => (progress / 100).clamp(0, 1);
+
+  get currentBookProgress => null;
+
+  ValueChanged<int>? get setChapter => null;
+
+  VoidCallback? get goToPreviousChapter => null;
+
   /// INITIALIZE
   Future<void> initialize() async {
+    _prefs = await SharedPreferences.getInstance();
+
     await Future.wait([
       _loadProgress(),
       _loadSettings(),
       _loadDataStore(),
     ]);
-    notifyListeners();
   }
 
-  /// LOAD BOOK (Fix for error)
+  /// LOAD BOOK
   void loadBook({
     required String bookId,
     required int totalChapters,
     int lastReadChapter = 0,
   }) {
     _totalChapters = totalChapters;
-    _currentChapter = lastReadChapter;
+
+    _currentChapter =
+        lastReadChapter.clamp(0, totalChapters > 0 ? totalChapters - 1 : 0);
+
     notifyListeners();
   }
 
@@ -107,45 +111,80 @@ class ReaderProvider extends ChangeNotifier {
 
     _readingProgress.putIfAbsent(book.id, () => book.progressPercent);
 
+    final progress = _readingProgress[book.id] ?? 0;
+
+    if (_totalChapters > 0) {
+      _currentChapter =
+          ((progress / 100) * _totalChapters).floor().clamp(0, _totalChapters - 1);
+    }
+
+    if (pageController.hasClients) {
+      try {
+        pageController.jumpToPage(_currentChapter);
+      } catch (_) {}
+    }
+
     notifyListeners();
   }
 
-  /// NEXT CHAPTER CALLBACK (UI SAFE)
-  VoidCallback? get nextChapter {
-    if (_currentChapter >= _totalChapters - 1) return null;
+  /// PAGE CHANGE
+  Future<void> onPageChanged(int index) async {
+    if (index == _currentChapter) return;
 
-    return () {
-      _currentChapter++;
-      pageController.jumpToPage(_currentChapter);
-      notifyListeners();
-    };
-  }
-
-  /// PREVIOUS CHAPTER CALLBACK
-  VoidCallback? get goToPreviousChapter {
-    if (_currentChapter <= 0) return null;
-
-    return () {
-      _currentChapter--;
-      pageController.jumpToPage(_currentChapter);
-      notifyListeners();
-    };
-  }
-
-  /// CHANGE CHAPTER
-  void setChapter(int index) {
     _currentChapter = index;
+
+    final book = _currentBook;
+    if (book != null) {
+      await saveProgress(book.id);
+    }
+
     notifyListeners();
   }
 
-  /// UPDATE PROGRESS
-  Future<void> updateProgress(double progress) async {
-    final id = _currentBook?.id;
-    if (id == null) return;
+  /// SAVE PROGRESS
+  Future<void> saveProgress(String bookId) async {
+    if (_totalChapters == 0) return;
 
-    _readingProgress[id] = progress.clamp(0, 100).toDouble();
+    final percent = ((_currentChapter + 1) / _totalChapters) * 100;
+
+    _readingProgress[bookId] = percent.clamp(0, 100);
 
     await _saveProgress();
+  }
+
+  /// NEXT CHAPTER
+  Future<void> nextChapter() async {
+    if (_currentChapter >= _totalChapters - 1) return;
+
+    _currentChapter++;
+
+    if (pageController.hasClients) {
+      pageController.jumpToPage(_currentChapter);
+    }
+
+    final book = _currentBook;
+    if (book != null) {
+      await saveProgress(book.id);
+    }
+
+    notifyListeners();
+  }
+
+  /// PREVIOUS CHAPTER
+  Future<void> previousChapter() async {
+    if (_currentChapter <= 0) return;
+
+    _currentChapter--;
+
+    if (pageController.hasClients) {
+      pageController.jumpToPage(_currentChapter);
+    }
+
+    final book = _currentBook;
+    if (book != null) {
+      await saveProgress(book.id);
+    }
+
     notifyListeners();
   }
 
@@ -155,7 +194,7 @@ class ReaderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// BOOKMARK CHECK
+  /// BOOKMARK
   bool isBookmarked(String location) {
     final id = _currentBook?.id;
     if (id == null) return false;
@@ -163,16 +202,13 @@ class ReaderProvider extends ChangeNotifier {
     return _bookmarks[id]?.contains(location) ?? false;
   }
 
-  /// TOGGLE BOOKMARK
   Future<void> toggleBookmark(String location) async {
     final id = _currentBook?.id;
     if (id == null) return;
 
     final set = _bookmarks.putIfAbsent(id, () => <String>{});
 
-    if (set.contains(location)) {
-      set.remove(location);
-    } else {
+    if (!set.remove(location)) {
       set.add(location);
     }
 
@@ -180,53 +216,53 @@ class ReaderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// HIGHLIGHT
   Future<void> addHighlight(String text) async {
     final id = _currentBook?.id;
     if (id == null) return;
 
-    _highlights.putIfAbsent(id, () => []).add(text);
+    final list = _highlights.putIfAbsent(id, () => []);
 
-    await _saveDataStore();
+    if (!list.contains(text)) {
+      list.add(text);
+      await _saveDataStore();
+      notifyListeners();
+    }
   }
 
+  /// NOTE
   Future<void> addNote(String note) async {
     final id = _currentBook?.id;
     if (id == null) return;
 
-    _notes.putIfAbsent(id, () => []).add(note);
+    final list = _notes.putIfAbsent(id, () => []);
+
+    list.add(note);
 
     await _saveDataStore();
+    notifyListeners();
   }
 
+  /// DOWNLOAD
   Future<void> markDownloaded(String bookId) async {
+    if (_downloads.contains(bookId)) return;
+
     _downloads.add(bookId);
+
     await _saveDataStore();
+    notifyListeners();
   }
 
-  /// TTS CONTROL
+  /// TTS
   void setSpeaking(bool value) {
+    if (_isSpeaking == value) return;
+
     _isSpeaking = value;
     notifyListeners();
   }
 
   /// THEME
-  Future<void> toggleDarkMode() async {
-    _darkMode = !_darkMode;
-    if (_darkMode) _sepiaMode = false;
-
-    await _saveSettings();
-    notifyListeners();
-  }
-
-  Future<void> toggleSepiaMode() async {
-    _sepiaMode = !_sepiaMode;
-    if (_sepiaMode) _darkMode = false;
-
-    await _saveSettings();
-    notifyListeners();
-  }
-
-  void changeTheme(ReaderThemeMode mode) {
+  Future<void> changeTheme(ReaderThemeMode mode) async {
     switch (mode) {
       case ReaderThemeMode.dark:
         _darkMode = true;
@@ -244,7 +280,7 @@ class ReaderProvider extends ChangeNotifier {
         break;
     }
 
-    _saveSettings();
+    await _saveSettings();
     notifyListeners();
   }
 
@@ -253,6 +289,7 @@ class ReaderProvider extends ChangeNotifier {
     if (_fontSize >= 32) return;
 
     _fontSize += 2;
+
     await _saveSettings();
     notifyListeners();
   }
@@ -261,28 +298,30 @@ class ReaderProvider extends ChangeNotifier {
     if (_fontSize <= 14) return;
 
     _fontSize -= 2;
+
     await _saveSettings();
     notifyListeners();
   }
 
   /// LOAD PROGRESS
   Future<void> _loadProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    final raw = _prefs?.getString(_progressStoreKey);
 
-    final raw = prefs.getString(_progressStoreKey);
     if (raw == null || raw.isEmpty) return;
 
-    final decoded = jsonDecode(raw) as Map<String, dynamic>;
+    try {
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
 
-    _readingProgress
-      ..clear()
-      ..addAll(decoded.map((k, v) => MapEntry(k, (v as num).toDouble())));
+      _readingProgress
+        ..clear()
+        ..addAll(decoded.map(
+          (k, v) => MapEntry(k, (v as num).toDouble()),
+        ));
+    } catch (_) {}
   }
 
   Future<void> _saveProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    await prefs.setString(
+    await _prefs?.setString(
       _progressStoreKey,
       jsonEncode(_readingProgress),
     );
@@ -290,94 +329,107 @@ class ReaderProvider extends ChangeNotifier {
 
   /// SETTINGS
   Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
+    final raw = _prefs?.getString(_settingsStoreKey);
 
-    final raw = prefs.getString(_settingsStoreKey);
     if (raw == null || raw.isEmpty) return;
 
-    final decoded = jsonDecode(raw);
+    try {
+      final decoded = jsonDecode(raw);
 
-    _fontSize = ((decoded['fontSize'] ?? 18) as num).toDouble();
-    _darkMode = decoded['darkMode'] ?? false;
-    _sepiaMode = decoded['sepiaMode'] ?? false;
+      _fontSize = ((decoded['fontSize'] ?? 18) as num).toDouble();
+      _darkMode = decoded['darkMode'] ?? false;
+      _sepiaMode = decoded['sepiaMode'] ?? false;
+    } catch (_) {}
   }
 
   Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    await prefs.setString(
+    await _prefs?.setString(
       _settingsStoreKey,
-      jsonEncode(readerSettings),
+      jsonEncode({
+        'fontSize': _fontSize,
+        'darkMode': _darkMode,
+        'sepiaMode': _sepiaMode,
+      }),
     );
   }
 
   /// DATA STORE
   Future<void> _loadDataStore() async {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final bookmarksRaw = _prefs?.getString(_bookmarksStoreKey);
 
-    final bookmarksRaw = prefs.getString(_bookmarksStoreKey);
-    if (bookmarksRaw != null && bookmarksRaw.isNotEmpty) {
-      final decoded = jsonDecode(bookmarksRaw);
+      if (bookmarksRaw != null) {
+        final decoded = jsonDecode(bookmarksRaw);
 
-      _bookmarks
-        ..clear()
-        ..addAll(decoded.map(
-          (k, v) => MapEntry(
-            k,
-            (v as List).map((e) => e.toString()).toSet(),
-          ),
-        ));
-    }
+        _bookmarks
+          ..clear()
+          ..addAll(decoded.map(
+            (k, v) => MapEntry(
+              k,
+              (v as List).map((e) => e.toString()).toSet(),
+            ),
+          ));
+      }
 
-    final highlightsRaw = prefs.getString(_highlightsStoreKey);
-    if (highlightsRaw != null && highlightsRaw.isNotEmpty) {
-      final decoded = jsonDecode(highlightsRaw);
+      final highlightsRaw = _prefs?.getString(_highlightsStoreKey);
 
-      _highlights
-        ..clear()
-        ..addAll(decoded.map(
-          (k, v) => MapEntry(
-            k,
-            (v as List).map((e) => e.toString()).toList(),
-          ),
-        ));
-    }
+      if (highlightsRaw != null) {
+        final decoded = jsonDecode(highlightsRaw);
 
-    final notesRaw = prefs.getString(_notesStoreKey);
-    if (notesRaw != null && notesRaw.isNotEmpty) {
-      final decoded = jsonDecode(notesRaw);
+        _highlights
+          ..clear()
+          ..addAll(decoded.map(
+            (k, v) => MapEntry(
+              k,
+              (v as List).map((e) => e.toString()).toList(),
+            ),
+          ));
+      }
 
-      _notes
-        ..clear()
-        ..addAll(decoded.map(
-          (k, v) => MapEntry(
-            k,
-            (v as List).map((e) => e.toString()).toList(),
-          ),
-        ));
-    }
+      final notesRaw = _prefs?.getString(_notesStoreKey);
 
-    final downloadsRaw = prefs.getString(_downloadsStoreKey);
-    if (downloadsRaw != null && downloadsRaw.isNotEmpty) {
-      _downloads
-        ..clear()
-        ..addAll(
-          (jsonDecode(downloadsRaw) as List).map((e) => e.toString()),
-        );
-    }
+      if (notesRaw != null) {
+        final decoded = jsonDecode(notesRaw);
+
+        _notes
+          ..clear()
+          ..addAll(decoded.map(
+            (k, v) => MapEntry(
+              k,
+              (v as List).map((e) => e.toString()).toList(),
+            ),
+          ));
+      }
+
+      final downloadsRaw = _prefs?.getString(_downloadsStoreKey);
+
+      if (downloadsRaw != null) {
+        _downloads
+          ..clear()
+          ..addAll(
+            (jsonDecode(downloadsRaw) as List).map((e) => e.toString()),
+          );
+      }
+    } catch (_) {}
   }
 
   Future<void> _saveDataStore() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    await prefs.setString(
+    await _prefs?.setString(
       _bookmarksStoreKey,
       jsonEncode(_bookmarks.map((k, v) => MapEntry(k, v.toList()))),
     );
 
-    await prefs.setString(_highlightsStoreKey, jsonEncode(_highlights));
-    await prefs.setString(_notesStoreKey, jsonEncode(_notes));
-    await prefs.setString(
+    await _prefs?.setString(
+      _highlightsStoreKey,
+      jsonEncode(_highlights),
+    );
+
+    await _prefs?.setString(
+      _notesStoreKey,
+      jsonEncode(_notes),
+    );
+
+    await _prefs?.setString(
       _downloadsStoreKey,
       jsonEncode(_downloads.toList()),
     );

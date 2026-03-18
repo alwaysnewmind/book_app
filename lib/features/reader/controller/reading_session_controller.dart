@@ -61,10 +61,11 @@ class ReadingSessionController extends ChangeNotifier {
     _scroll = scroll;
     _maxScroll = maxScroll <= 0 ? 1 : maxScroll;
 
-    final Object calculated =
-        _progressEngine.calculateProgress(_scroll, _maxScroll);
+    final double calculated = _progressEngine.calculateScrollProgress(
+  scroll: _scroll,
+  maxScroll: _maxScroll,);
 
-    final double newProgress = (calculated as double).clamp(0.0, 1.0).toDouble();
+    final double newProgress = (calculated).clamp(0.0, 1.0).toDouble();
 
     /// Avoid unnecessary rebuilds
     if (newProgress == _progress) return;

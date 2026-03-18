@@ -25,50 +25,68 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   void initState() {
     super.initState();
 
+    /// Fallback demo chapters
     chapters = widget.book.chapters.isNotEmpty
         ? widget.book.chapters
         : List.generate(
             10,
-            (index) => "Chapter ${index + 1}\n\nThis is demo content...",
+            (index) =>
+                "Chapter ${index + 1}\n\nThis is demo content for the reader system.\n\n"
+                "Scroll or swipe to read the next chapter.",
           );
 
-    final readerProvider =
-        Provider.of<ReaderProvider>(context, listen: false);
+    if (!widget.isLocked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final readerProvider =
+            Provider.of<ReaderProvider>(context, listen: false);
 
-    readerProvider.loadBook(
-      bookId: widget.book.id,
-      totalChapters: chapters.length,
-      lastReadChapter: widget.book.lastReadChapter,
-    );
+        readerProvider.loadBook(
+          bookId: widget.book.id,
+          totalChapters: chapters.length,
+          lastReadChapter: widget.book.lastReadChapter,
+        );
+
+        /// Jump to last read chapter
+        readerProvider.pageController.jumpToPage(
+          widget.book.lastReadChapter.clamp(0, chapters.length - 1),
+        );
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    if (!widget.isLocked) {
+      final readerProvider =
+          Provider.of<ReaderProvider>(context, listen: false);
+
+      readerProvider.saveProgress(widget.book.id);
+    }
+
+    super.dispose();
+  }
+
+  /// THEME HELPER
+  (Color, Color) _resolveTheme(ReaderProvider provider) {
+    switch (provider.themeMode) {
+      case ReaderThemeMode.dark:
+        return (Colors.black, Colors.white);
+
+      case ReaderThemeMode.sepia:
+        return (const Color(0xFFF4ECD8), Colors.brown.shade800);
+
+      case ReaderThemeMode.light:
+        return (Colors.white, Colors.black);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ReaderProvider>(
       builder: (context, readerProvider, child) {
+        final (bgColor, textColor) = _resolveTheme(readerProvider);
 
-        /// Theme
-        Color bgColor;
-        Color textColor;
-
-        switch (readerProvider.themeMode) {
-          case ReaderThemeMode.dark:
-            bgColor = Colors.black;
-            textColor = Colors.white;
-            break;
-
-          case ReaderThemeMode.sepia:
-            bgColor = const Color(0xFFF4ECD8);
-            textColor = Colors.brown;
-            break;
-
-          default:
-            bgColor = Colors.white;
-            textColor = Colors.black;
-        }
-
-        /// Convert chapter index → bookmark location
-        String location = readerProvider.currentChapter.toString();
+        final location = readerProvider.currentChapter.toString();
 
         return Scaffold(
           backgroundColor: bgColor,
@@ -84,7 +102,6 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     style: TextStyle(color: textColor),
                   ),
                   actions: [
-
                     /// BOOKMARK
                     IconButton(
                       icon: Icon(
@@ -93,25 +110,28 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                             : Icons.bookmark_border,
                         color: textColor,
                       ),
-                      onPressed: () async {
+                      onPressed: widget.isLocked
+                          ? null
+                          : () async {
+                              await readerProvider.toggleBookmark(location);
 
-                        await readerProvider.toggleBookmark(location);
+                              final bookmarked =
+                                  readerProvider.isBookmarked(location);
 
-                        bool bookmarked =
-                            readerProvider.isBookmarked(location);
+                              if (!context.mounted) return;
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              bookmarked
-                                  ? "Bookmarked"
-                                  : "Removed Bookmark",
-                            ),
-                            duration:
-                                const Duration(milliseconds: 800),
-                          ),
-                        );
-                      },
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    bookmarked
+                                        ? "Bookmark added"
+                                        : "Bookmark removed",
+                                  ),
+                                  duration:
+                                      const Duration(milliseconds: 900),
+                                ),
+                              );
+                            },
                     ),
 
                     /// THEME
@@ -147,11 +167,11 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                       itemBuilder: (_) => const [
                         PopupMenuItem(
                           value: "inc",
-                          child: Text("Increase"),
+                          child: Text("Increase Font"),
                         ),
                         PopupMenuItem(
                           value: "dec",
-                          child: Text("Decrease"),
+                          child: Text("Decrease Font"),
                         ),
                       ],
                     ),
@@ -160,117 +180,147 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
               : null,
 
           /// BODY
-          body: GestureDetector(
-            onTap: readerProvider.toggleControls,
-            child: Column(
-              children: [
-
-                /// Progress
-                if (readerProvider.showControls)
-                  LinearProgressIndicator(
-                    value: readerProvider.progress / 100,
-                    backgroundColor: Colors.grey.shade300,
-                    color: Colors.deepPurple,
-                    minHeight: 3,
-                  ),
-
-                /// PageView
-                Expanded(
-                  child: PageView.builder(
-                    controller: readerProvider.pageController,
-                    onPageChanged: (index) {
-                      readerProvider.setChapter(index);
-                    },
-                    itemCount: chapters.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 30,
-                        ),
-                        child: SingleChildScrollView(
-                          child: Text(
-                            chapters[index],
-                            style: TextStyle(
-                              fontSize: readerProvider.fontSize,
-                              height: 1.7,
-                              color: textColor,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          /// BOTTOM CONTROLS
-          bottomNavigationBar: readerProvider.showControls
-              ? Container(
-                  color: bgColor,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+          body: widget.isLocked
+              ? _lockedView(context)
+              : GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: readerProvider.toggleControls,
+                  child: Column(
                     children: [
-
-                      /// PREVIOUS
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios,
-                            color: textColor),
-                        onPressed:
-                            readerProvider.goToPreviousChapter,
-                      ),
-
-                      /// TTS
-                      IconButton(
-                        icon: Icon(
-                          readerProvider.isSpeaking
-                              ? Icons.stop
-                              : Icons.play_arrow,
-                          color: textColor,
+                      /// PROGRESS BAR
+                      if (readerProvider.showControls)
+                        LinearProgressIndicator(
+                          value: readerProvider.currentBookProgress / 100,
+                          backgroundColor: Colors.grey.shade300,
+                          color: Colors.deepPurple,
+                          minHeight: 3,
                         ),
-                        onPressed: () {
-                          readerProvider.setSpeaking(
-                              !readerProvider.isSpeaking);
-                        },
-                      ),
 
-                      /// NEXT
-                      IconButton(
-                        icon: Icon(Icons.arrow_forward_ios,
-                            color: textColor),
-                        onPressed: readerProvider.nextChapter,
+                      /// CHAPTER PAGE VIEW
+                      Expanded(
+                        child: PageView.builder(
+                          controller: readerProvider.pageController,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: chapters.length,
+                          onPageChanged: readerProvider.setChapter,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 30,
+                              ),
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: Text(
+                                  chapters[index],
+                                  style: TextStyle(
+                                    fontSize: readerProvider.fontSize,
+                                    height: 1.7,
+                                    color: textColor,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
-                )
-              : null,
+                ),
 
-          /// LOCK CHECK
-          floatingActionButton: widget.isLocked
-              ? FloatingActionButton.extended(
-                  backgroundColor: Colors.deepPurple,
-                  label: const Text("Subscribe to Read"),
-                  icon: const Icon(Icons.lock_open),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            const ReaderSubscriptionScreen(),
+          /// BOTTOM CONTROLS
+          bottomNavigationBar: widget.isLocked
+              ? null
+              : readerProvider.showControls
+                  ? Container(
+                      color: bgColor,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
                       ),
-                    );
-                  },
-                )
-              : null,
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        children: [
+                          /// PREVIOUS
+                          IconButton(
+                            icon: Icon(Icons.arrow_back_ios,
+                                color: textColor),
+                            onPressed:
+                                readerProvider.goToPreviousChapter,
+                          ),
+
+                          /// TTS
+                          IconButton(
+                            icon: Icon(
+                              readerProvider.isSpeaking
+                                  ? Icons.stop
+                                  : Icons.play_arrow,
+                              color: textColor,
+                            ),
+                            onPressed: () {
+                              readerProvider.setSpeaking(
+                                  !readerProvider.isSpeaking);
+                            },
+                          ),
+
+                          /// NEXT
+                          IconButton(
+                            icon: Icon(Icons.arrow_forward_ios,
+                                color: textColor),
+                            onPressed: readerProvider.nextChapter,
+                          ),
+                        ],
+                      ),
+                    )
+                  : null,
         );
       },
+    );
+  }
+
+  /// LOCKED VIEW
+  Widget _lockedView(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.lock, size: 70, color: Colors.deepPurple),
+            const SizedBox(height: 20),
+            const Text(
+              "Premium Content",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Subscribe to unlock this book",
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 25),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.lock_open),
+              label: const Text("Subscribe Now"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const ReaderSubscriptionScreen(),
+                  ),
+                );
+              },
+            )
+          ],
+        ),
+      ),
     );
   }
 }

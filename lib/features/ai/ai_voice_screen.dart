@@ -75,7 +75,7 @@ class AIVoiceScreen extends StatelessWidget {
               Slider(
                 value: 0.3,
                 onChanged: (value) {
-                  // TODO: Integrate actual audio position
+                
                 },
                 activeColor: Colors.amber,
               ),
@@ -88,14 +88,14 @@ class AIVoiceScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {
-                      // TODO: Rewind 10s
+                    
                     },
                     icon: const Icon(Icons.replay_10, color: Colors.white),
                   ),
                   const SizedBox(width: 20),
                   IconButton(
                     onPressed: () {
-                      // TODO: Play/Pause toggle
+                      
                     },
                     icon: const Icon(Icons.play_circle_fill,
                         color: Colors.amber, size: 48),
@@ -103,7 +103,7 @@ class AIVoiceScreen extends StatelessWidget {
                   const SizedBox(width: 20),
                   IconButton(
                     onPressed: () {
-                      // TODO: Forward 10s
+                    
                     },
                     icon: const Icon(Icons.forward_10, color: Colors.white),
                   ),

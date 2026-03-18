@@ -1,13 +1,13 @@
 import 'dart:ui';
-
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'package:book_app/core/routes/app_routes.dart';
 import 'package:book_app/features/book/screen/book_detail_screen.dart';
 import 'package:book_app/features/writer/provider/writer_provider.dart';
 import 'package:book_app/shared/widgets/app_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:book_app/models/user_model.dart';
+
 
 class WriterDashboard extends StatefulWidget {
   final AppUser? currentUser;
@@ -32,8 +32,18 @@ class _WriterDashboardState extends State<WriterDashboard> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future.microtask(() async {
       if (!mounted) return;
+
+      final authProvider = context.read<AuthProvider>();
+
+      // ✅ Sync user if needed
+      if (authProvider.currentUser == null &&
+          widget.currentUser != null) {
+        // Optional: agar tumhara fetch method hai to use karo
+        // await authProvider.fetchUser(widget.currentUser!.uid);
+      }
+
       context.read<WriterProvider>().loadWriterStudio(
             user: widget.currentUser,
             isGuest: widget.isGuest,
@@ -43,6 +53,13 @@ class _WriterDashboardState extends State<WriterDashboard> {
 
   @override
   Widget build(BuildContext context) {
+final user = context.select<AuthProvider, AppUser?>(
+    (provider) => provider.currentUser,
+  );
+ final userName =
+      user?.name.isNotEmpty == true ? user!.name : "Writer";
+    
+    
     if (!widget.isWriterMode) {
       return const Scaffold(
         body: Center(
@@ -97,22 +114,48 @@ class _WriterDashboardState extends State<WriterDashboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 20),
-                            const Row(
+                                      /// ✅ HEADER WITH REAL USER
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Writer Dashboard',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Writer Dashboard',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      userName,
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
+
+                                /// ✅ PROFILE IMAGE
                                 CircleAvatar(
                                   radius: 22,
                                   backgroundColor: Colors.white24,
-                                  child: Icon(Icons.person, color: Colors.white),
-                                )
+                                  backgroundImage: (user?.profileImageUrl
+                                                  ?.isNotEmpty ??
+                                              false)
+                                          ? NetworkImage(
+                                              user!.profileImageUrl!)
+                                          : null,
+                                  child: (user?.profileImageUrl == null ||
+                                          user!.profileImageUrl!.isEmpty)
+                                      ? const Icon(Icons.person,
+                                          color: Colors.white)
+                                      : null,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 30),
@@ -261,7 +304,7 @@ class _WriterDashboardState extends State<WriterDashboard> {
                                 height: 60,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withValues(alpha:0.1),
                                   border: Border.all(color: Colors.white24),
                                 ),
                                 child: const Row(
@@ -318,7 +361,7 @@ class StatCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withValues(alpha:0.08),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white24),
           ),
@@ -367,11 +410,11 @@ class ActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: highlighted ? const Color(0xFFF7C405).withOpacity(0.15) : Colors.white.withOpacity(0.08),
+          color: highlighted ? const Color(0xFFF7C405).withValues(alpha:0.15) : Colors.white.withValues(alpha:0.08),
           boxShadow: highlighted
               ? [
                   BoxShadow(
-                    color: const Color(0xFFF7C405).withOpacity(0.6),
+                    color: const Color(0xFFF7C405).withValues(alpha:0.6),
                     blurRadius: 20,
                   )
                 ]
@@ -416,7 +459,7 @@ class BookCard extends StatelessWidget {
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: const Color(0xFFE8B503).withOpacity(0.6),
+                  color: const Color(0xFFE8B503).withValues(alpha:0.6),
                   blurRadius: 25,
                 )
               ]

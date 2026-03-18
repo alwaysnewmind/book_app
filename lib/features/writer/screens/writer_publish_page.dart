@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:book_app/models/writer_book_model.dart';
 
@@ -192,7 +191,7 @@ class _WriterPublishPageState extends State<WriterPublishPage> {
                                   fit: BoxFit.cover,
                                   color: const Color(
                                           0xFF1F1533)
-                                      .withOpacity(0.6),
+                                      .withValues(alpha:0.6),
                                   colorBlendMode:
                                       BlendMode.darken,
                                 ),

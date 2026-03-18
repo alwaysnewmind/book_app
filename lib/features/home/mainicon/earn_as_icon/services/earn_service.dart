@@ -1,41 +1,59 @@
-import 'package:book_app/features/home/mainicon/earn_as_icon/models/earn_model.dart' show EarnModel;
+import 'dart:async';
+import '../models/earn_model.dart';
 
-
-
+/// Mock API or Firestore service
 class EarnService {
-
-  EarnModel loadEarnings() {
+  /// Fetch current earnings (simulate API)
+  Future<EarnModel> fetchEarnings() async {
+    await Future.delayed(const Duration(milliseconds: 500)); // simulate network
+    // Replace with real API/Firestore fetch
     return const EarnModel(
-      readerCoins: 0,
-      readerCash: 0,
-      writerEarnings: 0,
-      totalReads: 0,
+      readerCoins: 120,
+      readerCash: 1.2,
+      writerEarnings: 5.0,
+      totalReads: 20,
     );
   }
 
-  /// Reader coins calculation
+  /// Update reader coins
+  Future<EarnModel> addReaderCoins(EarnModel current, int pagesRead) async {
+    if (pagesRead < 0) throw Exception('pagesRead cannot be negative');
+
+    final coins = calculateCoinsFromPages(pagesRead);
+    final totalCoins = current.readerCoins + coins;
+
+    final updated = current.copyWith(
+      readerCoins: totalCoins,
+      readerCash: convertCoinsToCash(totalCoins),
+      totalReads: current.totalReads + pagesRead,
+    );
+
+    await Future.delayed(const Duration(milliseconds: 200)); // simulate save
+    return updated;
+  }
+
+  /// Update writer earnings
+  Future<EarnModel> addWriterChapterReads(EarnModel current, int chapters) async {
+    if (chapters < 0) throw Exception('chapters cannot be negative');
+
+    final earn = calculateWriterChapterEarning(chapters);
+
+    final updated = current.copyWith(
+      writerEarnings: current.writerEarnings + earn,
+    );
+
+    await Future.delayed(const Duration(milliseconds: 200)); // simulate save
+    return updated;
+  }
+
+  /// --- Business logic ---
   int calculateCoinsFromPages(int pages) {
     int coins = pages;
-
-    if (pages >= 10) {
-      coins += 5;
-    }
-
+    if (pages >= 10) coins += 5;
     return coins;
   }
 
-  /// Coin → Cash conversion
-  double convertCoinsToCash(int coins) {
-    return coins / 100;
-  }
+  double convertCoinsToCash(int coins) => coins / 100;
 
-  /// Writer earnings from chapter reads
-  double calculateWriterChapterEarning(int chaptersRead) {
-    return chaptersRead * 0.10;
-  }
-
-  /// Writer earnings from completed books
-  double calculateWriterBookEarning(int booksCompleted) {
-    return booksCompleted * 2;
-  }
+  double calculateWriterChapterEarning(int chapters) => chapters * 0.10;
 }

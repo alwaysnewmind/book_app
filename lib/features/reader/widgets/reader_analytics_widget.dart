@@ -2,43 +2,55 @@ import 'package:flutter/material.dart';
 
 class ReaderAnalyticsWidget extends StatelessWidget {
   final VoidCallback? onTap;
+  final String text;
+  final IconData icon;
+  final Color? iconColor;
+  final TextStyle? textStyle;
+  final Color? backgroundColor;
 
   const ReaderAnalyticsWidget({
     super.key,
     this.onTap,
+    this.text = 'View detailed reading analytics',
+    this.icon = Icons.analytics,
+    this.iconColor,
+    this.textStyle,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+    final theme = Theme.of(context);
+    final bgColor = backgroundColor ?? theme.cardColor;
+    final iconClr = iconColor ?? theme.colorScheme.primary;
+    final style = textStyle ??
+        theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Material(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(18),
+        elevation: 2,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(icon, color: iconClr),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    text,
+                    style: style,
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: theme.iconTheme.color),
+              ],
             ),
-          ],
-        ),
-        child: Row(
-          children: const [
-            Icon(Icons.analytics, color: Color(0xff4A6CF7)),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'View detailed reading analytics',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-            Icon(Icons.chevron_right),
-          ],
+          ),
         ),
       ),
     );

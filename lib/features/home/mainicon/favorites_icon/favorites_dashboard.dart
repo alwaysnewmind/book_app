@@ -112,7 +112,7 @@ class _FavoritesDashboardState extends State<FavoritesDashboard> {
                           border: Border.all(color: borderInactive),
                           boxShadow: [
                             BoxShadow(
-                              color: goldGlow.withOpacity(0.30),
+                              color: goldGlow.withValues(alpha:0.30),
                               blurRadius: 25,
                             ),
                           ],
@@ -130,7 +130,7 @@ class _FavoritesDashboardState extends State<FavoritesDashboard> {
                             borderRadius: BorderRadius.circular(28),
                             gradient: LinearGradient(
                               colors: [
-                                bgBottom.withOpacity(0.85),
+                                bgBottom.withValues(alpha:0.85),
                                 Colors.transparent
                               ],
                               begin: Alignment.bottomLeft,

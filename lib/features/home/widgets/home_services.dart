@@ -44,7 +44,7 @@ final List<HomeService> homeServices = [
   HomeService(
     title: "AI Summary",
     icon: Icons.psychology_alt,
-    route: AppRoutes.AISummary, 
+    route: AppRoutes.aiSummary, 
     // change if you create separate AI screen
   ),
 
@@ -62,7 +62,7 @@ final List<HomeService> homeServices = [
   HomeService(
     title: "Story Analytics",
     icon: Icons.analytics,
-    route: AppRoutes.StoryAnalytics,
+    route: AppRoutes.storyAnalytics,
   ),
   HomeService(
     title: "Earn as Writer",
@@ -109,7 +109,7 @@ final List<HomeService> homeServices = [
     route: AppRoutes.language,
   ),
   HomeService(
-    title: "Help & Feedback",
+    title: "Help & Support",
     icon: Icons.help_outline,
     route: AppRoutes.helpSupportDashboard,
   ),

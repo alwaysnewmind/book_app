@@ -39,7 +39,7 @@ class WriterBooksGrid extends StatelessWidget {
             return BookCard(
               book: book,
               onTap: () {
-                // TODO: Navigate to edit screen later
+          
                 // Example:
                 // Navigator.push(
                 //   context,

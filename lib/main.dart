@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:book_app/features/book/provider/book_provider.dart' show BookProvider;
 import 'package:book_app/features/home/mainicon/discover_icon/provider/discover_provider.dart' show DiscoverProvider;
 import 'package:book_app/features/home/mainicon/favorites_icon/provider/favorites_provider.dart' show FavoritesProvider;
@@ -26,7 +28,7 @@ import 'features/library/models/library_store.dart';
 
 import 'providers/app_settings_provider.dart';
 
-/// 🔌 Core Providers
+/// Core Providers
 import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'providers/comment_provider.dart';
 import 'providers/follow_provider.dart';
@@ -36,23 +38,42 @@ import 'providers/notification_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  /// 🔧 App environment
+  /// Environment config
   AppConfig.initialize(AppEnvironment.dev);
 
-  /// 🔥 Firebase initialization
   await _initializeFirebase();
 
-  /// 💾 Local storage
   final sharedPreferences = await SharedPreferences.getInstance();
 
-  /// 🛡 Global Flutter error handler
+  /// Global Flutter error handler
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint("Flutter Error: ${details.exception}");
   };
 
-  runApp(
-    MultiProvider(
+  /// Catch async errors globally
+  runZonedGuarded(
+    () {
+      runApp(MyAppRoot(sharedPreferences: sharedPreferences));
+    },
+    (error, stack) {
+      debugPrint("Unhandled App Error: $error");
+      debugPrintStack(stackTrace: stack);
+    },
+  );
+}
+
+class MyAppRoot extends StatelessWidget {
+  final SharedPreferences sharedPreferences;
+
+  const MyAppRoot({
+    super.key,
+    required this.sharedPreferences,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
       providers: [
 
         /// Shared Preferences
@@ -61,6 +82,7 @@ Future<void> main() async {
         /// Auth
         ChangeNotifierProvider(
           create: (_) => AuthProvider()..initialize(),
+          lazy: false,
         ),
 
         /// Notifications
@@ -68,23 +90,26 @@ Future<void> main() async {
           create: (_) => NotificationProvider(),
         ),
 
-        /// Proxy Providers (Corrected, error-free)
+        /// Proxy Providers
         ChangeNotifierProxyProvider<NotificationProvider, CommentProvider>(
-          create: (context) => CommentProvider(notificationProvider: context.read<NotificationProvider>()),
+          create: (context) =>
+              CommentProvider(notificationProvider: context.read<NotificationProvider>()),
           update: (context, notifications, previous) =>
               CommentProvider(notificationProvider: notifications),
         ),
 
         ChangeNotifierProxyProvider<NotificationProvider, FollowProvider>(
-          create: (context) => FollowProvider(notificationProvider: context.read<NotificationProvider>()),
+          create: (context) =>
+              FollowProvider(notificationProvider: context.read<NotificationProvider>()),
           update: (context, notifications, previous) =>
               FollowProvider(notificationProvider: notifications),
         ),
 
         ChangeNotifierProxyProvider<NotificationProvider, MonetizationProvider>(
-          create: (context) => MonetizationProvider(notificationProvider: context.read<NotificationProvider>()),
+          create: (context) =>
+              MonetizationProvider(notificationProvider: context.read<NotificationProvider>()),
           update: (context, notifications, previous) =>
-              MonetizationProvider(notificationProvider: notifications),
+             MonetizationProvider(notificationProvider: notifications),
         ),
 
         /// Reader
@@ -127,22 +152,21 @@ Future<void> main() async {
         ),
       ],
       child: const MyApp(),
-    ),
-  );
+    );
+  }
 }
 
-/// 🔥 Firebase Init Helper
+/// Firebase Initialization
 Future<void> _initializeFirebase() async {
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
-      );
-    } else {
-      Firebase.app();
+      ).timeout(const Duration(seconds: 10));
     }
-  } catch (e) {
+  } catch (e, stack) {
     debugPrint("Firebase init error: $e");
+    debugPrintStack(stackTrace: stack);
   }
 }
 
@@ -156,7 +180,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
 
-          /// 🌍 Localization
+          /// Localization
           locale: settings.locale,
           supportedLocales: const [
             Locale('en'),
@@ -164,15 +188,15 @@ class MyApp extends StatelessWidget {
             Locale('gu'),
           ],
 
-          /// 🎨 Theme
+          /// Theme
           theme: AppTheme.darkTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
 
-          /// 🔐 Auth Gate
+          /// Auth Gate
           home: const AuthWrapper(),
 
-          /// 🚦 Routes
+          /// Routes
           routes: AppRoutes.routes,
         );
       },

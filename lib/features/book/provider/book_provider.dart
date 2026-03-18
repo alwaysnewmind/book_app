@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -13,7 +14,10 @@ class BookProvider extends ChangeNotifier {
 
   bool _isLoading = false;
   String? _error;
+
   List<Book> _books = [];
+
+  StreamSubscription? _booksSubscription;
 
   /// =============================
   /// GETTERS
@@ -52,7 +56,7 @@ class BookProvider extends ChangeNotifier {
   /// =============================
 
   Future<List<Book>> _loadDummyBooks() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 400));
     return dummyBooks;
   }
 
@@ -63,31 +67,37 @@ class BookProvider extends ChangeNotifier {
   Future<List<Book>> _loadFirebaseBooks() async {
     final snapshot = await _firestore.collection('books').get();
 
-    return snapshot.docs
-        .map((doc) => _bookFromMap(doc))
-        .toList();
+    return snapshot.docs.map((doc) => _bookFromMap(doc)).toList();
   }
 
   /// =============================
-  /// REALTIME STREAM
+  /// REALTIME LISTENER
   /// =============================
 
-  Stream<List<Book>> booksStream() {
+  void listenToBooks() {
     if (isDummyMode) {
-      return Stream.value(dummyBooks);
+      _books = dummyBooks;
+      notifyListeners();
+      return;
     }
 
-    return _firestore.collection('books').snapshots().map(
-      (snapshot) {
-        return snapshot.docs
-            .map((doc) => _bookFromMap(doc))
-            .toList();
-      },
-    );
+    _booksSubscription?.cancel();
+
+    _booksSubscription = _firestore
+        .collection('books')
+        .snapshots()
+        .listen((snapshot) {
+      _books = snapshot.docs.map((doc) => _bookFromMap(doc)).toList();
+      notifyListeners();
+    }, onError: (error) {
+      debugPrint("Books stream error: $error");
+      _error = "Unable to sync books.";
+      notifyListeners();
+    });
   }
 
   /// =============================
-  /// MAP FIRESTORE DATA
+  /// FIRESTORE → BOOK MODEL
   /// =============================
 
   Book _bookFromMap(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -99,10 +109,10 @@ class BookProvider extends ChangeNotifier {
       author: map['authorName']?.toString() ?? 'Unknown',
       authorName: map['authorName']?.toString() ?? 'Unknown',
       authorId: map['authorId']?.toString() ?? '',
-      coverImage:
-          map['coverImage']?.toString() ?? 'assets/books/Book1.png',
-      summary:
-          map['description']?.toString() ??
+      coverImage: map['coverImage']?.toString() ??
+          map['coverUrl']?.toString() ??
+          'assets/books/Book1.png',
+      summary: map['description']?.toString() ??
           map['summary']?.toString() ??
           '',
       rating: (map['rating'] as num?)?.toDouble() ?? 0.0,
@@ -117,7 +127,53 @@ class BookProvider extends ChangeNotifier {
   }
 
   /// =============================
-  /// HELPERS
+  /// BOOK HELPERS
+  /// =============================
+
+  Book? getBookById(String id) {
+    try {
+      return _books.firstWhere((book) => book.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<Book> searchBooks(String query) {
+    final q = query.toLowerCase();
+
+    return _books.where((book) {
+      return book.title.toLowerCase().contains(q) ||
+          book.authorName.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  /// =============================
+  /// VIEW COUNTER
+  /// =============================
+
+  Future<void> incrementViews(String bookId) async {
+    if (isDummyMode) return;
+
+    try {
+      await _firestore.collection('books').doc(bookId).update({
+        'viewsCount': FieldValue.increment(1),
+      });
+    } catch (e) {
+      debugPrint("Increment view error: $e");
+    }
+  }
+
+  /// =============================
+  /// ERROR HANDLING
+  /// =============================
+
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
+
+  /// =============================
+  /// LOADING HELPER
   /// =============================
 
   void _setLoading(bool value) {
@@ -125,8 +181,13 @@ class BookProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clearError() {
-    _error = null;
-    notifyListeners();
+  /// =============================
+  /// DISPOSE
+  /// =============================
+
+  @override
+  void dispose() {
+    _booksSubscription?.cancel();
+    super.dispose();
   }
 }

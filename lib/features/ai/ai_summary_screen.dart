@@ -86,7 +86,7 @@ class AISummaryScreen extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color:
-                            const Color(0xFFFFD76A).withOpacity(0.30),
+                            const Color(0xFFFFD76A).withValues(alpha:0.30),
                         blurRadius: 20,
                         spreadRadius: 1,
                       ),
@@ -150,7 +150,7 @@ class AISummaryScreen extends StatelessWidget {
                             overlayColor:
                                 MaterialStateProperty.all(
                               const Color(0xFFE6B93E)
-                                  .withOpacity(0.2),
+                                  .withValues(alpha:0.2),
                             ),
                           ),
                           child: Container(
@@ -158,7 +158,7 @@ class AISummaryScreen extends StatelessWidget {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(0xFFFFD76A)
-                                      .withOpacity(0.30),
+                                      .withValues(alpha:0.30),
                                   blurRadius: 18,
                                   spreadRadius: 1,
                                 ),

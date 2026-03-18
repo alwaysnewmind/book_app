@@ -39,7 +39,7 @@ class FavoriteBookCard extends StatelessWidget {
           border: Border.all(color: borderInactive),
           boxShadow: [
             BoxShadow(
-              color: goldGlow.withOpacity(0.10),
+              color: goldGlow.withValues(alpha:0.10),
               blurRadius: 12,
               spreadRadius: 1,
             ),
@@ -76,10 +76,10 @@ class FavoriteBookCard extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: bgTop.withOpacity(0.85),
+                        color: bgTop.withValues(alpha:0.85),
                         boxShadow: [
                           BoxShadow(
-                            color: goldGlow.withOpacity(0.30),
+                            color: goldGlow.withValues(alpha:0.30),
                             blurRadius: 10,
                           ),
                         ],

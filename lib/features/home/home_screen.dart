@@ -293,7 +293,7 @@ class HomeServiceTile extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFFD86B).withOpacity(0.4),
+                  color: const Color(0xFFFFD86B).withValues(alpha:0.4),
                   blurRadius: 18,
                   spreadRadius: 1,
                 ),

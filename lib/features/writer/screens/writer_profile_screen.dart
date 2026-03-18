@@ -1,6 +1,7 @@
+import 'package:book_app/features/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:book_app/features/auth/provider/auth_provider.dart';
+
 
 class WriterProfileScreen extends StatelessWidget {
   const WriterProfileScreen({super.key});
@@ -48,7 +49,12 @@ class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader();
 
   String _initialsFromName(String value) {
-    final parts = value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+    final parts = value
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
+
     if (parts.isEmpty) return 'U';
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
@@ -56,15 +62,16 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().currentUser;
-    final displayName = (user?.name.trim().isNotEmpty ?? false)
-        ? user!.name.trim()
-        : 'User';
+    final authProvider = context.watch<AuthProvider>();
+final user = authProvider.currentUser;
+    final displayName =
+        (user?.name.trim().isNotEmpty ?? false) ? user!.name.trim() : 'User';
+
     final initials = _initialsFromName(displayName);
+
     final userDetails = [
       if (user?.email.trim().isNotEmpty ?? false) user!.email.trim(),
-      if (user?.phone.trim().isNotEmpty ?? false) user!.phone.trim(),
-      if (user?.city.trim().isNotEmpty ?? false) user!.city.trim(),
+      // Agar future me add kare: phone, city etc
     ];
 
     return Stack(
@@ -110,19 +117,31 @@ class _ProfileHeader extends StatelessWidget {
                   ],
                 ),
                 child: CircleAvatar(
-                  backgroundColor: const Color(0xFF251A3F),
                   radius: 52,
-                  child: Text(
-                    initials,
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFF5C84C),
-                    ),
-                  ),
+                  backgroundColor: const Color(0xFF251A3F),
+
+                  /// ✅ REAL PROFILE IMAGE
+                 backgroundImage: user?.profileImageUrl != null &&
+        user!.profileImageUrl!.isNotEmpty
+    ? NetworkImage(user.profileImageUrl!)
+    : null,
+
+child: (user?.profileImageUrl == null ||
+        user!.profileImageUrl!.isEmpty)
+                      ? Text(
+                          initials,
+                          style: const TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFF5C84C),
+                          ),
+                        )
+                      : null,
                 ),
               ),
               const SizedBox(height: 16),
+
+              /// ✅ REAL NAME
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -143,7 +162,10 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ],
               ),
+
               const SizedBox(height: 10),
+
+              /// ✅ USER DETAILS
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
@@ -158,7 +180,10 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 18),
+
+              /// BUTTON (future use)
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5C84C),

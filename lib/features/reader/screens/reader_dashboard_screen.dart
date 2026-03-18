@@ -165,7 +165,7 @@ class _ReaderDashboardScreenState extends State<ReaderDashboardScreen> {
                             border: Border.all(color: borderInactive),
                             boxShadow: [
                               BoxShadow(
-                                color: goldGlow.withOpacity(0.15),
+                                color: goldGlow.withValues(alpha:0.15),
                                 blurRadius: 25,
                                 spreadRadius: 1,
                               ),

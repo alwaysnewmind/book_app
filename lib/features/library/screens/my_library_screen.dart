@@ -110,7 +110,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.deepPurple.withOpacity(0.4),
+                  color: Colors.deepPurple.withValues(alpha:0.4),
                   blurRadius: 18,
                   spreadRadius: 2,
                 ),
@@ -202,7 +202,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.deepPurple.withOpacity(0.3),
+                            color: Colors.deepPurple.withValues(alpha:0.3),
                             blurRadius: 8,
                           ),
                         ],

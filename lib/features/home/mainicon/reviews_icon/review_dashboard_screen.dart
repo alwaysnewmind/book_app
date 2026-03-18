@@ -25,7 +25,7 @@ class ReviewDashboardScreen extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFFD76A).withOpacity(0.3),
+                  color: const Color(0xFFFFD76A).withValues(alpha:0.3),
                   blurRadius: 18,
                   spreadRadius: 1,
                 )
@@ -277,7 +277,7 @@ class ReviewDashboardScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFFD76A).withOpacity(0.3),
+                  color: const Color(0xFFFFD76A).withValues(alpha:0.3),
                   blurRadius: 20,
                 )
               ],

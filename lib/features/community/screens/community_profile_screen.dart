@@ -110,7 +110,7 @@ class CommunityProfileScreen extends StatelessWidget {
             border: Border.all(color: cardBorder),
             boxShadow: [
               BoxShadow(
-                color: goldGlow.withOpacity(0.15),
+                color: goldGlow.withValues(alpha:0.15),
                 blurRadius: 20,
                 spreadRadius: 1,
               ),
@@ -153,7 +153,7 @@ class CommunityProfileScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
       decoration: BoxDecoration(
-        color: bgPrimary.withOpacity(0.4),
+        color: bgPrimary.withValues(alpha:0.4),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: cardBorder),
       ),
@@ -198,7 +198,7 @@ class CommunityProfileScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              shadowColor: goldGlow.withOpacity(0.3),
+              shadowColor: goldGlow.withValues(alpha:0.3),
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -272,7 +272,7 @@ class CommunityProfileScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             return Container(
               decoration: BoxDecoration(
-                color: bgPrimary.withOpacity(0.5),
+                color: bgPrimary.withValues(alpha:0.5),
                 borderRadius:
                     BorderRadius.circular(18),
                 border:

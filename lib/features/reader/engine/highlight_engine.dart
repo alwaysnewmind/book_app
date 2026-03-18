@@ -1,13 +1,32 @@
 import 'dart:convert';
-import 'package:book_app/features/reader/models/highlight_model.dart' show HighlightModel;
+import 'package:book_app/features/reader/models/highlight_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HighlightEngine {
 
   static const String _storageKey = "reader_highlights";
 
+  SharedPreferences? _prefs;
+
+  bool _initialized = false;
+
   /// bookId -> highlights
   final Map<String, List<HighlightModel>> _highlights = {};
+
+  /// ===============================
+  /// INIT
+  /// ===============================
+
+  Future<void> init() async {
+
+    if (_initialized) return;
+
+    _prefs ??= await SharedPreferences.getInstance();
+
+    await _load();
+
+    _initialized = true;
+  }
 
   /// ===============================
   /// ADD HIGHLIGHT
@@ -22,8 +41,26 @@ class HighlightEngine {
     String color = "yellow",
   }) async {
 
+    if (bookId.isEmpty) return;
+    if (text.trim().isEmpty) return;
+    if (page < 0) return;
+
+    if (startOffset < 0) startOffset = 0;
+    if (endOffset < startOffset) endOffset = startOffset;
+
+    _highlights.putIfAbsent(bookId, () => []);
+
+    final list = _highlights[bookId]!;
+
+    /// prevent overlap
+    final hasOverlap = list.any((h) =>
+        h.page == page &&
+        !(endOffset <= h.startOffset || startOffset >= h.endOffset));
+
+    if (hasOverlap) return;
+
     final highlight = HighlightModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
       bookId: bookId,
       text: text,
       page: page,
@@ -33,8 +70,15 @@ class HighlightEngine {
       createdAt: DateTime.now(),
     );
 
-    _highlights.putIfAbsent(bookId, () => []);
-    _highlights[bookId]!.add(highlight);
+    list.add(highlight);
+
+    /// sort highlights
+    list.sort((a, b) {
+      if (a.page != b.page) {
+        return a.page.compareTo(b.page);
+      }
+      return a.startOffset.compareTo(b.startOffset);
+    });
 
     await _save();
   }
@@ -49,11 +93,16 @@ class HighlightEngine {
   }) async {
 
     final list = _highlights[bookId];
-    if (list == null) return;
+
+    if (list == null || list.isEmpty) return;
+
+    final before = list.length;
 
     list.removeWhere((h) => h.id == highlightId);
 
-    await _save();
+    if (before != list.length) {
+      await _save();
+    }
   }
 
   /// ===============================
@@ -61,28 +110,95 @@ class HighlightEngine {
   /// ===============================
 
   List<HighlightModel> getHighlights(String bookId) {
-    return _highlights[bookId] ?? [];
+
+    final list = _highlights[bookId];
+
+    if (list == null || list.isEmpty) {
+      return const [];
+    }
+
+    return List.unmodifiable(list);
+  }
+
+  /// ===============================
+  /// GET PAGE HIGHLIGHTS
+  /// ===============================
+
+  List<HighlightModel> getPageHighlights(
+    String bookId,
+    int page,
+  ) {
+
+    final list = _highlights[bookId];
+
+    if (list == null || list.isEmpty) {
+      return const [];
+    }
+
+    return List.unmodifiable(
+      list.where((h) => h.page == page).toList(),
+    );
+  }
+
+  /// ===============================
+  /// HIGHLIGHT COUNT
+  /// ===============================
+
+  int getHighlightCount(String bookId) {
+
+    return _highlights[bookId]?.length ?? 0;
+  }
+
+  /// ===============================
+  /// CLEAR BOOK HIGHLIGHTS
+  /// ===============================
+
+  Future<void> clearBookHighlights(String bookId) async {
+
+    if (!_highlights.containsKey(bookId)) return;
+
+    _highlights.remove(bookId);
+
+    await _save();
   }
 
   /// ===============================
   /// LOAD STORAGE
   /// ===============================
 
-  Future<void> load() async {
+  Future<void> _load() async {
 
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_storageKey);
+    if (_prefs == null) return;
 
-    if (raw == null) return;
+    final raw = _prefs!.getString(_storageKey);
 
-    final decoded = jsonDecode(raw) as Map<String, dynamic>;
+    if (raw == null || raw.isEmpty) return;
 
-    decoded.forEach((bookId, list) {
+    try {
 
-      _highlights[bookId] = (list as List)
-          .map((e) => HighlightModel.fromJson(e))
-          .toList();
-    });
+      final decoded = jsonDecode(raw);
+
+      if (decoded is! Map<String, dynamic>) return;
+
+      _highlights.clear();
+
+      decoded.forEach((bookId, list) {
+
+        if (list is List) {
+
+          _highlights[bookId] = list
+              .map((e) => HighlightModel.fromJson(
+                    Map<String, dynamic>.from(e),
+                  ))
+              .toList();
+        }
+      });
+
+    } catch (_) {
+
+      /// corrupted storage protection
+      _highlights.clear();
+    }
   }
 
   /// ===============================
@@ -91,7 +207,7 @@ class HighlightEngine {
 
   Future<void> _save() async {
 
-    final prefs = await SharedPreferences.getInstance();
+    _prefs ??= await SharedPreferences.getInstance();
 
     final data = _highlights.map(
       (key, value) => MapEntry(
@@ -100,7 +216,9 @@ class HighlightEngine {
       ),
     );
 
-    await prefs.setString(_storageKey, jsonEncode(data));
+    await _prefs!.setString(
+      _storageKey,
+      jsonEncode(data),
+    );
   }
-
 }

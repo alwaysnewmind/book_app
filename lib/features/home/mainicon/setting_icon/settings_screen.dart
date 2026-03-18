@@ -60,10 +60,10 @@ class _SettingsScreenState extends State<SettingsScreen>
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.12),
+            color: Colors.white.withValues(alpha:0.12),
             borderRadius: BorderRadius.circular(25),
             border: Border.all(
-              color: Colors.white.withOpacity(0.25),
+              color: Colors.white.withValues(alpha:0.25),
             ),
           ),
           child: child,

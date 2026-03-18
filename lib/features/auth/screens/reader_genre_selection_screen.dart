@@ -232,7 +232,7 @@ class _ReaderGenreSelectionScreenState
                             ),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? yellow.withOpacity(0.15)
+                                  ? yellow.withValues(alpha:0.15)
                                   : Colors.transparent,
                               borderRadius:
                                   BorderRadius.circular(30),
@@ -246,7 +246,7 @@ class _ReaderGenreSelectionScreenState
                                   ? [
                                       BoxShadow(
                                         color: yellow
-                                            .withOpacity(0.5),
+                                            .withValues(alpha:0.5),
                                         blurRadius: 20,
                                         spreadRadius: 1,
                                       )

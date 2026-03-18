@@ -40,7 +40,7 @@ class ChatBubble extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
         color: isHighlighted
-            ? Colors.deepPurple.withOpacity(0.2)
+            ? Colors.deepPurple.withValues(alpha:0.2)
             : Colors.transparent,
       ),
       child: Align(
@@ -130,7 +130,7 @@ class ChatBubble extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.only(bottom: 6),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withValues(alpha:0.3),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(

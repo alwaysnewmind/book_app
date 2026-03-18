@@ -50,11 +50,11 @@ class _MainNavigationState extends State<MainNavigation> {
         child: Container(
           height: 70,
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.95),
+            color: Colors.black.withValues(alpha:0.95),
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withValues(alpha:0.4),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
@@ -106,7 +106,7 @@ class _MainNavigationState extends State<MainNavigation> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primaryDark.withOpacity(0.2)
+              ? AppColors.primaryDark.withValues(alpha:0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),

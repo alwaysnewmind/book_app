@@ -116,7 +116,7 @@ class ContentModerationService {
   /// Example: Gemini / OpenAI moderation
   /*
   static Future<ModerationResult> _callAiModerationApi(String text) async {
-    // TODO: integrate AI moderation API
+  
     return const ModerationResult(
       status: ModerationStatus.safe,
       message: "AI moderation passed",

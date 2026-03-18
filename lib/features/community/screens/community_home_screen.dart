@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:book_app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
@@ -105,7 +104,7 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: goldGlow.withOpacity(0.6),
+                        color: goldGlow.withValues(alpha:0.6),
                         blurRadius: 6,
                       )
                     ],
@@ -149,7 +148,7 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: goldGlow.withOpacity(0.3),
+                            color: goldGlow.withValues(alpha:0.3),
                             blurRadius: 12,
                             spreadRadius: 1,
                           )
@@ -325,7 +324,7 @@ class _CommunityHomeScreenState extends State<CommunityHomeScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              shadowColor: goldGlow.withOpacity(0.3),
+              shadowColor: goldGlow.withValues(alpha:0.3),
             ),
             child: const Text("Join"),
           )

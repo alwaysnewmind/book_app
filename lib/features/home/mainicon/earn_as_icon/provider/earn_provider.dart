@@ -1,9 +1,8 @@
-import 'package:book_app/features/home/mainicon/earn_as_icon/models/earn_model.dart' show EarnModel;
 import 'package:flutter/material.dart';
+import '../models/earn_model.dart';
 import '../services/earn_service.dart';
 
 class EarnProvider extends ChangeNotifier {
-
   final EarnService _service = EarnService();
 
   EarnModel _earn = const EarnModel(
@@ -13,38 +12,54 @@ class EarnProvider extends ChangeNotifier {
     totalReads: 0,
   );
 
+  // Track per-action loading
+  bool _loadingReader = false;
+  bool _loadingWriter = false;
+
+  String? _error;
+
   EarnModel get earn => _earn;
+  bool get loadingReader => _loadingReader;
+  bool get loadingWriter => _loadingWriter;
+  String? get error => _error;
 
-  void load() {
-    _earn = _service.loadEarnings();
+  Future<void> load() async {
+    _error = null;
+    try {
+      _earn = await _service.fetchEarnings();
+    } catch (e) {
+      _error = e.toString();
+    }
     notifyListeners();
   }
 
-  /// Reader earning
-  void addReaderCoins(int pagesRead) {
-
-    final coins = _service.calculateCoinsFromPages(pagesRead);
-
-    final totalCoins = _earn.readerCoins + coins;
-
-    _earn = _earn.copyWith(
-      readerCoins: totalCoins,
-      readerCash: _service.convertCoinsToCash(totalCoins),
-    );
-
+  Future<void> addReaderCoins(int pagesRead) async {
+    _loadingReader = true;
+    _error = null;
     notifyListeners();
+
+    try {
+      _earn = await _service.addReaderCoins(_earn, pagesRead);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _loadingReader = false;
+      notifyListeners();
+    }
   }
 
-  /// Writer earning
-  void addWriterChapterReads(int chapters) {
-
-    final earn = _service.calculateWriterChapterEarning(chapters);
-
-    _earn = _earn.copyWith(
-      writerEarnings: _earn.writerEarnings + earn,
-    );
-
+  Future<void> addWriterChapterReads(int chapters) async {
+    _loadingWriter = true;
+    _error = null;
     notifyListeners();
-  }
 
+    try {
+      _earn = await _service.addWriterChapterReads(_earn, chapters);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _loadingWriter = false;
+      notifyListeners();
+    }
+  }
 }

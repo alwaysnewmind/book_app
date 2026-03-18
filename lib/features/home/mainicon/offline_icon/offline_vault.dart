@@ -62,10 +62,10 @@ class OfflineVault extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha:0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha:0.08),
                     ),
                   ),
                   child: Column(
@@ -201,12 +201,12 @@ class _DownloadTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha:0.05),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: downloaded
               ? const Color(0xFF9C6CFF)
-              : Colors.white.withOpacity(0.05),
+              : Colors.white.withValues(alpha:0.05),
         ),
       ),
       child: Row(
@@ -277,7 +277,7 @@ class _EmptyStateCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(25),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha:0.05),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(

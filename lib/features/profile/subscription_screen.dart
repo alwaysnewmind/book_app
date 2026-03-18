@@ -112,7 +112,7 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha:0.05),
                           blurRadius: 15,
                         )
                       ],
@@ -238,13 +238,13 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
         boxShadow: [
           if (isHighlighted)
             BoxShadow(
-              color: const Color(0xFF8E6CFF).withOpacity(0.4),
+              color: const Color(0xFF8E6CFF).withValues(alpha:0.4),
               blurRadius: 25,
               offset: const Offset(0, 10),
             )
           else
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),

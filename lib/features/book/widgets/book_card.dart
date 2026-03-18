@@ -45,7 +45,7 @@ class _BookCardState extends State<BookCard> {
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.35),
+                color: Colors.black.withValues(alpha:0.35),
                 blurRadius: 14,
                 offset: const Offset(0, 8),
               ),
@@ -95,7 +95,7 @@ class _BookCardState extends State<BookCard> {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha:0.7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
